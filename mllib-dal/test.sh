@@ -56,6 +56,8 @@ suiteArray=(
 #  "stat.MultivariateOnlineSummarizerSuite" \
 #  "oneDALSuite" \
   "com.intel.oneapi.dal.table.HomogenTableSuite" \
+  "com.intel.oneapi.dal.table.ColumnAccessorSuite" \
+  "com.intel.oneapi.dal.table.RowAccessorSuite" \
   "com.intel.oap.mllib.ConvertHomogenTableSuite"
 
 )
