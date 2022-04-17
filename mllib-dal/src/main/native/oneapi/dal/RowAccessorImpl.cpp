@@ -39,6 +39,7 @@ using namespace std;
 using namespace oneapi::dal;
 typedef std::shared_ptr<homogen_table> homogenPtr;
 
+
 /*
  * Class:     com_intel_oneapi_dal_table_RowAccessor
  * Method:    cPull
