@@ -2,6 +2,7 @@ package com.intel.oneapi.dal.table;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import org.junit.jupiter.api.Test;
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -12,6 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RowAccessorSuite {
 =======
+=======
+>>>>>>> 1. convert homogenTable to array/vector/matrix
 =======
 >>>>>>> 1. convert homogenTable to array/vector/matrix
 import org.junit.Test;
@@ -26,6 +29,9 @@ import static org.junit.Assert.assertEquals;
 public class RowAccessorSuite {
     private static final double MAXIMUMDOUBLEDELTA = 0.000001d;
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 1. convert homogenTable to array/vector/matrix
+=======
 >>>>>>> 1. convert homogenTable to array/vector/matrix
 =======
 >>>>>>> 1. convert homogenTable to array/vector/matrix
@@ -35,6 +41,7 @@ public class RowAccessorSuite {
         double[] data = {5.236359d, 8.718667d, 40.724176d, 10.770023d, 90.119887d, 3.815366d,
                 53.620204d, 33.219769d, 85.208661d, 15.966239d};
         HomogenTable table = new HomogenTable(5, 2,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -58,6 +65,9 @@ public class RowAccessorSuite {
 =======
                 data, ROWMAJOR.ordinal());
 >>>>>>> Merge branch 'make_homogen_table' into convert_homogentable
+=======
+                data, Double.class, ROWMAJOR.ordinal());
+>>>>>>> 1. convert homogenTable to array/vector/matrix
 
         RowAccessor accessor = new RowAccessor(table.getcObejct());
         double[] rowData = accessor.pullDouble( 0 , table.getRowCount());
@@ -66,6 +76,9 @@ public class RowAccessorSuite {
         for (int i = 0; i < rowData.length; i++) {
             assertEquals(rowData[i], data[i], MAXIMUMDOUBLEDELTA);
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 1. convert homogenTable to array/vector/matrix
+=======
 >>>>>>> 1. convert homogenTable to array/vector/matrix
 =======
 >>>>>>> 1. convert homogenTable to array/vector/matrix
