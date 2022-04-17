@@ -175,7 +175,6 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     val arrayData = convertArray(data)
     val table = new HomogenTable(10, 10, arrayData, classOf[java.lang.Double])
     val array = OneDAL.homogenTableToVectors(table)
-    System.out.println(array)
     assert(data === array)
   }
 
