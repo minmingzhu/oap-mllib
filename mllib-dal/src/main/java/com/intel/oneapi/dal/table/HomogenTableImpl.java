@@ -13,6 +13,13 @@ public class HomogenTableImpl implements HomogenTableIface {
         }
     }
     private long cObject;
+<<<<<<< HEAD
+=======
+    private Object jData;
+    private long rowCount;
+    private long colCount;
+    private Common.DataLayout dataLayout;
+>>>>>>> 1. convert homogenTable to array/vector/matrix
     private TableMetadata metadata;
     private Common.ComputeDevice device;
 
