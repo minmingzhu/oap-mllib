@@ -462,6 +462,7 @@ Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetLongData(
     homogen_table htable = *reinterpret_cast<homogen_table *>(cTableAddr);
     const long *data = htable.get_data<long>();
     const int datasize = htable.get_column_count() * htable.get_row_count();
+
     jlongArray newLongArray = env->NewLongArray(datasize);
     env->SetLongArrayRegion(newLongArray, 0, datasize, data);
     return newLongArray;
