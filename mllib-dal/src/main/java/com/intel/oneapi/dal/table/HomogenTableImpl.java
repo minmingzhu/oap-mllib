@@ -180,4 +180,5 @@ public class HomogenTableImpl implements HomogenTableIface {
         this.cObject = cAddHomogenTable(this.cObject, homogenTableAddr);
     }
     private native long cAddHomogenTable(long cObject, long homogenTableAddr );
+
 }

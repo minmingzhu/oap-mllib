@@ -15,6 +15,7 @@ extern "C" {
 JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cPullDouble
   (JNIEnv *, jobject, jlong, jlong, jlong, jlong, jint);
 
+
 /*
  * Class:     com_intel_oneapi_dal_table_ColumnAccessor
  * Method:    cPullFloat
