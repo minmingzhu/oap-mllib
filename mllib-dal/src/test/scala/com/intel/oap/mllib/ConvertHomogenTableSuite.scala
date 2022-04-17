@@ -4,7 +4,11 @@ import org.junit.jupiter.api.Assertions.assertArrayEquals
 import com.intel.daal.data_management.data.{Matrix => DALMatrix, NumericTable}
 import com.intel.daal.services.DaalContext
 import com.intel.oneapi.dal.table.{Common, HomogenTable}
+<<<<<<< HEAD
 import com.intel.oneapi.dal.table.Common.DataLayout.ROW_MAJOR
+=======
+import com.intel.oneapi.dal.table.Common.DataLayout.ROWMAJOR
+>>>>>>> 1. convert homogenTable to array/vector/matrix
 import com.intel.oneapi.dal.table.Common.DataType.FLOAT64
 import org.apache.spark.internal.Logging
 import org.apache.spark.ml.FunctionsSuite
