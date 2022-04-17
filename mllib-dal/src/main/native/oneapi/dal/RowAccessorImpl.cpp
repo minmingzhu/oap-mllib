@@ -25,7 +25,6 @@
 #ifdef CPU_GPU_PROFILE
 #include "DPCPPGPU.h"
 #endif
-
 #ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
 #endif
@@ -38,7 +37,6 @@
 using namespace std;
 using namespace oneapi::dal;
 typedef std::shared_ptr<homogen_table> homogenPtr;
-
 
 /*
  * Class:     com_intel_oneapi_dal_table_RowAccessor
