@@ -29,9 +29,12 @@ import java.nio.DoubleBuffer
 import java.util.logging.{Level, Logger}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import com.intel.oneapi.dal.table.Common.ComputeDevice
 =======
 >>>>>>> rollback to edb9f3d
+=======
+>>>>>>> 1. convert homogenTable to array/vector/matrix
 import com.intel.oneapi.dal.table.{ColumnAccessor, Common, HomogenTable, RowAccessor}
 
 import scala.collection.mutable.ArrayBuffer

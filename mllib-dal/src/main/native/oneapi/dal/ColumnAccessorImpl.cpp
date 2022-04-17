@@ -25,6 +25,7 @@
 #ifdef CPU_GPU_PROFILE
 #include "DPCPPGPU.h"
 #endif
+
 #ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
 #endif
@@ -155,4 +156,3 @@ switch(getComputeDevice(cComputeDevice)) {
     env->SetIntArrayRegion(newIntArray, 0, col_values.get_count(), col_values.get_data());
     return newIntArray;
 }
-
