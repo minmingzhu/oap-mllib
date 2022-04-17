@@ -173,6 +173,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       Vectors.dense(2.204855,7.839522,7.381886,1.618749,-6.566877,7.584285,-8.355983,-5.501410,-8.191205,-2.608499),
       Vectors.dense(-9.948613,-8.941953,-8.106389,4.863542,5.852806,-1.659259,6.342504,-8.190106,-3.110330,-7.484658),
     )
+
     val arrayData = convertArray(data)
     val table = new HomogenTable(10, 10, arrayData, getDevice)
     val array = OneDAL.homogenTableToVectors(table, getDevice)
