@@ -177,8 +177,23 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     val arrayData = convertArray(data)
     val table = new HomogenTable(10, 10, arrayData, getDevice)
     val array = OneDAL.homogenTableToVectors(table, getDevice)
-
     assertArrayEquals(convertArray(data), convertArray(array))
+  }
+
+  def convertArray(arrayVectors: Array[Vector]): Array[Double] = {
+    val numCols = arrayVectors.head.size
+    val numRows: Int = arrayVectors.size
+    val arrayDouble = new Array[Double](numRows * numCols)
+    var index = 0
+    for( vector: Vector <- arrayVectors) {
+      for (i <- 0 until vector.toArray.length ) {
+        arrayDouble(index) = vector(i)
+        if (index < (numRows * numCols)) {
+          index = index + 1
+        }
+      }
+    }
+    arrayDouble
   }
 
   def convertArray(arrayVectors: Array[OldVector]): Array[Double] = {
