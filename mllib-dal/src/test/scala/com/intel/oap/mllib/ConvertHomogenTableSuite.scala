@@ -4,6 +4,7 @@ import com.intel.daal.data_management.data.{Matrix => DALMatrix, NumericTable}
 import com.intel.daal.services.DaalContext
 import com.intel.oneapi.dal.table.{Common, HomogenTable}
 import com.intel.oneapi.dal.table.Common.DataLayout.ROW_MAJOR
+
 import com.intel.oneapi.dal.table.Common.DataType.FLOAT64
 import org.apache.spark.internal.Logging
 import org.apache.spark.ml.FunctionsSuite
@@ -96,6 +97,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     val expectData = Array(5.308206,9.869278)
     val table = new HomogenTable(5, 2, data, getDevice)
     val vector = OneDAL.homogenTable1xNToVector(table, getDevice)
+
 
     assert(expectData=== vector.toArray)
   }

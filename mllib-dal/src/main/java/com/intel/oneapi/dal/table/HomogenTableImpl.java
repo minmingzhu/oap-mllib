@@ -102,6 +102,7 @@ public class HomogenTableImpl implements HomogenTableIface {
     @Override
     public ColumnAccessor getPullColumnIface() {
         ColumnAccessor accessor = new ColumnAccessor(cGetPullColumnIface(this.cObject), this.device);
+
         return accessor;
     }
 
