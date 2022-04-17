@@ -130,8 +130,10 @@ public class HomogenTableImpl implements HomogenTableIface {
     private native long cGetPullRowsIface(long cObject);
 
     @Override
-    public long getPullColumnIface() {
-        return 0;
+    public ColumnAccessor getPullColumnIface() {
+        ColumnAccessor accessor = new ColumnAccessor(cGetPullColumnIface(this.cObject));
+
+        return accessor;
     }
 
     private native long cGetPullColumnIface(long cObject);
@@ -177,4 +179,8 @@ public class HomogenTableImpl implements HomogenTableIface {
     }
 
     private native double[] cGetDoubleData(long cObject);
+
+    public long getcObject(){
+        return this.cObject;
+    }
 }

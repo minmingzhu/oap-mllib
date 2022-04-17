@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class SimpleMetadataImpl implements TableMetadataImpl{
-    private transient long cObject;
+    private long cObject;
     private ArrayList dtypes;
     private ArrayList ftypes;
     static {
