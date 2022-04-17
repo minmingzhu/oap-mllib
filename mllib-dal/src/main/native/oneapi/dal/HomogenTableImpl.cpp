@@ -285,8 +285,7 @@ JNIEXPORT jlong JNICALL
 Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetColumnCount(
     JNIEnv *env, jobject, jlong cTableAddr) {
     printf("HomogenTable getcolumncount %ld \n", cTableAddr);
-    homogen_table htable =
-        *((homogen_table *)cTableAddr);
+    homogen_table htable = *((homogen_table *)cTableAddr);
     return htable.get_column_count();
 }
 
@@ -299,8 +298,7 @@ JNIEXPORT jlong JNICALL
 Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetRowCount(
     JNIEnv *env, jobject, jlong cTableAddr) {
     printf("HomogenTable getrowcount \n");
-    homogen_table htable =
-        *((homogen_table *)cTableAddr);
+    homogen_table htable = *((homogen_table *)cTableAddr);
     return htable.get_row_count();
 }
 
@@ -313,8 +311,7 @@ JNIEXPORT jlong JNICALL
 Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetKind(JNIEnv *env, jobject,
                                                           jlong cTableAddr) {
     printf("HomogenTable getkind \n");
-    homogen_table htable =
-        *((homogen_table *)cTableAddr);
+    homogen_table htable = *((homogen_table *)cTableAddr);
     return htable.get_kind();
 }
 
@@ -327,8 +324,7 @@ JNIEXPORT jint JNICALL
 Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetDataLayout(
     JNIEnv *env, jobject, jlong cTableAddr) {
     printf("HomogenTable getDataLayout \n");
-    homogen_table htable =
-        *((homogen_table *)cTableAddr);
+    homogen_table htable = *((homogen_table *)cTableAddr);
     return (jint)htable.get_data_layout();
 }
 
@@ -358,8 +354,7 @@ Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetIntData(JNIEnv *env,
                                                              jobject,
                                                              jlong cTableAddr) {
     printf("HomogenTable getIntData \n");
-    homogen_table htable =
-        *((homogen_table *)cTableAddr);
+    homogen_table htable = *((homogen_table *)cTableAddr);
     const int *data = htable.get_data<int>();
     const int datasize = htable.get_column_count() * htable.get_row_count();
 
