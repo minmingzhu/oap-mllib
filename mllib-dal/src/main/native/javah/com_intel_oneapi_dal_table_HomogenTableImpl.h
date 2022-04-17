@@ -121,14 +121,6 @@ JNIEXPORT jlongArray JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cG
 
 /*
  * Class:     com_intel_oneapi_dal_table_HomogenTableImpl
- * Method:    cGetAccessIfacehost
- * Signature: (J)J
- */
-JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetAccessIfacehost
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_intel_oneapi_dal_table_HomogenTableImpl
  * Method:    cGetFloatData
  * Signature: (J)[F
  */

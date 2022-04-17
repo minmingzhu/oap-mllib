@@ -97,4 +97,8 @@ public class HomogenTable extends Table {
     public  double[] getDoubleData() {
         return  impl.getDoubleData();
     }
+
+    public long getcObejct() {
+        return impl.getcObject();
+    }
 }

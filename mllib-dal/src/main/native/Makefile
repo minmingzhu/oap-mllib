@@ -79,7 +79,9 @@ CPP_SRCS += \
   ./CorrelationDALImpl.cpp \
   ./SummarizerDALImpl.cpp \
   ./oneapi/dal/HomogenTableImpl.cpp \
-  ./oneapi/dal/SimpleMetadataImpl.cpp
+  ./oneapi/dal/SimpleMetadataImpl.cpp \
+  ./oneapi/dal/ColumnAccessorImpl.cpp \
+  ./oneapi/dal/RowAccessorImpl.cpp
 
 
 OBJS += \
@@ -92,8 +94,9 @@ OBJS += \
   ./CorrelationDALImpl.o \
   ./SummarizerDALImpl.o \
   ./oneapi/dal/HomogenTableImpl.o \
-  ./oneapi/dal/SimpleMetadataImpl.o
-
+  ./oneapi/dal/SimpleMetadataImpl.o \
+  ./oneapi/dal/ColumnAccessorImpl.o  \
+  ./oneapi/dal/RowAccessorImpl.o
 
 DEFINES=-D$(PLATFORM_PROFILE)
 
