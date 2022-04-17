@@ -55,6 +55,7 @@ Java_com_intel_oneapi_dal_table_SimpleMetadataImpl_cGetFeatureType(
         *((table_metadata *)cTableAddr);
 
     return (jint)mdata.get_feature_type(cindex);
+
 }
 
 /*
@@ -69,4 +70,5 @@ Java_com_intel_oneapi_dal_table_SimpleMetadataImpl_cGetDataType(
     table_metadata mdata =
         *((table_metadata *)cTableAddr);
     return (jint)mdata.get_data_type(cindex);
+
 }
