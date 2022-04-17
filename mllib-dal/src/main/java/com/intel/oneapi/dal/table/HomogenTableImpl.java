@@ -181,4 +181,5 @@ public class HomogenTableImpl implements HomogenTableIface {
     private native float[] cGetFloatData(long cObject);
     private native double[] cGetDoubleData(long cObject);
     private native long cAddHomogenTable(long cObject, long homogenTableAddr );
+
 }
