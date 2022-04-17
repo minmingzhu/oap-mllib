@@ -121,6 +121,7 @@ object OneDAL {
   def homogenTableNx1ToVector(cTable: Long, device: Common.ComputeDevice ): Vector = {
     val columnAcc = new ColumnAccessor(cTable, device)
     val arrayDouble = columnAcc.pullDouble(0)
+    Vectors.dense(arrayDouble)
   }
 
   def numericTable1xNToVector(table: NumericTable): Vector = {
@@ -142,6 +143,7 @@ object OneDAL {
     val arrayDouble = rowAcc.pullDouble(0, 1)
     Vectors.dense(arrayDouble)
   }
+
   // Convert DAL numeric table to array of vectors
   def numericTableToVectors(table: NumericTable): Array[Vector] = {
     val numRows = table.getNumberOfRows.toInt
@@ -169,14 +171,15 @@ object OneDAL {
 
     for (row <- 0 until numRows) {
       val internArray = rowAcc.pullDouble( row, row + 1)
+
       resArray(row) = Vectors.dense(internArray)
     }
 
     resArray
   }
 
-  def makeNumericTable(cData: Long): NumericTable = {
 
+  def makeNumericTable(cData: Long): NumericTable = {
     val context = new DaalContext()
     val table = new HomogenNumericTable(context, cData)
 
