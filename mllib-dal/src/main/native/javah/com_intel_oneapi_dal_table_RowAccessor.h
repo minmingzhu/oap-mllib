@@ -32,6 +32,7 @@ JNIEXPORT jintArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPullInt
   (JNIEnv *, jobject, jlong, jlong, jlong, jint);
 
 
+
 #ifdef __cplusplus
 }
 #endif

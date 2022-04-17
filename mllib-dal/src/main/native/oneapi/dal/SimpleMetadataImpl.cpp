@@ -40,6 +40,7 @@ Java_com_intel_oneapi_dal_table_SimpleMetadataImpl_cGetFeatureCount(
     table_metadata mdata =
         *((table_metadata *)cTableAddr);
     return (jlong)mdata.get_feature_count();
+
 }
 
 /*
