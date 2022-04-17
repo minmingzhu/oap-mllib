@@ -3,7 +3,11 @@ package com.intel.oap.mllib
 import com.intel.daal.data_management.data.{Matrix => DALMatrix, NumericTable}
 import com.intel.daal.services.DaalContext
 import com.intel.oneapi.dal.table.{Common, HomogenTable}
+<<<<<<< HEAD
 import com.intel.oneapi.dal.table.Common.DataLayout.ROW_MAJOR
+=======
+import com.intel.oneapi.dal.table.Common.DataLayout.ROWMAJOR
+>>>>>>> 1. convert homogenTable to array/vector/matrix
 import com.intel.oneapi.dal.table.Common.DataType.FLOAT64
 import org.apache.spark.internal.Logging
 import org.apache.spark.ml.FunctionsSuite
@@ -130,6 +134,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
 
     val table = new HomogenTable(5, 2, data, getDevice)
     val vector = OneDAL.homogenTableNx1ToVector(table.getcObejct(), getDevice)
+
     assert(expectData === vector.toArray)
   }
 
@@ -142,6 +147,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     val expectMatrix = new DenseMatrix(5, 2, data, isTransposed = true)
     val table = new HomogenTable(5, 2, data, getDevice)
     val matrix = OneDAL.homogenTableToMatrix(table)
+
     assert(expectMatrix === matrix)
   }
 
@@ -153,6 +159,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       85.208661d, 15.966239d)
     val expectMatrix = new OldDenseMatrix(5, 2, data, isTransposed = true)
     val table = new HomogenTable(5, 2, data, getDevice)
+
     val matrix = OneDAL.homogenTableToOldMatrix(table)
 
     assert(expectMatrix === matrix)
@@ -174,6 +181,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     val arrayData = convertArray(data)
     val table = new HomogenTable(10, 10, arrayData, getDevice)
     val array = OneDAL.homogenTableToVectors(table, getDevice)
+
     assert(data === array)
   }
 
