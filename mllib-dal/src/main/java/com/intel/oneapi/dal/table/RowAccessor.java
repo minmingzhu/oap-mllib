@@ -50,4 +50,5 @@ public class RowAccessor {
 
     private native long[] cPullLong(long cObject, long cRowStartIndex,
                                     long cRowEndIndex, int computeDeviceIndex);
+
 }
