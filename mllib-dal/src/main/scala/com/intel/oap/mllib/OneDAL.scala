@@ -241,6 +241,10 @@ object OneDAL {
 
     doublesTables
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> convert rdd to HomogenTable
 
   def rddLabeledPointToSparseTables(labeledPoints: Dataset[_],
                                     labelCol: String,
@@ -651,7 +655,16 @@ object OneDAL {
     }
   }
 
+  def partitionsToHomogenTables(partitions: RDD[Vector], executorNum: Int,
+                                device: Common.ComputeDevice): RDD[HomogenTable] = {
+    val dataForConversion = partitions.repartition(executorNum)
+      .setName("Repartitioned for conversion").cache()
 
+    dataForConversion.mapPartitionsWithIndex { (index: Int, it: Iterator[Vector]) =>
+      val table = makeHomogenTable(it.toArray, device)
+      Iterator(table)
+    }
+  }
 
   def rddVectorToMergedTables(vectors: RDD[Vector], executorNum: Int): RDD[Long] = {
     require(executorNum > 0)
