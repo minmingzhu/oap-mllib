@@ -230,6 +230,20 @@ object OneDAL {
     doublesTables
   }
 
+  def rddDoubleToHomogenTables(doubles: RDD[Double], executorNum: Int): RDD[Long] = {
+    require(executorNum > 0)
+
+    val doublesTables = doubles.repartition(executorNum).mapPartitions { it: Iterator[Double] =>
+      val data = it.toArray
+
+      val table = new HomogenTable(1, data.length, data, classOf[java.lang.Double])
+      Iterator(table.getcObejct())
+    }
+    doublesTables.count()
+
+    doublesTables
+  }
+
 
   def rddLabeledPointToSparseTables(labeledPoints: Dataset[_],
                                     labelCol: String,
@@ -427,6 +441,80 @@ object OneDAL {
     tables
   }
 
+  def rddLabeledPointToMergedHomogenTables(labeledPoints: Dataset[_],
+                                    labelCol: String,
+                                    featuresCol: String,
+                                    executorNum: Int): RDD[(Long, Long)] = {
+    require(executorNum > 0)
+
+    logger.info(s"Processing partitions with $executorNum executors")
+
+    val spark = SparkSession.active
+    import spark.implicits._
+
+    // Repartition to executorNum if not enough partitions
+    val dataForConversion = if (labeledPoints.rdd.getNumPartitions < executorNum) {
+      labeledPoints.repartition(executorNum).cache()
+    } else {
+      labeledPoints
+    }
+
+    val tables = dataForConversion.select(labelCol, featuresCol)
+      .toDF().mapPartitions { it: Iterator[Row] =>
+      val rows = it.toArray
+
+      val features = rows.map {
+        case Row(label: Double, features: Vector) => features
+      }
+
+      val labels = rows.map {
+        case Row(label: Double, features: Vector) => label
+      }
+
+      if (features.size == 0) {
+        Iterator()
+      } else {
+        val numColumns = features(0).size
+
+        val featuresTable = if (features(0).isInstanceOf[DenseVector]) {
+          vectorsToDenseNumericTable(features.toIterator, features.length, numColumns)
+        } else {
+          vectorsToSparseNumericTable(features, numColumns)
+        }
+
+        val labelsTable = doubleArrayToNumericTable(labels)
+
+        Iterator((featuresTable.getCNumericTable, labelsTable.getCNumericTable))
+      }
+    }.cache()
+
+    tables.count()
+
+    // Coalesce partitions belonging to the same executor
+    val coalescedTables = tables.rdd.coalesce(executorNum,
+      partitionCoalescer = Some(new ExecutorInProcessCoalescePartitioner()))
+
+    val mergedTables = coalescedTables.mapPartitions { iter =>
+      val context = new DaalContext()
+      val mergedFeatures = new RowMergedNumericTable(context)
+      val mergedLabels = new RowMergedNumericTable(context)
+
+      iter.foreach { case (featureAddr, labelAddr) =>
+        OneDAL.cAddNumericTable(mergedFeatures.getCNumericTable, featureAddr)
+        OneDAL.cAddNumericTable(mergedLabels.getCNumericTable, labelAddr)
+      }
+
+      //      Service.printNumericTable("mergedFeatures", mergedFeatures, 10, 20)
+      //      Service.printNumericTable("mergedLabels", mergedLabels, 10, 20)
+
+      Iterator((mergedFeatures.getCNumericTable, mergedLabels.getCNumericTable))
+    }.cache()
+
+    mergedTables.count()
+
+    mergedTables
+  }
+
   def rddLabeledPointToMergedTables(labeledPoints: Dataset[_],
                                     labelCol: String,
                                     featuresCol: String,
@@ -519,6 +607,7 @@ object OneDAL {
     matrix
   }
 
+
   def makeNumericTable(arrayVectors: Array[Vector]): NumericTable = {
 
     val numCols = arrayVectors.head.size
@@ -543,6 +632,16 @@ object OneDAL {
 
     dataForConversion.mapPartitionsWithIndex { (index: Int, it: Iterator[Vector]) =>
       val table = makeNumericTable(it.toArray)
+      Iterator(table)
+    }
+  }
+
+  def partitionsToHomogenTables(partitions: RDD[Vector], executorNum: Int): RDD[HomogenTable] = {
+    val dataForConversion = partitions.repartition(executorNum)
+      .setName("Repartitioned for conversion").cache()
+
+    dataForConversion.mapPartitionsWithIndex { (index: Int, it: Iterator[Vector]) =>
+      val table = makeHomogenTable(it.toArray)
       Iterator(table)
     }
   }
