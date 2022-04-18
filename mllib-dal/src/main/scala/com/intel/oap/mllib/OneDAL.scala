@@ -434,6 +434,7 @@ object OneDAL {
 
     logger.info(s"Processing partitions with $executorNum executors")
     printf(s"Processing partitions with $executorNum executors \n")
+
     val spark = SparkSession.active
     import spark.implicits._
 
@@ -632,6 +633,16 @@ object OneDAL {
 
     dataForConversion.mapPartitionsWithIndex { (index: Int, it: Iterator[Vector]) =>
       val table = makeNumericTable(it.toArray)
+      Iterator(table)
+    }
+  }
+
+  def partitionsToHomogenTables(partitions: RDD[Vector], executorNum: Int): RDD[HomogenTable] = {
+    val dataForConversion = partitions.repartition(executorNum)
+      .setName("Repartitioned for conversion").cache()
+
+    dataForConversion.mapPartitionsWithIndex { (index: Int, it: Iterator[Vector]) =>
+      val table = makeHomogenTable(it.toArray)
       Iterator(table)
     }
   }
