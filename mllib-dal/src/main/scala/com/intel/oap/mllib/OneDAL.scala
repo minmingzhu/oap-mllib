@@ -229,6 +229,20 @@ object OneDAL {
     doublesTables
   }
 
+  def rddDoubleToHomogenTables(doubles: RDD[Double], executorNum: Int): RDD[Long] = {
+    require(executorNum > 0)
+
+    val doublesTables = doubles.repartition(executorNum).mapPartitions { it: Iterator[Double] =>
+      val data = it.toArray
+
+      val table = new HomogenTable(1, data.length, data, classOf[java.lang.Double])
+      Iterator(table.getcObejct())
+    }
+    doublesTables.count()
+
+    doublesTables
+  }
+
   def rddLabeledPointToSparseTables(labeledPoints: Dataset[_],
                                     labelCol: String,
                                     featuresCol: String,
@@ -447,6 +461,7 @@ object OneDAL {
     }
     printf(s"rddLabeledPointToMergedHomogenTables \n")
 
+
     val tables = dataForConversion.select(labelCol, featuresCol)
       .toDF().mapPartitions { it: Iterator[Row] =>
       val rows = it.toArray
@@ -477,6 +492,7 @@ object OneDAL {
 
     tables.count()
     printf(s"rddLabeledPointToMergedHomogenTables 1\n")
+
 
     // Coalesce partitions belonging to the same executor
     val coalescedTables = tables.rdd.coalesce(executorNum,
@@ -638,8 +654,6 @@ object OneDAL {
       Iterator(table)
     }
   }
-
-
 
   def rddVectorToMergedTables(vectors: RDD[Vector], executorNum: Int): RDD[Long] = {
     require(executorNum > 0)
