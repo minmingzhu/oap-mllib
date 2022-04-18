@@ -446,6 +446,7 @@ object OneDAL {
     }
     printf(s"rddLabeledPointToMergedHomogenTables \n")
 
+
     val tables = dataForConversion.select(labelCol, featuresCol)
       .toDF().mapPartitions { it: Iterator[Row] =>
       val rows = it.toArray
