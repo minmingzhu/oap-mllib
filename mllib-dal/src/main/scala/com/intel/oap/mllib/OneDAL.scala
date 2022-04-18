@@ -434,7 +434,6 @@ object OneDAL {
 
     logger.info(s"Processing partitions with $executorNum executors")
     printf(s"Processing partitions with $executorNum executors \n")
-
     val spark = SparkSession.active
     import spark.implicits._
 
@@ -609,7 +608,6 @@ object OneDAL {
 
     table
   }
-
 
   def makeNumericTable(arrayVectors: Array[Vector]): NumericTable = {
 
