@@ -228,6 +228,24 @@ object OneDAL {
     doublesTables
   }
 
+<<<<<<< HEAD
+=======
+  def rddDoubleToHomogenTables(doubles: RDD[Double], executorNum: Int): RDD[Long] = {
+    require(executorNum > 0)
+
+    val doublesTables = doubles.repartition(executorNum).mapPartitions { it: Iterator[Double] =>
+      val data = it.toArray
+
+      val table = new HomogenTable(1, data.length, data, classOf[java.lang.Double])
+      Iterator(table.getcObejct())
+    }
+    doublesTables.count()
+
+    doublesTables
+  }
+
+
+>>>>>>> convert rdd to HomogenTable
   def rddLabeledPointToSparseTables(labeledPoints: Dataset[_],
                                     labelCol: String,
                                     featuresCol: String,
@@ -476,7 +494,6 @@ object OneDAL {
 
     tables.count()
     printf(s"rddLabeledPointToMergedHomogenTables 1\n")
-
     // Coalesce partitions belonging to the same executor
     val coalescedTables = tables.rdd.coalesce(executorNum,
       partitionCoalescer = Some(new ExecutorInProcessCoalescePartitioner()))
@@ -609,7 +626,6 @@ object OneDAL {
     table
   }
 
-
   def makeNumericTable(arrayVectors: Array[Vector]): NumericTable = {
 
     val numCols = arrayVectors.head.size
@@ -638,7 +654,15 @@ object OneDAL {
     }
   }
 
+  def partitionsToHomogenTables(partitions: RDD[Vector], executorNum: Int): RDD[HomogenTable] = {
+    val dataForConversion = partitions.repartition(executorNum)
+      .setName("Repartitioned for conversion").cache()
 
+    dataForConversion.mapPartitionsWithIndex { (index: Int, it: Iterator[Vector]) =>
+      val table = makeHomogenTable(it.toArray)
+      Iterator(table)
+    }
+  }
 
   def rddVectorToMergedTables(vectors: RDD[Vector], executorNum: Int): RDD[Long] = {
     require(executorNum > 0)
