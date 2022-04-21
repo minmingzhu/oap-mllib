@@ -605,6 +605,7 @@ object OneDAL {
         index = index + 1
       }
     }
+    println(arrayDouble.toArray.toList)
     val table = new HomogenTable(numRows.toLong, numCols.toLong, arrayDouble, device)
     table
   }
