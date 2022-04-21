@@ -609,6 +609,7 @@ object OneDAL {
     table
   }
 
+
   def makeNumericTable(arrayVectors: Array[Vector]): NumericTable = {
 
     val numCols = arrayVectors.head.size
@@ -637,15 +638,7 @@ object OneDAL {
     }
   }
 
-  def partitionsToHomogenTables(partitions: RDD[Vector], executorNum: Int): RDD[HomogenTable] = {
-    val dataForConversion = partitions.repartition(executorNum)
-      .setName("Repartitioned for conversion").cache()
 
-    dataForConversion.mapPartitionsWithIndex { (index: Int, it: Iterator[Vector]) =>
-      val table = makeHomogenTable(it.toArray)
-      Iterator(table)
-    }
-  }
 
   def rddVectorToMergedTables(vectors: RDD[Vector], executorNum: Int): RDD[Long] = {
     require(executorNum > 0)

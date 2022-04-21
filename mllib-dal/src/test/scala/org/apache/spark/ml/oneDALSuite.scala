@@ -117,7 +117,6 @@ class oneDALSuite extends FunctionsSuite with Logging {
     val table = new HomogenTable(tableAddr(0))
     val rData: Array[Double] = table.getDoubleData()
     assert((rData sameElements expectData) === true)
-
   }
 
   def generateLabeledPointRDD(
@@ -138,7 +137,6 @@ class oneDALSuite extends FunctionsSuite with Logging {
     }
     data
   }
-
   private def getDevice: Common.ComputeDevice = {
     val device = System.getProperty("computeDevice")
     var computeDevice: Common.ComputeDevice = Common.ComputeDevice.CPU
@@ -154,3 +152,6 @@ class oneDALSuite extends FunctionsSuite with Logging {
     computeDevice
   }
 }
+
+
+
