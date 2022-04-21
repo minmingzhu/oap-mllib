@@ -151,8 +151,8 @@ switch(getComputeDevice(cComputeDevice)) {
      default: {
            return newIntArray;
      }
+   }
     newIntArray = env->NewIntArray(col_values.get_count());
     env->SetIntArrayRegion(newIntArray, 0, col_values.get_count(), col_values.get_data());
     return newIntArray;
-}
 }

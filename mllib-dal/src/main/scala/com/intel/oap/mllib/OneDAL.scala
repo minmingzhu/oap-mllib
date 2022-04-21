@@ -230,20 +230,6 @@ object OneDAL {
     doublesTables
   }
 
-  def rddDoubleToHomogenTables(doubles: RDD[Double], executorNum: Int): RDD[Long] = {
-    require(executorNum > 0)
-
-    val doublesTables = doubles.repartition(executorNum).mapPartitions { it: Iterator[Double] =>
-      val data = it.toArray
-
-      val table = new HomogenTable(1, data.length, data, classOf[java.lang.Double])
-      Iterator(table.getcObejct())
-    }
-    doublesTables.count()
-
-    doublesTables
-  }
-
   def rddLabeledPointToSparseTables(labeledPoints: Dataset[_],
                                     labelCol: String,
                                     featuresCol: String,
@@ -308,7 +294,6 @@ object OneDAL {
   private[mllib] def doubleArrayToHomogenTable(points: Array[Double],
                                                device: Common.ComputeDevice): HomogenTable = {
     val table = new HomogenTable(1, points.length, points, device)
-
     table
   }
 
@@ -626,6 +611,7 @@ object OneDAL {
     table
   }
 
+
   def makeNumericTable(arrayVectors: Array[Vector]): NumericTable = {
 
     val numCols = arrayVectors.head.size
@@ -715,6 +701,7 @@ object OneDAL {
 
   def rddVectorToMergedHomogenTables(vectors: RDD[Vector], executorNum: Int,
                                      device: Common.ComputeDevice): RDD[Long] = {
+
     require(executorNum > 0)
 
     logger.info(s"Processing partitions with $executorNum executors")

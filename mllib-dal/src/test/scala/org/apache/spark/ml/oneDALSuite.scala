@@ -8,7 +8,6 @@ import org.apache.spark.ml.feature.LabeledPoint
 import org.apache.spark.ml.linalg.{Matrices, Vector, Vectors}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
-
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
