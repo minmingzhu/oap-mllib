@@ -228,6 +228,7 @@ object OneDAL {
     doublesTables
   }
 
+<<<<<<< HEAD
   def rddDoubleToHomogenTables(doubles: RDD[Double], executorNum: Int): RDD[Long] = {
     require(executorNum > 0)
 
@@ -241,10 +242,6 @@ object OneDAL {
 
     doublesTables
   }
-<<<<<<< HEAD
-=======
-
->>>>>>> convert rdd to HomogenTable
 
   def rddLabeledPointToSparseTables(labeledPoints: Dataset[_],
                                     labelCol: String,
@@ -622,6 +619,7 @@ object OneDAL {
         index = index + 1
       }
     }
+    println(arrayDouble.toArray.toList)
     val table = new HomogenTable(numRows.toLong, numCols.toLong, arrayDouble, device)
 
     table
@@ -780,7 +778,6 @@ object OneDAL {
     }.cache()
     coalescedTables
   }
-
   @native def cAddNumericTable(cObject: Long, numericTableAddr: Long)
 
   @native def cSetDouble(numTableAddr: Long, row: Int, column: Int, value: Double)
@@ -799,5 +796,4 @@ object OneDAL {
   @native def cNewCSRNumericTableDouble(data: Array[Double],
                                         colIndices: Array[Long], rowOffsets: Array[Long],
                                         nFeatures: Long, nVectors: Long): Long
-
 }
