@@ -430,6 +430,7 @@ Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetDoubleData(
 JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cEmptyTableInit
   (JNIEnv *env, jobject) {
       printf(" init empty HomogenTable \n");
+<<<<<<< HEAD
       homogen_table *h_table = new homogen_table();
       homogenPtr tablePtr = std::make_shared<homogen_table>(*h_table);
       saveShareHomogenPtrVector(tablePtr);
@@ -473,4 +474,5 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cAddHom
        } else {
              return (jlong)homogenTablePtr;
        }
+ }
  }

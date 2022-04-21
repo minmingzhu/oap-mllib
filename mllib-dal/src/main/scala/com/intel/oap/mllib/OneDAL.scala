@@ -738,8 +738,7 @@ object OneDAL {
     if (vectors.getStorageLevel != StorageLevel.NONE) {
       vectors.unpersist()
     }
-
-    // Coalesce partitions belonging to the same executor
+   // Coalesce partitions belonging to the same executor
     val coalescedRdd = homogenTables.coalesce(executorNum,
       partitionCoalescer = Some(new ExecutorInProcessCoalescePartitioner()))
 
