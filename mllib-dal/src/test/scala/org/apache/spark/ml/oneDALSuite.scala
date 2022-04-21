@@ -18,6 +18,8 @@ import scala.util.Random
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
+import scala.util.Random
+
 class oneDALSuite extends FunctionsSuite with Logging {
 
   import testImplicits._
