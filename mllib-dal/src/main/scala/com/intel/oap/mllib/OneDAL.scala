@@ -173,6 +173,7 @@ object OneDAL {
       val internArray = rowAcc.pullDouble( row, row + 1)
       resArray(row) = Vectors.dense(internArray)
     }
+
     resArray
   }
 
@@ -317,7 +318,6 @@ object OneDAL {
 
   def makeHomogenTable(arrayVectors: Array[OldVector],
                        device: Common.ComputeDevice): HomogenTable = {
-    System.out.println("makeHomogenTable")
     val numCols = arrayVectors.head.size
     val numRows: Int = arrayVectors.size
     val arrayDouble = new Array[Double](numRows * numCols)
@@ -330,9 +330,9 @@ object OneDAL {
         }
       }
     }
-    System.out.println(arrayDouble.toList.toString())
     val table = new HomogenTable(numRows.toLong, numCols.toLong, arrayDouble,
       device)
+
     table
   }
 
@@ -476,7 +476,6 @@ object OneDAL {
 
     tables.count()
     printf(s"rddLabeledPointToMergedHomogenTables 1\n")
-
     // Coalesce partitions belonging to the same executor
     val coalescedTables = tables.rdd.coalesce(executorNum,
       partitionCoalescer = Some(new ExecutorInProcessCoalescePartitioner()))
@@ -785,5 +784,4 @@ object OneDAL {
                                         colIndices: Array[Long], rowOffsets: Array[Long],
                                         nFeatures: Long, nVectors: Long): Long
   @native def cAddHomogenTable(cObject: Long, homogenTableAddr: Long)
-
 }
