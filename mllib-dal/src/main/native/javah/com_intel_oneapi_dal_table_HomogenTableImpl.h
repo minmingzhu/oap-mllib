@@ -49,6 +49,14 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cEmptyT
 
 /*
  * Class:     com_intel_oneapi_dal_table_HomogenTableImpl
+ * Method:    cEmptyTableInit
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cEmptyTableInit
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_intel_oneapi_dal_table_HomogenTableImpl
  * Method:    cGetColumnCount
  * Signature: (J)J
  */

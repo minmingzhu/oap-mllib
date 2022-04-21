@@ -229,6 +229,7 @@ object OneDAL {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   def rddDoubleToHomogenTables(doubles: RDD[Double], executorNum: Int): RDD[Long] = {
     require(executorNum > 0)
@@ -246,6 +247,8 @@ object OneDAL {
 
 
 >>>>>>> convert rdd to HomogenTable
+=======
+>>>>>>> 1. convert rdd to HomogenTable
   def rddLabeledPointToSparseTables(labeledPoints: Dataset[_],
                                     labelCol: String,
                                     featuresCol: String,
@@ -654,15 +657,7 @@ object OneDAL {
     }
   }
 
-  def partitionsToHomogenTables(partitions: RDD[Vector], executorNum: Int): RDD[HomogenTable] = {
-    val dataForConversion = partitions.repartition(executorNum)
-      .setName("Repartitioned for conversion").cache()
 
-    dataForConversion.mapPartitionsWithIndex { (index: Int, it: Iterator[Vector]) =>
-      val table = makeHomogenTable(it.toArray)
-      Iterator(table)
-    }
-  }
 
   def rddVectorToMergedTables(vectors: RDD[Vector], executorNum: Int): RDD[Long] = {
     require(executorNum > 0)
@@ -798,4 +793,7 @@ object OneDAL {
   @native def cNewCSRNumericTableDouble(data: Array[Double],
                                         colIndices: Array[Long], rowOffsets: Array[Long],
                                         nFeatures: Long, nVectors: Long): Long
+
+  @native def cAddHomogenTable(cObject: Long, homogenTableAddr: Long)
+
 }

@@ -21,9 +21,11 @@
 #include "com_intel_oap_mllib_OneDAL__.h"
 
 #include "service.h"
+#include "oneapi/dal/table/homogen.hpp"
 
 using namespace daal;
 using namespace daal::data_management;
+using namespace oneapi::dal;
 
 // Use oneDAL lib function
 extern bool daal_check_is_intel_cpu();
