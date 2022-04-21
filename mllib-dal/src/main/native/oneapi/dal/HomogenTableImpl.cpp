@@ -183,6 +183,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_dInit(
     JNIEnv *env, jobject, jlong cRowCount, jlong cColCount, jdoubleArray cData,
     jint cLayout, jint cComputeDevice) {
     printf("HomogenTable double init \n");
+    std::cout << "jdoubleArray " << cData
+                      << std::endl;
     jdouble *fData = env->GetDoubleArrayElements(cData, NULL);
     homogen_table *h_table ;
     homogenPtr tablePtr ;
@@ -362,6 +364,7 @@ Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetIntData(JNIEnv *env,
         *((homogen_table *)cTableAddr);
     const int *data = htable.get_data<int>();
     const int datasize = htable.get_column_count() * htable.get_row_count();
+
     jintArray newIntArray = env->NewIntArray(datasize);
     env->SetIntArrayRegion(newIntArray, 0, datasize, data);
     return newIntArray;
@@ -399,6 +402,7 @@ Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetLongData(
         *((homogen_table *)cTableAddr);
     const long *data = htable.get_data<long>();
     const int datasize = htable.get_column_count() * htable.get_row_count();
+
     jlongArray newLongArray = env->NewLongArray(datasize);
     env->SetLongArrayRegion(newLongArray, 0, datasize, data);
     return newLongArray;
@@ -422,3 +426,18 @@ Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetDoubleData(
     env->SetDoubleArrayRegion(newDoubleArray, 0, datasize, data);
     return newDoubleArray;
 }
+
+/*
+ * Class:     com_intel_oneapi_dal_table_HomogenTableImpl
+ * Method:    cEmptyTableInit
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cEmptyTableInit
+  (JNIEnv *env, jobject) {
+      printf(" init empty HomogenTable \n");
+      homogen_table *h_table = nullptr;
+      std::shared_ptr<homogen_table> *tablePtr =
+              new std::shared_ptr<homogen_table>(h_table);
+      cVector.push_back(*tablePtr);
+      return (jlong)tablePtr;
+  }
