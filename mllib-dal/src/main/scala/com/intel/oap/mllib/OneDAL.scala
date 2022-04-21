@@ -476,6 +476,7 @@ object OneDAL {
 
     tables.count()
     printf(s"rddLabeledPointToMergedHomogenTables 1\n")
+
     // Coalesce partitions belonging to the same executor
     val coalescedTables = tables.rdd.coalesce(executorNum,
       partitionCoalescer = Some(new ExecutorInProcessCoalescePartitioner()))
@@ -753,7 +754,6 @@ object OneDAL {
     }.cache()
     coalescedTables
   }
-
   @native def cAddNumericTable(cObject: Long, numericTableAddr: Long)
 
   @native def cSetDouble(numTableAddr: Long, row: Int, column: Int, value: Double)
