@@ -461,7 +461,6 @@ object OneDAL {
     }
     printf(s"rddLabeledPointToMergedHomogenTables \n")
 
-
     val tables = dataForConversion.select(labelCol, featuresCol)
       .toDF().mapPartitions { it: Iterator[Row] =>
       val rows = it.toArray
@@ -492,7 +491,6 @@ object OneDAL {
 
     tables.count()
     printf(s"rddLabeledPointToMergedHomogenTables 1\n")
-
 
     // Coalesce partitions belonging to the same executor
     val coalescedTables = tables.rdd.coalesce(executorNum,
@@ -622,6 +620,7 @@ object OneDAL {
         index = index + 1
       }
     }
+    println(arrayDouble.toArray.toList)
     val table = new HomogenTable(numRows.toLong, numCols.toLong, arrayDouble, device)
 
     table
@@ -717,6 +716,7 @@ object OneDAL {
 
   def rddVectorToMergedHomogenTables(vectors: RDD[Vector], executorNum: Int,
                                      device: Common.ComputeDevice): RDD[Long] = {
+
     require(executorNum > 0)
 
     logger.info(s"Processing partitions with $executorNum executors")
