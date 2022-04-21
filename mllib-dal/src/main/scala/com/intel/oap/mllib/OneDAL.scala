@@ -230,20 +230,6 @@ object OneDAL {
     doublesTables
   }
 
-  def rddDoubleToHomogenTables(doubles: RDD[Double], executorNum: Int): RDD[Long] = {
-    require(executorNum > 0)
-
-    val doublesTables = doubles.repartition(executorNum).mapPartitions { it: Iterator[Double] =>
-      val data = it.toArray
-
-      val table = new HomogenTable(1, data.length, data, classOf[java.lang.Double])
-      Iterator(table.getcObejct())
-    }
-    doublesTables.count()
-
-    doublesTables
-  }
-
   def rddLabeledPointToSparseTables(labeledPoints: Dataset[_],
                                     labelCol: String,
                                     featuresCol: String,
@@ -609,10 +595,6 @@ object OneDAL {
                                          numCols: Int,
                                          device: Common.ComputeDevice): HomogenTable = {
     printf(s"vectorsToDenseHomogenTable numRows: $numRows numCols: $numCols \n")
-<<<<<<< HEAD
-=======
-
->>>>>>> 2356c5466128a09c9f051cdb4a00863abbd9e904
     val arrayDouble = new Array[Double](numRows * numCols)
     var index = 0
     it.foreach { curVector =>

@@ -64,6 +64,8 @@ public class HomogenTableImpl implements HomogenTableIface {
 
     }
 
+    private native long cEmptyTableInit();
+
     @Override
     public long getColumnCount() {
         return cGetColumnCount(this.cObject);
