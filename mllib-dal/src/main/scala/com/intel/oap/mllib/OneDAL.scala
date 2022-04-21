@@ -701,6 +701,7 @@ object OneDAL {
 
   def rddVectorToMergedHomogenTables(vectors: RDD[Vector], executorNum: Int,
                                      device: Common.ComputeDevice): RDD[Long] = {
+
     require(executorNum > 0)
 
     logger.info(s"Processing partitions with $executorNum executors")
