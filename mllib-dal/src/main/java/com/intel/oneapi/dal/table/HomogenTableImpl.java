@@ -64,7 +64,7 @@ public class HomogenTableImpl implements HomogenTableIface {
         this.cObject = dInit(rowCount, colCount, data, dataLayout.ordinal(), this.device.ordinal());
 
     }
-    
+
     @Override
     public long getColumnCount() {
         return cGetColumnCount(this.cObject);
