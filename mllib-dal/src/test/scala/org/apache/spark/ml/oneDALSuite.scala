@@ -2,13 +2,6 @@ package org.apache.spark.ml
 
 import com.intel.oap.mllib.OneDAL
 import com.intel.oneapi.dal.table.{Common, HomogenTable}
-import org.apache.spark.SparkContext
-import org.apache.spark.internal.Logging
-import org.apache.spark.ml.feature.LabeledPoint
-import org.apache.spark.ml.linalg.{Matrices, Vector, Vectors}
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.Row
-
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
@@ -95,7 +88,6 @@ class oneDALSuite extends FunctionsSuite with Logging {
     val table = new HomogenTable(tableAddr(0))
     val rData: Array[Double] = table.getDoubleData()
     assert((rData sameElements expectData) === true)
-
   }
 
   def generateLabeledPointRDD(
