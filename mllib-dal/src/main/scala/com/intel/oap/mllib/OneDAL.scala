@@ -476,8 +476,6 @@ object OneDAL {
 
     tables.count()
     printf(s"rddLabeledPointToMergedHomogenTables 1\n")
-
-
     // Coalesce partitions belonging to the same executor
     val coalescedTables = tables.rdd.coalesce(executorNum,
       partitionCoalescer = Some(new ExecutorInProcessCoalescePartitioner()))
