@@ -435,7 +435,6 @@ object OneDAL {
     logger.info(s"Processing partitions with $executorNum executors")
     printf(s"Processing partitions with $executorNum executors \n")
 
-
     val spark = SparkSession.active
     import spark.implicits._
 
@@ -640,6 +639,7 @@ object OneDAL {
     }
   }
 
+<<<<<<< HEAD
   def partitionsToHomogenTables(partitions: RDD[Vector], executorNum: Int,
                                 device: Common.ComputeDevice): RDD[HomogenTable] = {
     val dataForConversion = partitions.repartition(executorNum)
@@ -650,6 +650,9 @@ object OneDAL {
       Iterator(table)
     }
   }
+=======
+
+>>>>>>> 1. convert rdd to HomogenTable
 
   def rddVectorToMergedTables(vectors: RDD[Vector], executorNum: Int): RDD[Long] = {
     require(executorNum > 0)
@@ -765,7 +768,6 @@ object OneDAL {
     }.cache()
     coalescedTables
   }
-
   @native def cAddNumericTable(cObject: Long, numericTableAddr: Long)
 
   @native def cSetDouble(numTableAddr: Long, row: Int, column: Int, value: Double)
