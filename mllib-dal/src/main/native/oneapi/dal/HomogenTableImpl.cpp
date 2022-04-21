@@ -355,11 +355,7 @@ JNIEXPORT jlong JNICALL
 Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetColumnCount(
     JNIEnv *env, jobject, jlong cTableAddr) {
     printf("HomogenTable getcolumncount %ld \n", cTableAddr);
-<<<<<<< HEAD
     homogen_table htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
-=======
-    homogen_table htable = *((homogen_table *)cTableAddr);
->>>>>>> 1. convert homogenTable to array/vector/matrix
     return htable.get_column_count();
 }
 
@@ -372,11 +368,7 @@ JNIEXPORT jlong JNICALL
 Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetRowCount(
     JNIEnv *env, jobject, jlong cTableAddr) {
     printf("HomogenTable getrowcount \n");
-<<<<<<< HEAD
     homogen_table htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
-=======
-    homogen_table htable = *((homogen_table *)cTableAddr);
->>>>>>> 1. convert homogenTable to array/vector/matrix
     return htable.get_row_count();
 }
 
@@ -389,11 +381,7 @@ JNIEXPORT jlong JNICALL
 Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetKind(JNIEnv *env, jobject,
                                                           jlong cTableAddr) {
     printf("HomogenTable getkind \n");
-<<<<<<< HEAD
     homogen_table htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
-=======
-    homogen_table htable = *((homogen_table *)cTableAddr);
->>>>>>> 1. convert homogenTable to array/vector/matrix
     return htable.get_kind();
 }
 
@@ -406,11 +394,7 @@ JNIEXPORT jint JNICALL
 Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetDataLayout(
     JNIEnv *env, jobject, jlong cTableAddr) {
     printf("HomogenTable getDataLayout \n");
-<<<<<<< HEAD
     homogen_table  htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
-=======
-    homogen_table htable = *((homogen_table *)cTableAddr);
->>>>>>> 1. convert homogenTable to array/vector/matrix
     return (jint)htable.get_data_layout();
 }
 
