@@ -21,7 +21,7 @@ public class HomogenTableImpl implements HomogenTableIface {
 
     protected HomogenTableImpl() {
         super();
-        this.cObject = 0L;
+        this.cObject = this.cEmptyTableInit();
         this.rowCount = 0;
         this.colCount = 0;
         this.jData = null;
@@ -107,6 +107,8 @@ public class HomogenTableImpl implements HomogenTableIface {
                                 long colCount,
                                 long[] data,
                                 int dataLayoutIndex);
+
+    private native long cEmptyTableInit();
 
     @Override
     public long getColumnCount() {

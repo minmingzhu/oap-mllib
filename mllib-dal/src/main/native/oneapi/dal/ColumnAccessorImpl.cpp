@@ -52,3 +52,4 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cP
       env->SetDoubleArrayRegion(newDoubleArray, 0, col_values.get_count(), col_doubles);
       return newDoubleArray;
   }
+

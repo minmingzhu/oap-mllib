@@ -22,10 +22,6 @@
 #include <typeinfo>
 #include <vector>
 
-#ifndef ONEDAL_DATA_PARALLEL
-#define ONEDAL_DATA_PARALLEL
-#endif
-
 #include "com_intel_oneapi_dal_table_RowAccessor.h"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"

@@ -1,7 +1,7 @@
 package com.intel.oneapi.dal.table;
 
 public class RowAccessor {
-    private transient long cObject;
+    private long cObject;
 
     public RowAccessor(long cObject) {
         this.cObject = cObject;
