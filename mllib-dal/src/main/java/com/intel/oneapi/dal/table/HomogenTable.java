@@ -3,6 +3,11 @@ package com.intel.oneapi.dal.table;
 public class HomogenTable extends Table {
     HomogenTableImpl impl;
 
+    public HomogenTable(){
+        super();
+        impl = new HomogenTableImpl();
+    }
+
     public HomogenTable(long cTable){
         super();
         impl = new HomogenTableImpl(cTable);

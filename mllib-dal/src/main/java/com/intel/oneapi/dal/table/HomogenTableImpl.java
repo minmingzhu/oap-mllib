@@ -13,18 +13,13 @@ public class HomogenTableImpl implements HomogenTableIface {
         }
     }
     private long cObject;
-<<<<<<< HEAD
-=======
-    private Object jData;
-    private long rowCount;
-    private long colCount;
-    private Common.DataLayout dataLayout;
->>>>>>> 1. convert homogenTable to array/vector/matrix
     private TableMetadata metadata;
     private Common.ComputeDevice device;
 
     protected HomogenTableImpl() {
         super();
+        this.cObject = this.cEmptyTableInit();
+
     }
 
     public HomogenTableImpl(long cTable) {
@@ -69,6 +64,8 @@ public class HomogenTableImpl implements HomogenTableIface {
         this.cObject = dInit(rowCount, colCount, data, dataLayout.ordinal(), this.device.ordinal());
 
     }
+
+    private native long cEmptyTableInit();
 
     @Override
     public long getColumnCount() {
