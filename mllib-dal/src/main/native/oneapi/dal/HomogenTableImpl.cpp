@@ -256,9 +256,17 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_dInit(
     JNIEnv *env, jobject, jlong cRowCount, jlong cColCount, jdoubleArray cData,
     jint cLayout, jint cComputeDevice) {
     printf("HomogenTable double init \n");
+<<<<<<< HEAD
     jboolean isCopy = true;
     jdouble *fData = env->GetDoubleArrayElements(cData, &isCopy);
     const std::vector<sycl::event> dependencies = {};
+=======
+    std::cout << "jdoubleArray " << cData
+                      << std::endl;
+    jdouble *fData = env->GetDoubleArrayElements(cData, NULL);
+    homogen_table *h_table ;
+    homogenPtr tablePtr ;
+>>>>>>> 1. convert rdd to HomogenTable
     switch(getComputeDevice(cComputeDevice)) {
          case compute_device::host:{
              tablePtr = std::make_shared<homogen_table>(fData, cRowCount, cColCount,
@@ -427,6 +435,7 @@ Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetIntData(JNIEnv *env,
     homogen_table htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
     const int *data = htable.get_data<int>();
     const int datasize = htable.get_column_count() * htable.get_row_count();
+
     jintArray newIntArray = env->NewIntArray(datasize);
     env->SetIntArrayRegion(newIntArray, 0, datasize, data);
     return newIntArray;
@@ -461,6 +470,7 @@ Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetLongData(
     homogen_table htable = *reinterpret_cast<homogen_table *>(cTableAddr);
     const long *data = htable.get_data<long>();
     const int datasize = htable.get_column_count() * htable.get_row_count();
+
     jlongArray newLongArray = env->NewLongArray(datasize);
     env->SetLongArrayRegion(newLongArray, 0, datasize, data);
     return newLongArray;
