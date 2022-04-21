@@ -446,7 +446,6 @@ object OneDAL {
     }
     printf(s"rddLabeledPointToMergedHomogenTables \n")
 
-
     val tables = dataForConversion.select(labelCol, featuresCol)
       .toDF().mapPartitions { it: Iterator[Row] =>
       val rows = it.toArray
@@ -593,6 +592,7 @@ object OneDAL {
                                          numRows: Int,
                                          numCols: Int,
                                          device: Common.ComputeDevice): HomogenTable = {
+
     val arrayDouble = new Array[Double](numRows * numCols)
     var index = 0
     it.foreach { curVector =>
@@ -604,6 +604,7 @@ object OneDAL {
         index = index + 1
       }
     }
+    println(arrayDouble.toArray.toList)
     val table = new HomogenTable(numRows.toLong, numCols.toLong, arrayDouble, device)
 
     table
@@ -709,6 +710,7 @@ object OneDAL {
 
   def rddVectorToMergedHomogenTables(vectors: RDD[Vector], executorNum: Int,
                                      device: Common.ComputeDevice): RDD[Long] = {
+
     require(executorNum > 0)
 
     logger.info(s"Processing partitions with $executorNum executors")
@@ -781,5 +783,7 @@ object OneDAL {
   @native def cNewCSRNumericTableDouble(data: Array[Double],
                                         colIndices: Array[Long], rowOffsets: Array[Long],
                                         nFeatures: Long, nVectors: Long): Long
+
+  @native def cAddHomogenTable(cObject: Long, homogenTableAddr: Long)
 
 }
