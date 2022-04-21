@@ -435,7 +435,6 @@ object OneDAL {
     logger.info(s"Processing partitions with $executorNum executors")
     printf(s"Processing partitions with $executorNum executors \n")
 
-
     val spark = SparkSession.active
     import spark.implicits._
 
@@ -446,7 +445,6 @@ object OneDAL {
       labeledPoints
     }
     printf(s"rddLabeledPointToMergedHomogenTables \n")
-
 
     val tables = dataForConversion.select(labelCol, featuresCol)
       .toDF().mapPartitions { it: Iterator[Row] =>
@@ -766,7 +764,6 @@ object OneDAL {
     }.cache()
     coalescedTables
   }
-
   @native def cAddNumericTable(cObject: Long, numericTableAddr: Long)
 
   @native def cSetDouble(numTableAddr: Long, row: Int, column: Int, value: Double)
@@ -785,5 +782,6 @@ object OneDAL {
   @native def cNewCSRNumericTableDouble(data: Array[Double],
                                         colIndices: Array[Long], rowOffsets: Array[Long],
                                         nFeatures: Long, nVectors: Long): Long
+  @native def cAddHomogenTable(cObject: Long, homogenTableAddr: Long)
 
 }

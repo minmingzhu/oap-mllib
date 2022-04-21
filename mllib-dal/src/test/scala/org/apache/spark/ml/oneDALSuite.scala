@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions.assertArrayEquals
 
 import com.intel.oap.mllib.OneDAL
 import com.intel.oneapi.dal.table.{Common, HomogenTable}
+import com.intel.oneapi.dal.table.HomogenTable
 import org.apache.spark.SparkContext
 import org.apache.spark.internal.Logging
 import org.apache.spark.ml.feature.LabeledPoint
@@ -186,7 +187,6 @@ class oneDALSuite extends FunctionsSuite with Logging {
     val table = new HomogenTable(tableAddr(0))
     val rData: Array[Double] = table.getDoubleData()
     assert((rData sameElements expectData) === true)
-
   }
 
   def generateLabeledPointRDD(
