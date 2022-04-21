@@ -593,6 +593,7 @@ object OneDAL {
                                          numCols: Int,
                                          device: Common.ComputeDevice): HomogenTable = {
     printf(s"vectorsToDenseHomogenTable numRows: $numRows numCols: $numCols \n")
+
     val arrayDouble = new Array[Double](numRows * numCols)
     var index = 0
     it.foreach { curVector =>
@@ -710,6 +711,7 @@ object OneDAL {
 
   def rddVectorToMergedHomogenTables(vectors: RDD[Vector], executorNum: Int,
                                      device: Common.ComputeDevice): RDD[Long] = {
+
     require(executorNum > 0)
 
     logger.info(s"Processing partitions with $executorNum executors")
@@ -783,4 +785,5 @@ object OneDAL {
                                         colIndices: Array[Long], rowOffsets: Array[Long],
                                         nFeatures: Long, nVectors: Long): Long
   @native def cAddHomogenTable(cObject: Long, homogenTableAddr: Long)
+
 }

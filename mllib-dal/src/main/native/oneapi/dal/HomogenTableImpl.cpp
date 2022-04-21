@@ -426,7 +426,6 @@ Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetIntData(JNIEnv *env,
     homogen_table htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
     const int *data = htable.get_data<int>();
     const int datasize = htable.get_column_count() * htable.get_row_count();
-
     jintArray newIntArray = env->NewIntArray(datasize);
     env->SetIntArrayRegion(newIntArray, 0, datasize, data);
     return newIntArray;
@@ -493,12 +492,7 @@ Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetDoubleData(
 JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cEmptyTableInit
   (JNIEnv *env, jobject) {
       printf(" init empty HomogenTable \n");
-<<<<<<< HEAD
       homogenPtr tablePtr = std::make_shared<homogen_table>();
-=======
-      homogen_table *h_table = new homogen_table();
-      homogenPtr tablePtr = std::make_shared<homogen_table>(*h_table);
->>>>>>> add empty homogentable
       saveShareHomogenPtrVector(tablePtr);
       return (jlong)tablePtr.get();
   }
