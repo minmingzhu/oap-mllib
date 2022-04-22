@@ -17,7 +17,6 @@ public class HomogenTableTest {
         assertEquals(new Long(0), table.getRowCount());
         assertEquals(new Long(1), table.getKind());
     }
-
     @Test
     // can construct rowmajor int table 5x2
     public void createRowmajorIntTable() throws Exception {
@@ -199,5 +198,4 @@ public class HomogenTableTest {
         double[] result = table1.getDoubleData();
         assertArrayEquals(result, expect);
     }
-
 }
