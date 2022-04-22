@@ -85,7 +85,7 @@ public class HomogenTableSuite {
         float[] data = {5.236359f, 8.718667f, 40.724176f, 10.770023f, 90.119887f, 3.815366f,
                 53.620204f, 33.219769f, 85.208661f, 15.966239f};
         HomogenTable table = new HomogenTable(5, 2,
-                data, float.class, ROWMAJOR.ordinal());
+                data, Float.class, ROWMAJOR.ordinal());
         assertEquals(true, table.hasData());
         assertEquals(new Long(2), table.getColumnCount());
         assertEquals(new Long(5), table.getRowCount());
@@ -126,7 +126,7 @@ public class HomogenTableSuite {
         float[] data = {5.236359f, 8.718667f, 40.724176f, 10.770023f, 90.119887f, 3.815366f,
                 53.620204f, 33.219769f, 85.208661f, 15.966239f};
         HomogenTable table = new HomogenTable(5, 2,
-                data, float.class, COLUMNMAJOR.ordinal());
+                data, Float.class, COLUMNMAJOR.ordinal());
         assertEquals(true, table.hasData());
         assertEquals(new Long(2), table.getColumnCount());
         assertEquals(new Long(5), table.getRowCount());
