@@ -19,6 +19,14 @@ public class HomogenTableTest {
     }
 
     @Test
+    public void createEmptyTable() {
+        HomogenTable table = new HomogenTable();
+        assertEquals(false, table.hasData());
+        assertEquals(new Long(0), table.getColumnCount());
+        assertEquals(new Long(0), table.getRowCount());
+        assertEquals(new Long(1), table.getKind());
+    }
+    @Test
     // can construct rowmajor int table 5x2
     public void createRowmajorIntTable() throws Exception {
         int[] data = {1, 2, 3, 4, 5, 6, 10, 80, 10, 11};
@@ -44,7 +52,6 @@ public class HomogenTableTest {
         HomogenTable table = new HomogenTable(5, 2,
                 data, CommonTest.getDevice());
 
-
         assertEquals(true, table.hasData());
         assertEquals(new Long(2), table.getColumnCount());
         assertEquals(new Long(5), table.getRowCount());
@@ -57,7 +64,6 @@ public class HomogenTableTest {
         }
 
         assertArrayEquals(data, table.getDoubleData());
-
     }
     @Test
     // can construct rowmajor long table 5x2
