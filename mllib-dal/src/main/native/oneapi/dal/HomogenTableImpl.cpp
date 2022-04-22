@@ -98,11 +98,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_dInit(
     JNIEnv *env, jobject, jlong cRowCount, jlong cColCount, jdoubleArray cData,
     jint cLayout) {
     printf("HomogenTable double init \n");
-    std::cout << "jdoubleArray " << cData
-                      << std::endl;
     jdouble *fData = env->GetDoubleArrayElements(cData, NULL);
-    std::cout << "jdouble " << *fData
-                  << std::endl;
     homogen_table *h_table = new homogen_table(
         fData, cRowCount, cColCount, detail::empty_delete<const double>(),
         getDataLayout(cLayout));
@@ -289,7 +285,8 @@ Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetDoubleData(
 JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cEmptyTableInit
   (JNIEnv *env, jobject) {
       printf(" init empty HomogenTable \n");
-      homogen_table *h_table = nullptr;
+      homogen_table *h_table = new homogen_table();
+
       std::shared_ptr<homogen_table> *tablePtr =
               new std::shared_ptr<homogen_table>(h_table);
       cVector.push_back(*tablePtr);
