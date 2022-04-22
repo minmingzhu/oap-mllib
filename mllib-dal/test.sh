@@ -59,7 +59,6 @@ suiteArray=(
   "com.intel.oneapi.dal.table.ColumnAccessorSuite" \
   "com.intel.oneapi.dal.table.RowAccessorSuite" \
   "com.intel.oap.mllib.ConvertHomogenTableSuite"
-
 )
 
 MVN_NO_TRANSFER_PROGRESS=
@@ -88,7 +87,7 @@ done
 
 shift "$((OPTIND-1))"
 
-SUITE=$1
+SUITE=$*
 
 print_usage
 
@@ -121,14 +120,21 @@ echo Platform Profile: $PLATFORM_PROFILE
 echo ============================
 echo
 
-SUBSUITE=$(echo $SUITE | tr " " "\n")
-
-for suite in $SUBSUITE
-do
-  echo
-  echo Testing $suite ...
-  echo
-  mvn $MVN_NO_TRANSFER_PROGRESS -Dspark.version=$SPARK_VERSION -DwildcardSuites=$suite test
-done
-
-
+if [[ -z $SUITE ]]; then
+  for suite in ${suiteArray[*]}
+    do
+      echo
+      echo Testing $suite ...
+      echo
+      mvn $MVN_NO_TRANSFER_PROGRESS -Dspark.version=$SPARK_VERSION -DwildcardSuites=$suite test
+    done
+else
+  SUBSUITE=$(echo $SUITE | tr "," "\n")
+  for suite in ${SUBSUITE[*]}
+  do
+    echo
+    echo Testing $suite ...
+    echo
+    mvn $MVN_NO_TRANSFER_PROGRESS -Dspark.version=$SPARK_VERSION -DwildcardSuites=$suite test
+  done
+fi
