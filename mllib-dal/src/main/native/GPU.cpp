@@ -63,3 +63,16 @@ sycl::device getAssignedGPU(ccl::communicator &comm, int size, int rankId,
 
     return rank_gpu;
 }
+
+sycl::queue getQueue() {
+#ifdef CI_TEST
+    std::cout << "selector CPU" << std::endl;
+    auto device_cpu = sycl::cpu_selector{}.select_device();
+    sycl::queue q_cpu{device_cpu};
+    return q_cpu;
+#endif
+    std::cout << "selector GPU" << std::endl;
+    auto device_gpu = sycl::gpu_selector{}.select_device();
+    sycl::queue q_gpu{device_gpu};
+    return q_gpu;
+}
