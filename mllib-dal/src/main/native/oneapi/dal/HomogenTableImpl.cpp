@@ -257,6 +257,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_dInit(
     jint cLayout, jint cComputeDevice) {
     printf("HomogenTable double init \n");
 <<<<<<< HEAD
+<<<<<<< HEAD
     jboolean isCopy = true;
     jdouble *fData = env->GetDoubleArrayElements(cData, &isCopy);
     const std::vector<sycl::event> dependencies = {};
@@ -264,6 +265,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_dInit(
 =======
     std::cout << "jdoubleArray " << cData
                       << std::endl;
+=======
+>>>>>>> add empty homogentable
     jdouble *fData = env->GetDoubleArrayElements(cData, NULL);
     homogen_table *h_table ;
     homogenPtr tablePtr ;
