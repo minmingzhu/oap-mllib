@@ -11,13 +11,6 @@ import org.apache.spark.ml.linalg.{Matrices, Vector, Vectors}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import scala.collection.mutable.ArrayBuffer
-
-import scala.collection.mutable.ArrayBuffer
-import scala.util.Random
-
-import scala.collection.mutable.ArrayBuffer
-import scala.util.Random
-import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
 class oneDALSuite extends FunctionsSuite with Logging {
@@ -140,6 +133,3 @@ class oneDALSuite extends FunctionsSuite with Logging {
     computeDevice
   }
 }
-
-
-
