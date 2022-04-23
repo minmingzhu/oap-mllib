@@ -765,6 +765,7 @@ object OneDAL {
     }.cache()
     coalescedTables
   }
+
   @native def cAddNumericTable(cObject: Long, numericTableAddr: Long)
 
   @native def cSetDouble(numTableAddr: Long, row: Int, column: Int, value: Double)
