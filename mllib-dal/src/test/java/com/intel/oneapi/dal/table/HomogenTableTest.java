@@ -181,4 +181,24 @@ public class HomogenTableTest {
         }
         assertArrayEquals(data, table.getDoubleData());
     }
+
+    @Test
+    public void testMergeHomogenTable() throws Exception {
+        double[] data1 = {5.236359d, 8.718667d, 40.724176d, 10.770023d, 90.119887d, 3.815366d,
+                53.620204d, 33.219769d, 85.208661d, 15.966239d};
+        double[] data2 = {7.279464d,0.390664d,-9.619284d,3.435376d,-4.769490d,-4.873188d,-0.118791d,
+                -5.117316d,-0.418655d,-0.475422d};
+        HomogenTable table1 = new HomogenTable(5, 2,
+                data1, Double.class, COLUMNMAJOR.ordinal());
+        HomogenTable table2 = new HomogenTable(5, 2,
+                data2, Double.class, COLUMNMAJOR.ordinal());
+
+        table1.addHomogenTable(table2.getcObejct());
+        double[] expect = {5.236359d, 8.718667d, 40.724176d, 10.770023d, 90.119887d, 3.815366d,
+                53.620204d, 33.219769d, 85.208661d, 15.966239d,7.279464d,0.390664d,-9.619284d,
+                3.435376d,-4.769490d,-4.873188d,-0.118791d,-5.117316d,-0.418655d,-0.475422d};
+        double[] result = table1.getDoubleData();
+
+        assertArrayEquals("", result, expect, MAXIMUMDOUBLEDELTA);
+    }
 }
