@@ -142,7 +142,7 @@ public class HomogenTableImpl implements HomogenTableIface {
     }
 
     public void addHomogenTable(long homogenTableAddr ) {
-        this.cObject = cAddHomogenTable(this.cObject, homogenTableAddr, this.device.ordinal());
+        this.cObject = cAddHomogenTable(this.cObject, homogenTableAddr);
     }
     private native long iInit(long rowCount,
                               long colCount,
@@ -183,4 +183,7 @@ public class HomogenTableImpl implements HomogenTableIface {
                                          long homogenTableAddr,
                                          int computeDeviceIndex);
     private native long cEmptyTableInit();
+
+    private native long cAddHomogenTable(long cObject, long homogenTableAddr );
+
 }

@@ -228,9 +228,6 @@ object OneDAL {
     doublesTables
   }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
   def rddDoubleToHomogenTables(doubles: RDD[Double], executorNum: Int): RDD[Long] = {
     require(executorNum > 0)
 
@@ -245,10 +242,6 @@ object OneDAL {
     doublesTables
   }
 
-
->>>>>>> convert rdd to HomogenTable
-=======
->>>>>>> 1. convert rdd to HomogenTable
   def rddLabeledPointToSparseTables(labeledPoints: Dataset[_],
                                     labelCol: String,
                                     featuresCol: String,
@@ -613,7 +606,6 @@ object OneDAL {
                                          numRows: Int,
                                          numCols: Int,
                                          device: Common.ComputeDevice): HomogenTable = {
-    printf(s"vectorsToDenseHomogenTable numRows: $numRows numCols: $numCols \n")
     val arrayDouble = new Array[Double](numRows * numCols)
     var index = 0
     it.foreach { curVector =>
@@ -793,7 +785,5 @@ object OneDAL {
   @native def cNewCSRNumericTableDouble(data: Array[Double],
                                         colIndices: Array[Long], rowOffsets: Array[Long],
                                         nFeatures: Long, nVectors: Long): Long
-
-  @native def cAddHomogenTable(cObject: Long, homogenTableAddr: Long)
 
 }
