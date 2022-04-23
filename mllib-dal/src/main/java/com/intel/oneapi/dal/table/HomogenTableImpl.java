@@ -18,10 +18,7 @@ public class HomogenTableImpl implements HomogenTableIface {
 
     protected HomogenTableImpl(Common.ComputeDevice computeDevice) {
         super();
-<<<<<<< HEAD
         this.device = computeDevice;
-=======
->>>>>>> 1. convert rdd to HomogenTable
         this.cObject = this.cEmptyTableInit();
     }
 

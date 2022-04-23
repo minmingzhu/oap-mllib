@@ -56,6 +56,7 @@ public class HomogenTableTest {
         }
 
         assertArrayEquals(data, table.getDoubleData());
+
     }
     @Test
     // can construct rowmajor long table 5x2

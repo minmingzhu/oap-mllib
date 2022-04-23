@@ -116,7 +116,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetPul
  * Method:    cGetIntData
  * Signature: (J)[I
  */
-JNIEXPORT jintArray JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetIntData
+JNIEXPORT jintArray JNICALL Java_c om_intel_oneapi_dal_table_HomogenTableImpl_cGetIntData
   (JNIEnv *, jobject, jlong);
 
 /*

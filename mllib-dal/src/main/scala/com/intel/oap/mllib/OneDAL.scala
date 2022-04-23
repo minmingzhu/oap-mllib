@@ -593,7 +593,6 @@ object OneDAL {
                                          numCols: Int,
                                          device: Common.ComputeDevice): HomogenTable = {
     printf(s"vectorsToDenseHomogenTable numRows: $numRows numCols: $numCols \n")
-
     val arrayDouble = new Array[Double](numRows * numCols)
     var index = 0
     it.foreach { curVector =>
@@ -650,9 +649,6 @@ object OneDAL {
       Iterator(table)
     }
   }
-=======
-
->>>>>>> 1. convert rdd to HomogenTable
 
   def rddVectorToMergedTables(vectors: RDD[Vector], executorNum: Int): RDD[Long] = {
     require(executorNum > 0)
@@ -768,6 +764,7 @@ object OneDAL {
     }.cache()
     coalescedTables
   }
+
   @native def cAddNumericTable(cObject: Long, numericTableAddr: Long)
 
   @native def cSetDouble(numTableAddr: Long, row: Int, column: Int, value: Double)
