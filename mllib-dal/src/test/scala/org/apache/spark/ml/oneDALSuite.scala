@@ -71,7 +71,6 @@ class oneDALSuite extends FunctionsSuite with Logging {
     val lData: Array[Double] = labelTable.getDoubleData()
     assert((fData.toArray sameElements expect(0)) === true)
     assert((lData.toArray sameElements expect(1)) === true)
-
   }
 
   test("test rddVector to merged homogenTable") {
