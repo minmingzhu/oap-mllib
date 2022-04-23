@@ -256,21 +256,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_dInit(
     JNIEnv *env, jobject, jlong cRowCount, jlong cColCount, jdoubleArray cData,
     jint cLayout, jint cComputeDevice) {
     printf("HomogenTable double init \n");
-<<<<<<< HEAD
-<<<<<<< HEAD
     jboolean isCopy = true;
     jdouble *fData = env->GetDoubleArrayElements(cData, &isCopy);
     const std::vector<sycl::event> dependencies = {};
     homogenPtr tablePtr;
-=======
-    std::cout << "jdoubleArray " << cData
-                      << std::endl;
-=======
->>>>>>> add empty homogentable
-    jdouble *fData = env->GetDoubleArrayElements(cData, NULL);
-    homogen_table *h_table ;
-    homogenPtr tablePtr ;
->>>>>>> 1. convert rdd to HomogenTable
     switch(getComputeDevice(cComputeDevice)) {
          case compute_device::host:{
              tablePtr = std::make_shared<homogen_table>(fData, cRowCount, cColCount,

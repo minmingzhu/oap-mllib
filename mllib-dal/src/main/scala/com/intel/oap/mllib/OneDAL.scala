@@ -761,6 +761,7 @@ object OneDAL {
     }.cache()
     coalescedTables
   }
+
   @native def cAddNumericTable(cObject: Long, numericTableAddr: Long)
 
   @native def cSetDouble(numTableAddr: Long, row: Int, column: Int, value: Double)
@@ -779,7 +780,5 @@ object OneDAL {
   @native def cNewCSRNumericTableDouble(data: Array[Double],
                                         colIndices: Array[Long], rowOffsets: Array[Long],
                                         nFeatures: Long, nVectors: Long): Long
-
-  @native def cAddHomogenTable(cObject: Long, homogenTableAddr: Long)
 
 }
