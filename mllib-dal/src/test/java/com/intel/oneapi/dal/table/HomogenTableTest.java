@@ -45,6 +45,7 @@ public class HomogenTableTest {
         HomogenTable table = new HomogenTable(5, 2,
                 data, CommonTest.getDevice());
 
+
         assertEquals(true, table.hasData());
         assertEquals(new Long(2), table.getColumnCount());
         assertEquals(new Long(5), table.getRowCount());
