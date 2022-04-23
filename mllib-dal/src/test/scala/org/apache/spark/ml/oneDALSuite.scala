@@ -1,10 +1,7 @@
 package org.apache.spark.ml
 
 import com.intel.oap.mllib.OneDAL
-<<<<<<< HEAD
 import com.intel.oneapi.dal.table.{Common, HomogenTable}
-=======
->>>>>>> 1. convert rdd to HomogenTable
 import com.intel.oneapi.dal.table.HomogenTable
 import org.apache.spark.SparkContext
 import org.apache.spark.internal.Logging
