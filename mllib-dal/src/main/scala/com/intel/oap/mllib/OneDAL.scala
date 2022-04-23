@@ -698,7 +698,6 @@ object OneDAL {
 
   def rddVectorToMergedHomogenTables(vectors: RDD[Vector], executorNum: Int,
                                      device: Common.ComputeDevice): RDD[Long] = {
-
     require(executorNum > 0)
 
     logger.info(s"Processing partitions with $executorNum executors")
@@ -772,5 +771,4 @@ object OneDAL {
                                         colIndices: Array[Long], rowOffsets: Array[Long],
                                         nFeatures: Long, nVectors: Long): Long
   @native def cAddHomogenTable(cObject: Long, homogenTableAddr: Long)
-
 }
