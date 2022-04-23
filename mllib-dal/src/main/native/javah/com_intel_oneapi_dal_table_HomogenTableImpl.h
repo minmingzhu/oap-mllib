@@ -146,6 +146,7 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_
 /*
  * Class:     com_intel_oneapi_dal_table_HomogenTableImpl
  * Method:    cAddHomogenTable
+<<<<<<< HEAD
  * Signature: (JJ)J
  */
 JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cAddHomogenTable
