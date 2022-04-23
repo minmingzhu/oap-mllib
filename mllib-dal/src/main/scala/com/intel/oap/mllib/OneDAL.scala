@@ -488,13 +488,9 @@ object OneDAL {
       val mergedLabels = new HomogenTable()
 
       iter.foreach { case (featureAddr, labelAddr) =>
-        OneDAL.cAddHomogenTable(mergedFeatures.getcObejct(), featureAddr)
-        OneDAL.cAddHomogenTable(mergedLabels.getcObejct(), labelAddr)
+        mergedFeatures.addHomogenTable(featureAddr)
+        mergedLabels.addHomogenTable(labelAddr)
       }
-
-      //      Service.printNumericTable("mergedFeatures", mergedFeatures, 10, 20)
-      //      Service.printNumericTable("mergedLabels", mergedLabels, 10, 20)
-
       Iterator((mergedFeatures.getcObejct(), mergedLabels.getcObejct()))
     }.cache()
 
@@ -596,7 +592,9 @@ object OneDAL {
   }
 
   private def vectorsToDenseHomogenTable(it: Iterator[Vector],
-                                         numRows: Int, numCols: Int, device: Common.ComputeDevice): HomogenTable = {
+                                         numRows: Int,
+                                         numCols: Int,
+                                         device: Common.ComputeDevice): HomogenTable = {
     printf(s"vectorsToDenseHomogenTable numRows: $numRows numCols: $numCols \n")
 
     val arrayDouble = new Array[Double](numRows * numCols)
@@ -706,7 +704,8 @@ object OneDAL {
     coalescedTables
   }
 
-  def rddVectorToMergedHomogenTables(vectors: RDD[Vector], executorNum: Int, device: Common.ComputeDevice): RDD[Long] = {
+  def rddVectorToMergedHomogenTables(vectors: RDD[Vector], executorNum: Int,
+                                     device: Common.ComputeDevice): RDD[Long] = {
     require(executorNum > 0)
 
     logger.info(s"Processing partitions with $executorNum executors")
@@ -748,20 +747,20 @@ object OneDAL {
       vectors.unpersist()
     }
 
-  // Coalesce partitions belonging to the same executor
-  val coalescedRdd = homogenTables.coalesce(executorNum,
-  partitionCoalescer = Some(new ExecutorInProcessCoalescePartitioner()))
+    // Coalesce partitions belonging to the same executor
+    val coalescedRdd = homogenTables.coalesce(executorNum,
+      partitionCoalescer = Some(new ExecutorInProcessCoalescePartitioner()))
 
-  val coalescedTables = coalescedRdd.mapPartitions { iter =>
-      val mergedData = new HomogenTable()
-      iter.foreach { address =>
-        OneDAL.cAddHomogenTable(mergedData.getcObejct(), address)
-      }
-      Iterator(mergedData.getcObejct())
+    val coalescedTables = coalescedRdd.mapPartitions { iter =>
+        val mergedData = new HomogenTable()
+        iter.foreach { address =>
+          mergedData.addHomogenTable(address)
+        }
+        Iterator(mergedData.getcObejct())
     }.cache()
-
     coalescedTables
   }
+
   @native def cAddNumericTable(cObject: Long, numericTableAddr: Long)
 
   @native def cSetDouble(numTableAddr: Long, row: Int, column: Int, value: Double)
@@ -780,7 +779,5 @@ object OneDAL {
   @native def cNewCSRNumericTableDouble(data: Array[Double],
                                         colIndices: Array[Long], rowOffsets: Array[Long],
                                         nFeatures: Long, nVectors: Long): Long
-
-  @native def cAddHomogenTable(cObject: Long, homogenTableAddr: Long)
 
 }

@@ -140,6 +140,10 @@ public class HomogenTableImpl implements HomogenTableIface {
         return this.cObject;
     }
 
+    public void addHomogenTable(long homogenTableAddr ) {
+        this.cObject = cAddHomogenTable(this.cObject, homogenTableAddr);
+    }
+
     private native long iInit(long rowCount,
                               long colCount,
                               int[] data,
@@ -175,4 +179,5 @@ public class HomogenTableImpl implements HomogenTableIface {
     private native long[] cGetLongData(long cObject);
     private native float[] cGetFloatData(long cObject);
     private native double[] cGetDoubleData(long cObject);
+    private native long cAddHomogenTable(long cObject, long homogenTableAddr );
 }
