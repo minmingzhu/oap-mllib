@@ -538,4 +538,4 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cAddHom
            return (jlong)sourceTablePtr;
        }
  }
- }
+

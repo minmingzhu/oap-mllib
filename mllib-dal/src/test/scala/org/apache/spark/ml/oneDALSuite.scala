@@ -152,6 +152,7 @@ class oneDALSuite extends FunctionsSuite with Logging {
         Iterator(featureArray, labelArray)
     }.collect()
     df.show(10, false)
+
     val mergedata = OneDAL.rddLabeledPointToMergedHomogenTables(df,
       "label", "features",1 , getDevice)
     val results = mergedata.collect()
@@ -180,30 +181,9 @@ class oneDALSuite extends FunctionsSuite with Logging {
     val rddVectors = df.rdd.map {
       case Row(v: Vector) => v
     }.cache()
+
     val result = OneDAL.rddVectorToMergedHomogenTables(rddVectors, 1, getDevice)
-    val tableAddr = result.collect()
-    val table = new HomogenTable(tableAddr(0))
-    val rData: Array[Double] = table.getDoubleData()
-    assert((rData sameElements expectData) === true)
 
-  }
-
-  test("test rddVector to merged homogenTable") {
-    val data = Array(
-      Vectors.dense(5.308206,9.869278,1.018934,4.292158,6.081011,6.585723,2.411094,4.767308,-3.256320,-6.029562),
-      Vectors.dense(7.279464,0.390664,-9.619284,3.435376,-4.769490,-4.873188,-0.118791,-5.117316,-0.418655,-0.475422),
-      Vectors.dense(-6.615791,-6.191542,0.402459,-9.743521,-9.990568,9.105346,1.691312,-2.605659,9.534952,-7.829027),
-    )
-    val expectData = Array(5.308206,9.869278,1.018934,4.292158,6.081011,6.585723,2.411094,4.767308,
-      -3.256320,-6.029562, 7.279464,0.390664,-9.619284,3.435376,-4.769490,-4.873188,-0.118791,-5.117316,
-      -0.418655,-0.475422,-6.615791,-6.191542,0.402459,-9.743521,-9.990568,9.105346,1.691312,-2.605659,
-      9.534952,-7.829027)
-    val df = spark.createDataFrame(data.map(Tuple1.apply)).toDF("features")
-    df.show(10 ,false)
-    val rddVectors = df.rdd.map {
-      case Row(v: Vector) => v
-    }.cache()
-    val result = OneDAL.rddVectorToMergedHomogenTables(rddVectors, 1)
     val tableAddr = result.collect()
     val table = new HomogenTable(tableAddr(0))
     val rData: Array[Double] = table.getDoubleData()
