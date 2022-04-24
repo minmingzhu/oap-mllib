@@ -22,6 +22,9 @@
 #include <typeinfo>
 #include <vector>
 
+#ifdef CPU_GPU_PROFILE
+#include "GPU.h"
+#endif
 #ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
 #endif
@@ -43,13 +46,24 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cP
       homogen_table *htable =
               ((std::shared_ptr<homogen_table> *)cTableAddr)->get();
       column_accessor<const double> *acc = new column_accessor<const double>(*htable);
-      const auto col_values = acc->pull(cColumnIndex, {cRowStartIndex, cRowEndIndex});
-      double* col_doubles = new double[col_values.get_count()];
-      for (std::int64_t i = 0; i < col_values.get_count(); i++) {
-          col_doubles[i] = col_values[i];
-      }
-      jdoubleArray newDoubleArray = env->NewDoubleArray(col_values.get_count());
-      env->SetDoubleArrayRegion(newDoubleArray, 0, col_values.get_count(), col_doubles);
-      return newDoubleArray;
+      #ifdef CPU_GPU_PROFILE
+          sycl::queue queue = getQueue();
+          const auto sycl_col_values = acc->pull(cColumnIndex, {cRowStartIndex, cRowEndIndex});
+          double* sycl_col_doubles = new double[sycl_col_values.get_count()];
+          for (std::int64_t i = 0; i < sycl_col_values.get_count(); i++) {
+              sycl_col_doubles[i] = sycl_col_values[i];
+          }
+          jdoubleArray sycl_newDoubleArray = env->NewDoubleArray(sycl_col_values.get_count());
+          env->SetDoubleArrayRegion(sycl_newDoubleArray, 0, sycl_col_values.get_count(), sycl_col_doubles);
+          return sycl_newDoubleArray;
+      #endif
+          const auto col_values = acc->pull(cColumnIndex, {cRowStartIndex, cRowEndIndex});
+          double* col_doubles = new double[col_values.get_count()];
+          for (std::int64_t i = 0; i < col_values.get_count(); i++) {
+              col_doubles[i] = col_values[i];
+          }
+          jdoubleArray newDoubleArray = env->NewDoubleArray(col_values.get_count());
+          env->SetDoubleArrayRegion(newDoubleArray, 0, col_values.get_count(), col_doubles);
+          return newDoubleArray;
   }
 
