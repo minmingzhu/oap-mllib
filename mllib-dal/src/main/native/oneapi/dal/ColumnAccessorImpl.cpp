@@ -22,12 +22,9 @@
 #include <typeinfo>
 #include <vector>
 
-<<<<<<< HEAD
 #ifdef CPU_GPU_PROFILE
 #include "GPU.h"
 #endif
-=======
->>>>>>> 1. convert homogenTable to array/vector/matrix
 #ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
 #endif
@@ -35,13 +32,8 @@
 #include "com_intel_oneapi_dal_table_ColumnAccessor.h"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/column_accessor.hpp"
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
+
 #include "service.h"
->>>>>>> update
-=======
->>>>>>> 1. convert homogenTable to array/vector/matrix
 
 using namespace std;
 using namespace oneapi::dal;
