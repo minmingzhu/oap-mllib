@@ -15,7 +15,7 @@ public class ColumnAccessorSuite {
                 data, ROW_MAJOR, CommonTest.getDevice());
 
         ColumnAccessor accessor = new ColumnAccessor(table.getcObejct());
-        double[] columnData = accessor.pullDouble(0);
+        double[] columnData = accessor.pullDouble(0, CommonTest.getDevice());
         assertEquals(new Long(columnData.length), table.getRowCount());
         double[] tableData = table.getDoubleData();
         for (int i = 0; i < columnData.length; i++) {
@@ -31,7 +31,7 @@ public class ColumnAccessorSuite {
                 data, ROW_MAJOR, CommonTest.getDevice());
 
         ColumnAccessor accessor = new ColumnAccessor(table.getcObejct());
-        double[] columnData = accessor.pullDouble(1);
+        double[] columnData = accessor.pullDouble(1, CommonTest.getDevice());
         assertEquals(new Long(columnData.length), table.getRowCount());
         double[] tableData = table.getDoubleData();
 
@@ -48,7 +48,7 @@ public class ColumnAccessorSuite {
                 data, ROW_MAJOR, CommonTest.getDevice());
 
         ColumnAccessor accessor = new ColumnAccessor(table.getcObejct());
-        double[] columnData = accessor.pullDouble(0, 1 , 3);
+        double[] columnData = accessor.pullDouble(0, 1 , 3, CommonTest.getDevice());
         assertEquals(new Long(columnData.length), new Long(2));
         double[] tableData = table.getDoubleData();
         for (int i = 0; i < columnData.length; i++) {

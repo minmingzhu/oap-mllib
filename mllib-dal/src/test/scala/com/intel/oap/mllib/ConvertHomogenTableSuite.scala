@@ -142,7 +142,6 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       85.208661d, 15.966239d)
     val expectMatrix = new DenseMatrix(5, 2, data, isTransposed = true)
     val table = new HomogenTable(5, 2, data, getDevice)
-
     val matrix = OneDAL.homogenTableToMatrix(table)
 
     assert(expectMatrix === matrix)
