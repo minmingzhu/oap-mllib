@@ -68,7 +68,7 @@ MVN_NO_TRANSFER_PROGRESS=
 
 print_usage() {
   echo
-  echo "Usage: ./build.sh [-p <CPU_ONLY_PROFILE | CPU_GPU_PROFILE>] [-q] [-h] [-t <CI test>]"
+  echo "Usage: ./build.sh [-p <CPU_ONLY_PROFILE | CPU_GPU_PROFILE>] [-q] [-h] [-t]"
   echo
   echo "-p  Supported Platform Profiles:"
     echo "    CPU_ONLY_PROFILE"
@@ -81,7 +81,7 @@ do
 case $opt in
   p) PLATFORM_OPT=$OPTARG ;;
   q) MVN_NO_TRANSFER_PROGRESS=--no-transfer-progress ;;
-  t) TEST_OPT=$OPTARG ;;
+  t) POLICY_OPT=$OPTARG ;;
   h | *)
      print_usage
      exit 1
@@ -113,6 +113,8 @@ OAP_MLLIB_ROOT=$(cd $SCRIPT_DIR/.. && pwd)
 source $OAP_MLLIB_ROOT/RELEASE
 
 export PLATFORM_PROFILE=${PLATFORM_OPT:-$PLATFORM_PROFILE}
+export POLICY_PROFILE=${POLICY_OPT:-$POLICY_PROFILE}
+
 
 if [[ $PLATFORM_PROFILE == CPU_ONLY_PROFILE ]]
 then
@@ -121,7 +123,6 @@ elif [[ $PLATFORM_PROFILE == CPU_GPU_PROFILE ]]
 then
   check_gpu_libs
 fi
-export CI_TEST=${TEST_OPT:-$CI_TEST}
 
 echo
 echo === Building Environments ===
@@ -130,7 +131,15 @@ echo DAALROOT=$DAALROOT
 echo TBBROOT=$TBBROOT
 echo CCL_ROOT=$CCL_ROOT
 echo Maven Version: $(mvn -v | head -n 1 | cut -f3 -d" ")
-echo Clang Version: $(clang -dumpversion)
+
+if [[ $PLATFORM_PROFILE == CPU_ONLY_PROFILE ]]
+then
+  echo GCC Version: $(gcc -dumpversion)
+elif [[ $PLATFORM_PROFILE == CPU_GPU_PROFILE ]]
+then
+  echo DPCPP Version: $(dpcpp -dumpversion)
+fi
+
 echo Spark Version: $SPARK_VERSION
 echo Platform Profile: $PLATFORM_PROFILE
 echo Whether CI Test: $CI_TEST
