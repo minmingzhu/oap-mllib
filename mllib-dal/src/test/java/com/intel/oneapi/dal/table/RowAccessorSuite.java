@@ -30,6 +30,7 @@ public class RowAccessorSuite {
                 53.620204d, 33.219769d, 85.208661d, 15.966239d};
         HomogenTable table = new HomogenTable(5, 2,
 <<<<<<< HEAD
+<<<<<<< HEAD
                 data, ROW_MAJOR, CommonTest.getDevice());
 
         RowAccessor accessor = new RowAccessor(table.getcObejct());
@@ -40,6 +41,9 @@ public class RowAccessorSuite {
             assertEquals(rowData[i], data[i]);
 =======
                 data, Double.class, ROWMAJOR.ordinal());
+=======
+                data, ROWMAJOR.ordinal());
+>>>>>>> Merge branch 'make_homogen_table' into convert_homogentable
 
         RowAccessor accessor = new RowAccessor(table.getcObejct());
         double[] rowData = accessor.pullDouble( 0 , table.getRowCount());
