@@ -82,7 +82,6 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_iInit(
                       new std::shared_ptr<homogen_table>(h_sycl_table);
               cVector.push_back(*tableSyclPtr);
               return (jlong)tableSyclPtr;
-
     #endif
 }
 
