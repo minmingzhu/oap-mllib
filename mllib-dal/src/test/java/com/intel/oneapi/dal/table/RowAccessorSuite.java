@@ -46,6 +46,7 @@ public class RowAccessorSuite {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                 data, ROW_MAJOR, CommonTest.getDevice());
 
         RowAccessor accessor = new RowAccessor(table.getcObejct());
@@ -68,6 +69,9 @@ public class RowAccessorSuite {
 =======
                 data, Double.class, ROWMAJOR.ordinal());
 >>>>>>> 1. convert homogenTable to array/vector/matrix
+=======
+                data, ROWMAJOR.ordinal());
+>>>>>>> Merge branch 'make_homogen_table' into convert_homogentable
 
         RowAccessor accessor = new RowAccessor(table.getcObejct());
         double[] rowData = accessor.pullDouble( 0 , table.getRowCount());
