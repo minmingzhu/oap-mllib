@@ -17,7 +17,7 @@ public class RowAccessorSuite {
         double[] data = {5.236359d, 8.718667d, 40.724176d, 10.770023d, 90.119887d, 3.815366d,
                 53.620204d, 33.219769d, 85.208661d, 15.966239d};
         HomogenTable table = new HomogenTable(5, 2,
-                data, Double.class, ROWMAJOR.ordinal());
+                data, ROWMAJOR.ordinal());
 
         RowAccessor accessor = new RowAccessor(table.getcObejct());
         double[] rowData = accessor.pullDouble( 0 , table.getRowCount());
