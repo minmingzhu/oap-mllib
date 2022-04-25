@@ -20,7 +20,7 @@ public class RowAccessorSuite {
                 data, Double.class, ROWMAJOR.ordinal());
 
         RowAccessor accessor = new RowAccessor(table.getcObejct());
-        double[] rowData = accessor.pullDouble( 0 , table.getRowCount());
+        double[] rowData = accessor.pullDouble( 0 , table.getRowCount(), CommonTest.getDevice());
         assertEquals(new Long(rowData.length), new Long(table.getColumnCount() * table.getRowCount()));
         assertArrayEquals("", rowData, data, MAXIMUMDOUBLEDELTA);
         for (int i = 0; i < rowData.length; i++) {
