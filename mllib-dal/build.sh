@@ -140,6 +140,7 @@ fi
 
 echo Spark Version: $SPARK_VERSION
 echo Platform Profile: $PLATFORM_PROFILE
+echo Policy Profile: $POLICY_PROFILE
 echo =============================
 echo
 
