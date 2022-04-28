@@ -2,7 +2,6 @@ package org.apache.spark.ml
 
 import com.intel.oap.mllib.OneDAL
 import com.intel.oneapi.dal.table.{Common, HomogenTable}
-import com.intel.oneapi.dal.table.HomogenTable
 import org.apache.spark.SparkContext
 import org.apache.spark.internal.Logging
 import org.apache.spark.ml.feature.LabeledPoint

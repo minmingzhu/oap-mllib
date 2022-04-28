@@ -22,7 +22,7 @@
 
 #include "oneapi/dal/table/homogen.hpp"
 #include "service.h"
-#include "oneapi/dal/table/homogen.hpp"
+
 
 using namespace daal;
 using namespace daal::data_management;
@@ -155,5 +155,4 @@ Java_com_intel_oap_mllib_OneDAL_00024_cNewCSRNumericTableDouble(
     CSRNumericTablePtr *ret = new CSRNumericTablePtr(numericTable);
 
     return (jlong)ret;
-
 }
