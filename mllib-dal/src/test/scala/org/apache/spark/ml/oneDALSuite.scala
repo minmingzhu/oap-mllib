@@ -94,7 +94,6 @@ class oneDALSuite extends FunctionsSuite with Logging {
     val table = new HomogenTable(tableAddr(0))
     val rData: Array[Double] = table.getDoubleData()
     assert((rData sameElements expectData) === true)
-
   }
 
   test("test rddVector to merged homogenTable") {
@@ -112,7 +111,7 @@ class oneDALSuite extends FunctionsSuite with Logging {
     val rddVectors = df.rdd.map {
       case Row(v: Vector) => v
     }.cache()
-    val result = OneDAL.rddVectorToMergedHomogenTables(rddVectors, 1)
+    val result = OneDAL.rddVectorToMergedHomogenTables(rddVectors, 1, getDevice)
     val tableAddr = result.collect()
     val table = new HomogenTable(tableAddr(0))
     val rData: Array[Double] = table.getDoubleData()
