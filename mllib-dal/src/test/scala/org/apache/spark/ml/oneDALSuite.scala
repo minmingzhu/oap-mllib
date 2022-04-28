@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Assertions.assertArrayEquals
 
 import com.intel.oap.mllib.OneDAL
 import com.intel.oneapi.dal.table.{Common, HomogenTable}
-import com.intel.oneapi.dal.table.HomogenTable
 import org.apache.spark.SparkContext
 import org.apache.spark.internal.Logging
 import org.apache.spark.ml.feature.LabeledPoint
@@ -243,7 +242,8 @@ class oneDALSuite extends FunctionsSuite with Logging {
         Iterator(featureArray, labelArray)
     }.collect()
     df.show(10, false)
-    val mergedata = OneDAL.rddLabeledPointToMergedHomogenTables(df, "label", "features",1 )
+    val mergedata = OneDAL.rddLabeledPointToMergedHomogenTables(df,
+      "label", "features",1 , getDevice)
     val results = mergedata.collect()
     val featureTable = new HomogenTable(results(0)._1)
     val labelTable = new HomogenTable(results(0)._2)
@@ -270,7 +270,7 @@ class oneDALSuite extends FunctionsSuite with Logging {
     val rddVectors = df.rdd.map {
       case Row(v: Vector) => v
     }.cache()
-    val result = OneDAL.rddVectorToMergedHomogenTables(rddVectors, 1)
+    val result = OneDAL.rddVectorToMergedHomogenTables(rddVectors, 1, getDevice)
     val tableAddr = result.collect()
     val table = new HomogenTable(tableAddr(0))
     val rData: Array[Double] = table.getDoubleData()
@@ -295,6 +295,21 @@ class oneDALSuite extends FunctionsSuite with Logging {
       LabeledPoint(y, Vectors.dense(x))
     }
     data
+  }
+
+  private def getDevice: Common.ComputeDevice = {
+    val device = System.getProperty("computeDevice")
+    var computeDevice: Common.ComputeDevice = Common.ComputeDevice.CPU
+    if(device != null) {
+      device.toUpperCase match {
+        case "HOST" =>  computeDevice = Common.ComputeDevice.HOST
+        case "CPU"  => computeDevice = Common.ComputeDevice.CPU
+        case "GPU"  => computeDevice = Common.ComputeDevice.GPU
+        case _  => "Invalid Device"
+      }
+    }
+    System.out.println("getDevice : " + computeDevice)
+    computeDevice
   }
 }
 
