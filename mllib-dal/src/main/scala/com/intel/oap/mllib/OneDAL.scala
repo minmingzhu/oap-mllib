@@ -429,7 +429,8 @@ object OneDAL {
   def rddLabeledPointToMergedHomogenTables(labeledPoints: Dataset[_],
                                     labelCol: String,
                                     featuresCol: String,
-                                    executorNum: Int): RDD[(Long, Long)] = {
+                                    executorNum: Int,
+                                    device: Common.ComputeDevice): RDD[(Long, Long)] = {
     require(executorNum > 0)
 
     logger.info(s"Processing partitions with $executorNum executors")
@@ -464,11 +465,11 @@ object OneDAL {
         val numColumns = features(0).size
 
         val featuresTable: HomogenTable = vectorsToDenseHomogenTable(features.toIterator,
-          features.length, numColumns)
+          features.length, numColumns, device)
 
         // TODO : After implementing CSRTable, will implement vectorsToSparseCSRTable function
 
-        val labelsTable = doubleArrayToHomogenTable(labels)
+        val labelsTable = doubleArrayToHomogenTable(labels, device)
 
         Iterator((featuresTable.getcObejct(), labelsTable.getcObejct()))
       }
@@ -590,7 +591,9 @@ object OneDAL {
   }
 
   private def vectorsToDenseHomogenTable(it: Iterator[Vector],
-                                         numRows: Int, numCols: Int): HomogenTable = {
+                                         numRows: Int,
+                                         numCols: Int,
+                                         device: Common.ComputeDevice): HomogenTable = {
     val arrayDouble = new Array[Double](numRows * numCols)
     var index = 0
     it.foreach { curVector =>
@@ -602,8 +605,7 @@ object OneDAL {
         index = index + 1
       }
     }
-    val table = new HomogenTable(numRows.toLong, numCols.toLong, arrayDouble,
-      classOf[java.lang.Double])
+    val table = new HomogenTable(numRows.toLong, numCols.toLong, arrayDouble, device)
 
     table
   }
@@ -698,7 +700,8 @@ object OneDAL {
     coalescedTables
   }
 
-  def rddVectorToMergedHomogenTables(vectors: RDD[Vector], executorNum: Int): RDD[Long] = {
+  def rddVectorToMergedHomogenTables(vectors: RDD[Vector], executorNum: Int,
+                                     device: Common.ComputeDevice): RDD[Long] = {
     require(executorNum > 0)
 
     logger.info(s"Processing partitions with $executorNum executors")
@@ -729,7 +732,7 @@ object OneDAL {
 
       logger.info(s"Partition index: $index, numCols: $numCols, numRows: $numRows")
 
-      val table = vectorsToDenseHomogenTable(it, numRows, numCols)
+      val table = vectorsToDenseHomogenTable(it, numRows, numCols, device)
       table.getcObejct()
     }.setName("homogenTables").cache()
 
