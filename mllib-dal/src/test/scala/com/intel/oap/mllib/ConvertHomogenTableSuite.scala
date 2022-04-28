@@ -28,7 +28,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       Vectors.dense(-9.948613,-8.941953,-8.106389,4.863542,5.852806,-1.659259,6.342504,-8.190106,-3.110330,-7.484658),
     )
 
-    val table = OneDAL.makeHomogenTable(data)
+    val table = OneDAL.makeHomogenTable(data, getDevice)
     assert(table.hasData == true)
     assert(table.getColumnCount == 10)
     assert(table.getRowCount == 10)
@@ -46,7 +46,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
 
   test("test convert doublearray to homogentable") {
     val data = Array(5.308206,9.869278,1.018934,4.292158,6.081011,6.585723,2.411094,4.767308,-3.256320,-6.029562)
-    val table = OneDAL.doubleArrayToHomogenTable(data)
+    val table = OneDAL.doubleArrayToHomogenTable(data, getDevice)
     assert(table.hasData == true)
     assert(table.getColumnCount == 10)
     assert(table.getRowCount == 1)
@@ -75,7 +75,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       OldVectors.dense(-9.948613,-8.941953,-8.106389,4.863542,5.852806,-1.659259,6.342504,-8.190106,-3.110330,-7.484658),
     )
 
-    val table = OneDAL.makeHomogenTable(data)
+    val table = OneDAL.makeHomogenTable(data, getDevice)
     assert(table.hasData == true)
     assert(table.getColumnCount == 10)
     assert(table.getRowCount == 10)
@@ -95,8 +95,8 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
 
     val expectData = Array(5.308206,9.869278)
 
-    val table = new HomogenTable(5, 2, data)
-    val vector = OneDAL.homogenTable1xNToVector(table)
+    val table = new HomogenTable(5, 2, data, getDevice)
+    val vector = OneDAL.homogenTable1xNToVector(table, getDevice)
 
     assert(expectData=== vector.toArray)
   }
@@ -127,8 +127,8 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
                      53.620204d, 33.219769d,
                      85.208661d, 15.966239d)
     val expectData = Array(5.236359d, 40.724176d, 90.119887d, 53.620204d, 85.208661d)
-    val table = new HomogenTable(5, 2, data)
-    val vector = OneDAL.homogenTableNx1ToVector(table.getcObejct())
+    val table = new HomogenTable(5, 2, data, getDevice)
+    val vector = OneDAL.homogenTableNx1ToVector(table.getcObejct(), getDevice)
 
     assert(expectData === vector.toArray)
   }
@@ -140,7 +140,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       53.620204d, 33.219769d,
       85.208661d, 15.966239d)
     val expectMatrix = new DenseMatrix(5, 2, data, isTransposed = true)
-    val table = new HomogenTable(5, 2, data)
+    val table = new HomogenTable(5, 2, data, getDevice)
     val matrix = OneDAL.homogenTableToMatrix(table)
 
     assert(expectMatrix === matrix)
@@ -153,7 +153,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       53.620204d, 33.219769d,
       85.208661d, 15.966239d)
     val expectMatrix = new OldDenseMatrix(5, 2, data, isTransposed = true)
-    val table = new HomogenTable(5, 2, data)
+    val table = new HomogenTable(5, 2, data, getDevice)
     val matrix = OneDAL.homogenTableToOldMatrix(table)
 
     assert(expectMatrix === matrix)
@@ -173,8 +173,8 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       Vectors.dense(-9.948613,-8.941953,-8.106389,4.863542,5.852806,-1.659259,6.342504,-8.190106,-3.110330,-7.484658),
     )
     val arrayData = convertArray(data)
-    val table = new HomogenTable(10, 10, arrayData)
-    val array = OneDAL.homogenTableToVectors(table)
+    val table = new HomogenTable(10, 10, arrayData, getDevice)
+    val array = OneDAL.homogenTableToVectors(table, getDevice)
     assert(data === array)
   }
 
@@ -208,5 +208,20 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       }
     }
     arrayDouble
+  }
+
+  private def getDevice: Common.ComputeDevice = {
+    val device = System.getProperty("computeDevice")
+    var computeDevice: Common.ComputeDevice = Common.ComputeDevice.CPU
+    if(device != null) {
+      device.toUpperCase match {
+        case "HOST" =>  computeDevice = Common.ComputeDevice.HOST
+        case "CPU"  => computeDevice = Common.ComputeDevice.CPU
+        case "GPU"  => computeDevice = Common.ComputeDevice.GPU
+        case _  => "Invalid Device"
+      }
+    }
+    System.out.println("getDevice : " + computeDevice)
+    computeDevice
   }
 }

@@ -5,6 +5,8 @@
 #include "GPU.h"
 #include "service.h"
 
+sycl::queue *queue;
+
 static std::vector<sycl::device> get_gpus() {
     auto platforms = sycl::platform::get_platforms();
     for (auto p : platforms) {
@@ -64,25 +66,22 @@ sycl::device getAssignedGPU(ccl::communicator &comm, int size, int rankId,
     return rank_gpu;
 }
 
-sycl::queue getQueue() {
-    std::cout << "Selector Queue" << std::endl;
-    char *str = getenv("SPARK_CI_TEST");
-    if (str != NULL) {
-        std::cout << "The SPARK_CI_TEST of value : " << str << std::endl;
-        int length = strlen(str);
-        for (int i = 0; i < length; i++) {
-            // convert str[i] to uppercase
-            str[i] = std::toupper(str[i]);
+sycl::queue *getQueue(const bool is_gpu) {
+    std::cout << "Get Queue" << std::endl;
+    if (is_gpu) {
+        std::cout << "selector GPU" << std::endl;
+        if (queue == NULL) {
+            auto device_gpu = sycl::gpu_selector{}.select_device();
+            queue = new sycl::queue(device_gpu);
         }
-        if (strcmp(str, "CPU") == 0) {
-            std::cout << "selector CPU" << std::endl;
+        return queue;
+    } else {
+        std::cout << "selector CPU" << std::endl;
+        if (queue == NULL) {
             auto device_cpu = sycl::cpu_selector{}.select_device();
-            sycl::queue q_cpu{device_cpu};
-            return q_cpu;
+            queue = new sycl::queue(device_cpu);
         }
+        std::cout << "selector CPU 11" << std::endl;
+        return queue;
     }
-    std::cout << "selector GPU" << std::endl;
-    auto device_gpu = sycl::gpu_selector{}.select_device();
-    sycl::queue q_gpu{device_gpu};
-    return q_gpu;
 }

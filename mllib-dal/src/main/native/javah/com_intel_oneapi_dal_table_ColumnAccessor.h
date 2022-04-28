@@ -13,7 +13,7 @@ extern "C" {
  * Signature: (JJJJ)[D
  */
 JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cPullDouble
-  (JNIEnv *, jobject, jlong, jlong, jlong, jlong);
+  (JNIEnv *, jobject, jlong, jlong, jlong, jlong, jint);
 
 /*
  * Class:     com_intel_oneapi_dal_table_ColumnAccessor
@@ -21,7 +21,7 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cP
  * Signature: (JJJJ)[F
  */
 JNIEXPORT jfloatArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cPullFloat
-  (JNIEnv *, jobject, jlong, jlong, jlong, jlong);
+  (JNIEnv *, jobject, jlong, jlong, jlong, jlong, jint);
 
 /*
  * Class:     com_intel_oneapi_dal_table_ColumnAccessor
@@ -29,7 +29,7 @@ JNIEXPORT jfloatArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cPu
  * Signature: (JJJJ)[I
  */
 JNIEXPORT jintArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cPullInt
-  (JNIEnv *, jobject, jlong, jlong, jlong, jlong);
+  (JNIEnv *, jobject, jlong, jlong, jlong, jlong, jint);
 
 /*
  * Class:     com_intel_oneapi_dal_table_ColumnAccessor
@@ -37,7 +37,7 @@ JNIEXPORT jintArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cPull
  * Signature: (JJJJ)[J
  */
 JNIEXPORT jlongArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cPullLong
-  (JNIEnv *, jobject, jlong, jlong, jlong, jlong);
+  (JNIEnv *, jobject, jlong, jlong, jlong, jlong, jint);
 
 #ifdef __cplusplus
 }
