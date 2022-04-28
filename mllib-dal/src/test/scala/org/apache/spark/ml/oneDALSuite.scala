@@ -90,7 +90,6 @@ class oneDALSuite extends FunctionsSuite with Logging {
     val rddVectors = df.rdd.map {
       case Row(v: Vector) => v
     }.cache()
-
     val result = OneDAL.rddVectorToMergedHomogenTables(rddVectors, 1, getDevice)
 
     val tableAddr = result.collect()
@@ -117,6 +116,7 @@ class oneDALSuite extends FunctionsSuite with Logging {
     }
     data
   }
+
   private def getDevice: Common.ComputeDevice = {
     val device = System.getProperty("computeDevice")
     var computeDevice: Common.ComputeDevice = Common.ComputeDevice.CPU
