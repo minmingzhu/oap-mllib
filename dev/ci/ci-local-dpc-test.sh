@@ -21,7 +21,7 @@ cd  $GITHUB_WORKSPACE/dev/tools/check-gpu-cpu/
 ./run.sh
 
 # Prepare lib resources
-cd $GITHUB_WORKSPACE/mllib-dala
+cd $GITHUB_WORKSPACE/mllib-dal
 ../dev/prepare-build-deps-gpu.sh
 ./build.sh -p CPU_GPU_PROFILE -q
 
