@@ -638,7 +638,6 @@ object OneDAL {
     }
   }
 
-<<<<<<< HEAD
   def partitionsToHomogenTables(partitions: RDD[Vector], executorNum: Int,
                                 device: Common.ComputeDevice): RDD[HomogenTable] = {
     val dataForConversion = partitions.repartition(executorNum)
