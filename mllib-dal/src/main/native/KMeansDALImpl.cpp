@@ -16,6 +16,8 @@
 
 #include <chrono>
 #include <iostream>
+#include <iomanip>
+
 
 #ifdef CPU_GPU_PROFILE
 #include "GPU.h"
@@ -24,6 +26,9 @@
 #include "OneCCL.h"
 #include "com_intel_oap_mllib_clustering_KMeansDALImpl.h"
 #include "service.h"
+#include "oneapi/dal/algo/kmeans.hpp"
+#include "oneapi/dal/spmd/ccl/communicator.hpp"
+#include "oneapi/dal/table/homogen.hpp"
 
 using namespace std;
 using namespace daal;
@@ -31,6 +36,7 @@ using namespace daal::algorithms;
 using namespace daal::services;
 
 typedef double algorithmFPType; /* Algorithm floating-point type */
+typedef std::shared_ptr<oneapi::dal::homogen_table> HomogenTablePtr;
 
 static NumericTablePtr kmeans_compute(int rankId, ccl::communicator &comm,
                                       const NumericTablePtr &pData,
@@ -230,6 +236,85 @@ static jlong doKMeansDALComputeWithInitCenters(
         return (jlong)0;
 }
 
+static jlong doKMeansOneAPICompute(
+  JNIEnv *env, jobject obj, int rankId, ccl::communicator &comm,
+  jlong pNumTabData, jlong pNumTabCenters, jint cluster_num,
+  jdouble tolerance, jint iteration_num, jobject resultObj, jint cComputeDevice) {
+       oneapi::dal::homogen_table *htable =
+          ((HomogenTablePtr *)pNumTabData)->get();
+       oneapi::dal::homogen_table *centroids =
+          ((HomogenTablePtr *)pNumTabCenters)->get();
+       const auto kmeans_desc = oneapi::dal::kmeans::descriptor<>()
+                                           .set_cluster_count(cluster_num)
+                                           .set_max_iteration_count(iteration_num)
+                                           .set_accuracy_threshold(tolerance);
+       extern const std::int64_t rank_id;
+       extern const auto result_train;
+switch(getComputeDevice(cComputeDevice)) {
+       case compute_device::host:{
+          const auto x_train = oneapi::dal::read<oneapi::dal::homogen_table>(*htable);
+          const auto initial_centroids = oneapi::dal::read<oneapi::dal::homogen_table>(*centroids);
+          auto comm = oneapi::dal::preview::spmd::make_communicator<oneapi::dal::preview::spmd::backend::ccl>();
+          rank_id = comm.get_rank();
+//          auto rank_count = comm.get_rank_count();
+//          auto input_vec = split_table_by_rows<double>(queue, x_train, rank_count);
+//          dal::kmeans::train_input local_input { input_vec[rank_id], initial_centroids };
+          result_train = oneapi::dal::preview::train(comm, kmeans_desc, x_train, initial_centroids)
+       }
+#ifdef CPU_GPU_PROFILE
+       case compute_device::cpu:{
+          sycl::queue *cpu_queue = getQueue(false);
+          const auto x_train = oneapi::dal::read<oneapi::dal::homogen_table>(*cpu_queue, *htable);
+          const auto initial_centroids = oneapi::dal::read<oneapi::dal::homogen_table>(*cpu_queue, *centroids);
+          auto comm = oneapi::dal::preview::spmd::make_communicator<oneapi::dal::preview::spmd::backend::ccl>(*cpu_queue);
+          rank_id = comm.get_rank();
+          auto rank_count = comm.get_rank_count();
+          auto input_vec = split_table_by_rows<double>(*cpu_queue, x_train, rank_count);
+          oneapi::dal::kmeans::train_input local_input { input_vec[rank_id], initial_centroids };
+          result_train = oneapi::dal::preview::train(comm, kmeans_desc, local_input)
+       }
+       case compute_device::gpu:{
+          sycl::queue *gpu_queue = getQueue(true);
+          const auto x_train = oneapi::dal::read<oneapi::dal::homogen_table>(*gpu_queue, *htable);
+          const auto initial_centroids = oneapi::dal::read<oneapi::dal::homogen_table>(*gpu_queue, *centroids);
+          auto comm = oneapi::dal::preview::spmd::make_communicator<oneapi::dal::preview::spmd::backend::ccl>(*gpu_queue);
+          rank_id = comm.get_rank();
+          auto rank_count = comm.get_rank_count();
+          auto input_vec = split_table_by_rows<double>(*gpu_queue, x_train, rank_count);
+          oneapi::dal::kmeans::train_input local_input { input_vec[rank_id], initial_centroids };
+          result_train = oneapi::dal::preview::train(comm, kmeans_desc, local_input)
+       }
+#endif
+       default: {
+             return (jlong)0;
+       }
+    }
+
+       if(rank_id == 0) {
+            std::cout << "Iteration count: " << result_train.get_iteration_count() << std::endl;
+            std::cout << "Objective function value: " << result_train.get_objective_function_value()
+                      << std::endl;
+            std::cout << "Centroids:\n" << result_train.get_model().get_centroids() << std::endl;
+               // Get the class of the input object
+            jclass clazz = env->GetObjectClass(resultObj);
+            // Get Field references
+            jfieldID totalCostField = env->GetFieldID(clazz, "totalCost", "D");
+            jfieldID iterationNumField =
+                env->GetFieldID(clazz, "iterationNum", "I");
+            // Set iteration num for result
+            env->SetIntField(resultObj, iterationNumField, result_train.get_iteration_count());
+            // Set cost for result
+            env->SetDoubleField(resultObj, totalCostField, result_train.get_objective_function_value());
+
+            oneapi::dal::homogen_table *centroidsTable = new oneapi::dal::homogen_table(result_train.get_model().get_centroids());
+            HomogenTablePtr centroidsPtr = new HomogenTablePtr(centroidsTable);
+            return (jlong)centroidsPtr;
+       } else {
+            return (jlong)0;
+       }
+}
+
+
 JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansDALComputeWithInitCenters(
     JNIEnv *env, jobject obj, jlong pNumTabData, jlong pNumTabCenters,
@@ -247,39 +332,12 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansDALComputeWithInitCente
 #ifdef CPU_GPU_PROFILE
 
     if (use_gpu) {
-        int n_gpu = env->GetArrayLength(gpu_idx_array);
         cout << "oneDAL (native): use GPU kernels with " << n_gpu << " GPU(s)"
              << endl;
 
-        jint *gpu_indices = env->GetIntArrayElements(gpu_idx_array, 0);
-
-        int size = comm.size();
-        auto assigned_gpu =
-            getAssignedGPU(comm, size, rankId, gpu_indices, n_gpu);
-
-        // Set SYCL context
-        cl::sycl::queue queue(assigned_gpu);
-        daal::services::SyclExecutionContext ctx(queue);
-        daal::services::Environment::getInstance()->setDefaultExecutionContext(
-            ctx);
-
-        using daal::data_management::internal::convertToSyclHomogen;
-
-        Status st;
-        NumericTablePtr pSyclHomogen =
-            convertToSyclHomogen<algorithmFPType>(*pData, st);
-        if (!st.ok()) {
-            std::cout
-                << "Failed to convert row merged table to SYCL homogen one"
-                << std::endl;
-            return 0L;
-        }
-
         ret = doKMeansDALComputeWithInitCenters(
-            env, obj, rankId, comm, pSyclHomogen, centroids, cluster_num,
-            tolerance, iteration_num, executor_num, resultObj);
-
-        env->ReleaseIntArrayElements(gpu_idx_array, gpu_indices, 0);
+            env, obj, rankId, comm, pNumTabData, centroids, cluster_num,
+            tolerance, iteration_num, executor_num, resultObj, cComputeDevice);
     } else
 #endif
     {

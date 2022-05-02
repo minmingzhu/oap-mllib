@@ -18,6 +18,7 @@ package com.intel.oap.mllib.clustering
 
 import com.intel.oap.mllib.Utils.getOneCCLIPPort
 import com.intel.oap.mllib.{OneCCL, OneDAL}
+import com.intel.oneapi.dal.table.Common
 import org.apache.spark.TaskContext
 import org.apache.spark.internal.Logging
 import org.apache.spark.ml.linalg.Vector
@@ -73,8 +74,14 @@ class KMeansDALImpl(var nClusters: Int,
 
       val ret = if (OneCCL.isRoot()) {
         assert(cCentroids != 0)
-        val centerVectors = OneDAL.numericTableToVectors(OneDAL.makeNumericTable(cCentroids))
-        Iterator((centerVectors, result.totalCost, result.iterationNum))
+        if (useGPU) {
+          val centerVectors = OneDAL.homogenTableToVectors(OneDAL.makeHomogenTable(cCentroids),
+            Common.ComputeDevice.GPU)
+          Iterator((centerVectors, result.totalCost, result.iterationNum))
+        } else {
+          val centerVectors = OneDAL.numericTableToVectors(OneDAL.makeNumericTable(cCentroids))
+          Iterator((centerVectors, result.totalCost, result.iterationNum))
+        }
       } else {
         Iterator.empty
       }
