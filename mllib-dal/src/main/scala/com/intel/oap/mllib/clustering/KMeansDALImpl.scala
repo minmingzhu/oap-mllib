@@ -43,38 +43,49 @@ class KMeansDALImpl(var nClusters: Int,
     val kvsIPPort = getOneCCLIPPort(coalescedTables)
 
     val sparkContext = data.sparkContext
-    val useGPU = sparkContext.getConf.getBoolean("spark.oap.mllib.useGPU", false)
-
+    val isDPC = sparkContext.getConf.getBoolean("spark.oap.mllib.isDPC", false)
+    val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", "GPU")
     val results = coalescedTables.mapPartitionsWithIndex { (rank, table) =>
-
-      val gpuIndices = if (useGPU) {
-        val resources = TaskContext.get().resources()
-        resources("gpu").addresses.map(_.toInt)
-      } else {
-        null
-      }
-
-      val tableArr = table.next()
-      OneCCL.init(executorNum, rank, kvsIPPort)
-
-      val initCentroids = OneDAL.makeNumericTable(centers)
+      var cCentroids = 0L
       val result = new KMeansResult()
-      val cCentroids = cKMeansDALComputeWithInitCenters(
-        tableArr,
-        initCentroids.getCNumericTable,
-        nClusters,
-        tolerance,
-        maxIterations,
-        executorNum,
-        executorCores,
-        useGPU,
-        gpuIndices,
-        result
-      )
+      val tableArr = table.next()
+      if (isDPC) {
+        val computeDevice = if (useDevice.toUpperCase().equals("GPU")) {
+          Common.ComputeDevice.GPU
+        } else if (useDevice.equals("CPU")) {
+          Common.ComputeDevice.CPU
+        } else {
+          Common.ComputeDevice.HOST
+        }
+        OneCCL.init()
+        val initCentroids = OneDAL.makeHomogenTable(centers, computeDevice)
+        cCentroids = cKMeansOneapiComputeWithInitCenters(
+          tableArr,
+          initCentroids.getcObejct(),
+          nClusters,
+          tolerance,
+          maxIterations,
+          computeDevice.ordinal(),
+          result
+        )
+      } else {
+        OneCCL.init(executorNum, rank, kvsIPPort)
+        val initCentroids = OneDAL.makeNumericTable(centers)
+        cCentroids = cKMeansDALComputeWithInitCenters(
+          tableArr,
+          initCentroids.getCNumericTable,
+          nClusters,
+          tolerance,
+          maxIterations,
+          executorNum,
+          executorCores,
+          result
+        )
+      }
 
       val ret = if (OneCCL.isRoot()) {
         assert(cCentroids != 0)
-        if (useGPU) {
+        if (isDPC) {
           val centerVectors = OneDAL.homogenTableToVectors(OneDAL.makeHomogenTable(cCentroids),
             Common.ComputeDevice.GPU)
           Iterator((centerVectors, result.totalCost, result.iterationNum))
@@ -121,8 +132,13 @@ class KMeansDALImpl(var nClusters: Int,
                                                        iteration_num: Int,
                                                        executor_num: Int,
                                                        executor_cores: Int,
-                                                       useGPU: Boolean,
-                                                       gpuIndices: Array[Int],
                                                        result: KMeansResult): Long
 
+  // Single entry to call DPC++ KMeans oneapi backend with initial centers, output centers
+  @native private[mllib] def cKMeansOneapiComputeWithInitCenters(data: Long, centers: Long,
+                                                       cluster_num: Int,
+                                                       tolerance: Double,
+                                                       iteration_num: Int,
+                                                       computeDevice: Int,
+                                                       result: KMeansResult): Long
 }

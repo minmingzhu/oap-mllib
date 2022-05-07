@@ -82,6 +82,26 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     return 1;
 }
 
+/*
+ * Class:     com_intel_oap_mllib_OneCCL__
+ * Method:    c_init
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init__
+  (JNIEnv *env, jobject){
+      std::cerr << "OneCCL (native): init" << std::endl;
+
+      auto t1 = std::chrono::high_resolution_clock::now();
+
+      ccl::init();
+      auto t2 = std::chrono::high_resolution_clock::now();
+      auto duration =
+           std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
+      std::cerr << "OneCCL (native): init took " << duration << " secs"
+              << std::endl;
+      return 1;
+  }
+
 JNIEXPORT void JNICALL
 Java_com_intel_oap_mllib_OneCCL_00024_c_1cleanup(JNIEnv *env, jobject obj) {
 

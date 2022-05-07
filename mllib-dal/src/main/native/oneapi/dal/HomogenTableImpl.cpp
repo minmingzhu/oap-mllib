@@ -23,9 +23,12 @@
 #include <vector>
 #include <mutex>
 
+
+
 #ifdef CPU_GPU_PROFILE
 #include "GPU.h"
 #endif
+
 #ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
 #endif
@@ -65,7 +68,7 @@ static data_layout getDataLayout(jint cLayout) {
 /*
  * Class:     com_intel_oneapi_dal_table_HomogenTableImpl
  * Method:    iInit
- * Signature: (JJLjava/nio/ByteBuffer;Ljava/lang/Class;Ljava/lang/String;)J
+ * Signature: (JJ[FI)J
  */
 JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_iInit(
     JNIEnv *env, jobject, jlong cRowCount, jlong cColCount, jintArray cData,

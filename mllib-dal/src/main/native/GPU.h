@@ -5,6 +5,10 @@
 #include <daal_sycl.h>
 #include <jni.h>
 #include <oneapi/ccl.hpp>
+
+#ifndef ONEDAL_DATA_PARALLEL
+#define ONEDAL_DATA_PARALLEL
+#endif
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 

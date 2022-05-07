@@ -15,6 +15,14 @@
 # limitations under the License.
 
 export PLATFORM_PROFILE=CPU_GPU_PROFILE
+echo $CMKAE
+echo $CCL_ROOT
+MPI_PATH="$I_MPI_ROOT"
+echo $MPI_PATH
+echo $DAALROOT
+echo $CMPLR_ROOT
+echo $TBBROOT
+
 
 make clean
 make -j
