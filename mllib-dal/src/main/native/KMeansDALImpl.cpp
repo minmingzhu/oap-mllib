@@ -15,8 +15,8 @@
  *******************************************************************************/
 
 #include <chrono>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
 #ifdef CPU_GPU_PROFILE
 #include "GPU.h"
@@ -248,8 +248,7 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansDALComputeWithInitCente
 
     jlong ret = 0L;
     // Set number of threads for oneDAL to use for each rank
-    services::Environment::getInstance()->setNumberOfThreads(
-        executor_cores);
+    services::Environment::getInstance()->setNumberOfThreads(executor_cores);
 
     int nThreadsNew =
         services::Environment::getInstance()->getNumberOfThreads();
