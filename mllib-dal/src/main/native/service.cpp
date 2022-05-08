@@ -759,8 +759,7 @@ SerializationIfacePtr deserializeDAALObject(daal::byte *buff, size_t length) {
     return dataArch.getAsSharedPtr();
 }
 
-template <typename T>
-void print_table_int(const oneapi::dal::table &table) {
+template <typename T> void print_table_int(const oneapi::dal::table &table) {
     if (!table.has_data())
         return;
     auto arr = oneapi::dal::row_accessor<const T>(table).pull();
