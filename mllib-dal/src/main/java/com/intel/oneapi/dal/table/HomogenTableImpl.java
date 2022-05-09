@@ -12,7 +12,7 @@ public class HomogenTableImpl implements HomogenTableIface {
             e.printStackTrace();
         }
     }
-    private transient long cObject;
+    private long cObject;
     private TableMetadata metadata;
 
     protected HomogenTableImpl() {

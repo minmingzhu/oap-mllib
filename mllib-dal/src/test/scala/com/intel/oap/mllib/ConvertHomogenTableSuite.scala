@@ -210,10 +210,9 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     arrayDouble
   }
 
-  private def getDevice = {
+  private def getDevice: Common.ComputeDevice = {
     val device = System.getProperty("computeDevice")
     var computeDevice: Common.ComputeDevice = Common.ComputeDevice.CPU
-    System.out.println("getDevice : " + device)
     if(device != null) {
       device.toUpperCase match {
         case "HOST" =>  computeDevice = Common.ComputeDevice.HOST
