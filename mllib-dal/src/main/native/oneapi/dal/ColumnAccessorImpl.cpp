@@ -58,6 +58,7 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cP
        }
 #ifdef CPU_GPU_PROFILE
        case compute_device::cpu:{
+
               sycl::queue cpu_queue = getQueue(compute_device::cpu);
               col_values = acc.pull(cpu_queue, cColumnIndex, {cRowStartIndex, cRowEndIndex});
               break;
