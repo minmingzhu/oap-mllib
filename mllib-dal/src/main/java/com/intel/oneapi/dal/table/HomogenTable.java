@@ -146,7 +146,6 @@ public class HomogenTable extends Table {
     public void addHomogenTable(long homogenTableAddr ) {
         impl.addHomogenTable(homogenTableAddr);
     }
-
     public long getcObejct() {
         return impl.getcObject();
     }

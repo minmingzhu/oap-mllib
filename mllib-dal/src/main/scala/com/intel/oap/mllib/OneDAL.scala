@@ -28,7 +28,10 @@ import java.lang
 import java.nio.DoubleBuffer
 import java.util.logging.{Level, Logger}
 
+<<<<<<< HEAD
 import com.intel.oneapi.dal.table.Common.ComputeDevice
+=======
+>>>>>>> rollback to edb9f3d
 import com.intel.oneapi.dal.table.{ColumnAccessor, Common, HomogenTable, RowAccessor}
 
 import scala.collection.mutable.ArrayBuffer
@@ -306,6 +309,7 @@ object OneDAL {
   private[mllib] def doubleArrayToHomogenTable(points: Array[Double],
                                                device: Common.ComputeDevice): HomogenTable = {
     val table = new HomogenTable(1, points.length, points, device)
+
     table
   }
 
