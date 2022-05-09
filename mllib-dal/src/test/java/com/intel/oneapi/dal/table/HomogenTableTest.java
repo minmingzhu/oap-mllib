@@ -17,13 +17,13 @@ public class HomogenTableTest {
         assertEquals(new Long(0), table.getRowCount());
         assertEquals(new Long(1), table.getKind());
     }
+
     @Test
     // can construct rowmajor int table 5x2
     public void createRowmajorIntTable() throws Exception {
         int[] data = {1, 2, 3, 4, 5, 6, 10, 80, 10, 11};
         HomogenTable table = new HomogenTable(5, 2,
                 data, CommonTest.getDevice());
-
         assertEquals(true, table.hasData());
         assertEquals(new Long(2), table.getColumnCount());
         assertEquals(new Long(5), table.getRowCount());
@@ -43,7 +43,6 @@ public class HomogenTableTest {
                 53.620204d, 33.219769d, 85.208661d, 15.966239d};
         HomogenTable table = new HomogenTable(5, 2,
                 data, CommonTest.getDevice());
-
         assertEquals(true, table.hasData());
         assertEquals(new Long(2), table.getColumnCount());
         assertEquals(new Long(5), table.getRowCount());
@@ -64,7 +63,6 @@ public class HomogenTableTest {
         long[] data = {1L, 2L, 3L, 4L, 5L, 6L, 10L, 80L, 10L, 11L};
         HomogenTable table = new HomogenTable(5, 2,
                 data, CommonTest.getDevice());
-
         assertEquals(true, table.hasData());
         assertEquals(new Long(2), table.getColumnCount());
         assertEquals(new Long(5), table.getRowCount());
@@ -85,7 +83,6 @@ public class HomogenTableTest {
                 53.620204f, 33.219769f, 85.208661f, 15.966239f};
         HomogenTable table = new HomogenTable(5, 2,
                 data, CommonTest.getDevice());
-
         assertEquals(true, table.hasData());
         assertEquals(new Long(2), table.getColumnCount());
         assertEquals(new Long(5), table.getRowCount());
@@ -107,7 +104,6 @@ public class HomogenTableTest {
         int[] data = {1, 2, 3, 4, 5, 6, 10, 80, 10, 11};
         HomogenTable table = new HomogenTable(5, 2,
                 data, COLUMN_MAJOR, CommonTest.getDevice());
-
         assertEquals(true, table.hasData());
         assertEquals(new Long(2), table.getColumnCount());
         assertEquals(new Long(5), table.getRowCount());
@@ -128,7 +124,6 @@ public class HomogenTableTest {
                 53.620204f, 33.219769f, 85.208661f, 15.966239f};
         HomogenTable table = new HomogenTable(5, 2,
                 data, COLUMN_MAJOR, CommonTest.getDevice());
-
         assertEquals(true, table.hasData());
         assertEquals(new Long(2), table.getColumnCount());
         assertEquals(new Long(5), table.getRowCount());
@@ -168,7 +163,6 @@ public class HomogenTableTest {
                 53.620204d, 33.219769d, 85.208661d, 15.966239d};
         HomogenTable table = new HomogenTable(5, 2,
                 data, COLUMN_MAJOR, CommonTest.getDevice());
-
         assertEquals(true, table.hasData());
         assertEquals(new Long(2), table.getColumnCount());
         assertEquals(new Long(5), table.getRowCount());
