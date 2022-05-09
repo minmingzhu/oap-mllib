@@ -85,7 +85,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_iInit(
        }
 #ifdef CPU_GPU_PROFILE
        case compute_device::cpu:{
-             sycl::queue *cpu_queue = getQueue(false);
+             sycl::queue *cpu_queue = getQueue(compute_device::cpu);
              auto cpu_data = malloc_shared<int>(cRowCount * cColCount, *cpu_queue);
              cpu_queue->memcpy(cpu_data, fData, sizeof(int) * cRowCount * cColCount).wait();
              h_table = new homogen_table(*cpu_queue,
@@ -96,7 +96,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_iInit(
              return (jlong)tablePtr;
        }
        case compute_device::gpu:{
-             sycl::queue *gpu_queue = getQueue(true);
+             sycl::queue *gpu_queue = getQueue(compute_device::gpu);
              auto gpu_data = malloc_shared<int>(cRowCount * cColCount, *gpu_queue);
              gpu_queue->memcpy(gpu_data, fData, sizeof(int) * cRowCount * cColCount).wait();
              h_table = new homogen_table(*gpu_queue,
@@ -136,7 +136,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_fInit(
          }
 #ifdef CPU_GPU_PROFILE
          case compute_device::cpu:{
-             sycl::queue *cpu_queue = getQueue(false);
+             sycl::queue *cpu_queue = getQueue(compute_device::cpu);
              auto cpu_data = malloc_shared<float>(cRowCount * cColCount, *cpu_queue);
              cpu_queue->memcpy(cpu_data, fData, sizeof(float) * cRowCount * cColCount).wait();
              h_table = new homogen_table(*cpu_queue,
@@ -147,7 +147,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_fInit(
              return (jlong)tablePtr;
          }
          case compute_device::gpu:{
-             sycl::queue *gpu_queue = getQueue(true);
+             sycl::queue *gpu_queue = getQueue(compute_device::gpu);
              auto gpu_data = malloc_shared<float>(cRowCount * cColCount, *gpu_queue);
              gpu_queue->memcpy(gpu_data, fData, sizeof(float) * cRowCount * cColCount).wait();
              h_table = new homogen_table(*gpu_queue,
@@ -186,7 +186,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_dInit(
          }
 #ifdef CPU_GPU_PROFILE
          case compute_device::cpu:{
-             sycl::queue *cpu_queue = getQueue(false);
+             sycl::queue *cpu_queue = getQueue(compute_device::cpu);
              auto cpu_data = malloc_shared<double>(cRowCount * cColCount, *cpu_queue);
              cpu_queue->memcpy(cpu_data, fData, sizeof(double) * cRowCount * cColCount).wait();
              h_table = new homogen_table(*cpu_queue,
@@ -197,7 +197,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_dInit(
              return (jlong)tablePtr;
          }
          case compute_device::gpu:{
-             sycl::queue *gpu_queue = getQueue(true);
+             sycl::queue *gpu_queue = getQueue(compute_device::gpu);
              auto gpu_data = malloc_shared<double>(cRowCount * cColCount, *gpu_queue);
              gpu_queue->memcpy(gpu_data, fData, sizeof(double) * cRowCount * cColCount).wait();
              h_table = new homogen_table(*gpu_queue,
@@ -237,7 +237,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_lInit(
          }
 #ifdef CPU_GPU_PROFILE
          case compute_device::cpu:{
-             sycl::queue *cpu_queue = getQueue(false);
+             sycl::queue *cpu_queue = getQueue(compute_device::cpu);
              auto cpu_data = malloc_shared<long>(cRowCount * cColCount, *cpu_queue);
              cpu_queue->memcpy(cpu_data, fData, sizeof(long) * cRowCount * cColCount).wait();
              h_table = new homogen_table(*cpu_queue,
@@ -248,7 +248,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_lInit(
              return (jlong)tablePtr;
          }
          case compute_device::gpu:{
-             sycl::queue *gpu_queue = getQueue(true);
+             sycl::queue *gpu_queue = getQueue(compute_device::gpu);
              auto gpu_data = malloc_shared<long>(cRowCount * cColCount, *gpu_queue);
              gpu_queue->memcpy(gpu_data, fData, sizeof(long) * cRowCount * cColCount).wait();
              h_table = new homogen_table(*gpu_queue,

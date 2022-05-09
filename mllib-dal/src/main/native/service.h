@@ -45,6 +45,7 @@ using namespace daal::data_management;
 enum class compute_device { host, cpu, gpu };
 typedef double algorithmFpType;
 typedef std::vector<daal::byte> ByteBuffer;
+enum class compute_device { host, cpu, gpu };
 
 void printNumericTable(const NumericTablePtr &dataTable,
                        const char *message = "", size_t nPrintedRows = 0,
