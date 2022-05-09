@@ -92,7 +92,6 @@ public class HomogenTable extends Table {
         impl = new HomogenTableImpl(rowCount, colCount, data,
                 dataLayout, device);
     }
-
     @Override
     public Long getColumnCount() {
         return impl.getColumnCount();
