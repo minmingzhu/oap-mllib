@@ -117,5 +117,4 @@ sycl::queue getQueue(const compute_device device) {
         return getQue();
 >>>>>>> update
     }
-    }
 }
