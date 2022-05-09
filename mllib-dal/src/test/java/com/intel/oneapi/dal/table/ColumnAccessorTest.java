@@ -7,6 +7,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class ColumnAccessorTest {
+    private String getDevice(){
+        String device = System.getProperty("computeDevice");
+        if(device == null){
+            device = "HOST";
+        }
+        System.out.println("getDevice : " + device);
+        return device;
+    }
+
     @Test
     public void getDoubleFirstColumnFromHomogenTable() throws Exception {
         double[] data = {5.236359d, 8.718667d, 40.724176d, 10.770023d, 90.119887d, 3.815366d,
