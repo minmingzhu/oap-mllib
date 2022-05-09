@@ -186,7 +186,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
 
     val expectData = Array(5.308206,9.869278)
 
-    val table = new HomogenTable(5, 2, data, classOf[java.lang.Double])
+    val table = new HomogenTable(5, 2, data)
     val vector = OneDAL.homogenTable1xNToVector(table)
 
     assert(expectData=== vector.toArray)
@@ -218,7 +218,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
                      53.620204d, 33.219769d,
                      85.208661d, 15.966239d)
     val expectData = Array(5.236359d, 40.724176d, 90.119887d, 53.620204d, 85.208661d)
-    val table = new HomogenTable(5, 2, data, classOf[java.lang.Double])
+    val table = new HomogenTable(5, 2, data)
     val vector = OneDAL.homogenTableNx1ToVector(table.getcObejct())
 
     assert(expectData === vector.toArray)
@@ -231,7 +231,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       53.620204d, 33.219769d,
       85.208661d, 15.966239d)
     val expectMatrix = new DenseMatrix(5, 2, data, isTransposed = true)
-    val table = new HomogenTable(5, 2, data, classOf[java.lang.Double])
+    val table = new HomogenTable(5, 2, data)
     val matrix = OneDAL.homogenTableToMatrix(table)
 
     assert(expectMatrix === matrix)
@@ -244,7 +244,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       53.620204d, 33.219769d,
       85.208661d, 15.966239d)
     val expectMatrix = new OldDenseMatrix(5, 2, data, isTransposed = true)
-    val table = new HomogenTable(5, 2, data, classOf[java.lang.Double])
+    val table = new HomogenTable(5, 2, data)
     val matrix = OneDAL.homogenTableToOldMatrix(table)
 
     assert(expectMatrix === matrix)
@@ -264,9 +264,8 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       Vectors.dense(-9.948613,-8.941953,-8.106389,4.863542,5.852806,-1.659259,6.342504,-8.190106,-3.110330,-7.484658),
     )
     val arrayData = convertArray(data)
-    val table = new HomogenTable(10, 10, arrayData, classOf[java.lang.Double])
+    val table = new HomogenTable(10, 10, arrayData)
     val array = OneDAL.homogenTableToVectors(table)
-    System.out.println(array)
     assert(data === array)
   }
 
@@ -363,8 +362,8 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
 
     val expectData = Array(5.308206,9.869278)
 
-    val table = new HomogenTable(5, 2, data)
-    val vector = OneDAL.homogenTable1xNToVector(table)
+    val table = new HomogenTable(5, 2, data, getDevice)
+    val vector = OneDAL.homogenTable1xNToVector(table, getDevice)
 
     assert(expectData=== vector.toArray)
   }
@@ -395,8 +394,8 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
                      53.620204d, 33.219769d,
                      85.208661d, 15.966239d)
     val expectData = Array(5.236359d, 40.724176d, 90.119887d, 53.620204d, 85.208661d)
-    val table = new HomogenTable(5, 2, data)
-    val vector = OneDAL.homogenTableNx1ToVector(table.getcObejct())
+    val table = new HomogenTable(5, 2, data, getDevice)
+    val vector = OneDAL.homogenTableNx1ToVector(table.getcObejct(), getDevice)
 
     assert(expectData === vector.toArray)
   }
@@ -408,7 +407,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       53.620204d, 33.219769d,
       85.208661d, 15.966239d)
     val expectMatrix = new DenseMatrix(5, 2, data, isTransposed = true)
-    val table = new HomogenTable(5, 2, data)
+    val table = new HomogenTable(5, 2, data, getDevice)
     val matrix = OneDAL.homogenTableToMatrix(table)
 
     assert(expectMatrix === matrix)
@@ -421,7 +420,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       53.620204d, 33.219769d,
       85.208661d, 15.966239d)
     val expectMatrix = new OldDenseMatrix(5, 2, data, isTransposed = true)
-    val table = new HomogenTable(5, 2, data)
+    val table = new HomogenTable(5, 2, data, getDevice)
     val matrix = OneDAL.homogenTableToOldMatrix(table)
 
     assert(expectMatrix === matrix)
@@ -441,9 +440,8 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       Vectors.dense(-9.948613,-8.941953,-8.106389,4.863542,5.852806,-1.659259,6.342504,-8.190106,-3.110330,-7.484658),
     )
     val arrayData = convertArray(data)
-    val table = new HomogenTable(10, 10, arrayData)
-    val array = OneDAL.homogenTableToVectors(table)
-    System.out.println(array)
+    val table = new HomogenTable(10, 10, arrayData, getDevice)
+    val array = OneDAL.homogenTableToVectors(table, getDevice)
     assert(data === array)
   }
 
