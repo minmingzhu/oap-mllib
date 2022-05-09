@@ -38,7 +38,7 @@ Java_com_intel_oneapi_dal_table_SimpleMetadataImpl_cGetFeatureCount(
     JNIEnv *env, jobject, jlong cTableAddr) {
     printf("SimpleMetadata getfeaturecount \n");
     table_metadata *mdata =
-        ((std::shared_ptr<table_metadata> *)ctableAddr)->get();
+        ((std::shared_ptr<table_metadata> *)cTableAddr)->get();
     return (jlong)mdata->get_feature_count();
 }
 

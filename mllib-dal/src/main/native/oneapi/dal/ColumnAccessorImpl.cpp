@@ -64,7 +64,7 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cP
        }
 #ifdef CPU_GPU_PROFILE
        case compute_device::cpu:{
-              sycl::queue *cpu_queue = getQueue(false);
+              sycl::queue *cpu_queue = getQueue(compute_device::cpu);;
               const auto cpu_col_values = acc->pull(*cpu_queue, cColumnIndex, {cRowStartIndex, cRowEndIndex});
               col_doubles = new double[cpu_col_values.get_count()];
               for (std::int64_t i = 0; i < cpu_col_values.get_count(); i++) {
@@ -75,7 +75,7 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cP
               return newDoubleArray;
        }
        case compute_device::gpu:{
-              sycl::queue *gpu_queue = getQueue(true);
+              sycl::queue *gpu_queue = getQueue(compute_device::gpu);;
               const auto gpu_col_values = acc->pull(*gpu_queue, cColumnIndex, {cRowStartIndex, cRowEndIndex});
               col_doubles = new double[gpu_col_values.get_count()];
               for (std::int64_t i = 0; i < gpu_col_values.get_count(); i++) {
