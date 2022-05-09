@@ -10,7 +10,7 @@ public class ColumnAccessorTest {
     private String getDevice(){
         String device = System.getProperty("computeDevice");
         if(device == null){
-            device = "CPU";
+            device = "HOST";
         }
         System.out.println("getDevice : " + device);
         return device;
@@ -21,10 +21,10 @@ public class ColumnAccessorTest {
         double[] data = {5.236359d, 8.718667d, 40.724176d, 10.770023d, 90.119887d, 3.815366d,
                 53.620204d, 33.219769d, 85.208661d, 15.966239d};
         HomogenTable table = new HomogenTable(5, 2,
-                data, Common.ComputeDevice.getOrdinalByName(getDevice()));
+                data, CommonTest.getDevice());
 
         ColumnAccessor accessor = new ColumnAccessor(table.getcObejct());
-        double[] columnData = accessor.pullDouble(0, Common.ComputeDevice.getOrdinalByName(getDevice()));
+        double[] columnData = accessor.pullDouble(0, CommonTest.getDevice());
         assertEquals(new Long(columnData.length), table.getRowCount());
         double[] tableData = table.getDoubleData();
         for (int i = 0; i < columnData.length; i++) {
@@ -37,10 +37,10 @@ public class ColumnAccessorTest {
         double[] data = {5.236359d, 8.718667d, 40.724176d, 10.770023d, 90.119887d, 3.815366d,
                 53.620204d, 33.219769d, 85.208661d, 15.966239d};
         HomogenTable table = new HomogenTable(5, 2,
-                data, Common.ComputeDevice.getOrdinalByName(getDevice()));
+                data, CommonTest.getDevice());
 
         ColumnAccessor accessor = new ColumnAccessor(table.getcObejct());
-        double[] columnData = accessor.pullDouble(1, Common.ComputeDevice.getOrdinalByName(getDevice()));
+        double[] columnData = accessor.pullDouble(1, CommonTest.getDevice());
         assertEquals(new Long(columnData.length), table.getRowCount());
         double[] tableData = table.getDoubleData();
 
@@ -54,10 +54,10 @@ public class ColumnAccessorTest {
         double[] data = {5.236359d, 8.718667d, 40.724176d, 10.770023d, 90.119887d, 3.815366d,
                 53.620204d, 33.219769d, 85.208661d, 15.966239d};
         HomogenTable table = new HomogenTable(5, 2,
-                data, Common.ComputeDevice.getOrdinalByName(getDevice()));
+                data, CommonTest.getDevice());
 
         ColumnAccessor accessor = new ColumnAccessor(table.getcObejct());
-        double[] columnData = accessor.pullDouble(0, 1 , 3, Common.ComputeDevice.getOrdinalByName(getDevice()));
+        double[] columnData = accessor.pullDouble(0, 1 , 3, CommonTest.getDevice());
         assertEquals(new Long(columnData.length), new Long(2));
         double[] tableData = table.getDoubleData();
         for (int i = 0; i < columnData.length; i++) {
