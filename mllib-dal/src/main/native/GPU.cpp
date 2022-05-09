@@ -89,16 +89,33 @@ sycl::queue getQueue(const compute_device device) {
     case compute_device::gpu: {
         std::cout << "selector GPU" << std::endl;
         auto device_gpu = sycl::gpu_selector{}.select_device();
+<<<<<<< HEAD
         return getSyclQueue(device_gpu);
+=======
+        queue = new sycl::queue(device_gpu);
+        queuePtr = new std::shared_ptr<sycl::queue>(queue);
+        setVector(queuePtr);
+        return getQue();
+>>>>>>> update
     }
     case compute_device::cpu: {
         std::cout << "selector CPU" << std::endl;
         auto device_cpu = sycl::cpu_selector{}.select_device();
+<<<<<<< HEAD
         return getSyclQueue(device_cpu);
     }
     default: {
         std::cout << "No Device!" << std::endl;
         exit(-1);
+=======
+        queue = new sycl::queue(device_cpu);
+        queuePtr = new std::shared_ptr<sycl::queue>(queue);
+        setVector(queuePtr);
+        return getQue();
+    }
+    default: {
+        return getQue();
+>>>>>>> update
     }
     }
 }
