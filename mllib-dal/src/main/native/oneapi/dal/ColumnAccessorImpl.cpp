@@ -32,6 +32,7 @@
 #include "com_intel_oneapi_dal_table_ColumnAccessor.h"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/column_accessor.hpp"
+#include "service.h"
 
 #include "service.h"
 

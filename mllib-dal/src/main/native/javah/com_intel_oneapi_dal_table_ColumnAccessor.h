@@ -31,7 +31,6 @@ JNIEXPORT jfloatArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cPu
 JNIEXPORT jintArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cPullInt
   (JNIEnv *, jobject, jlong, jlong, jlong, jlong, jint);
 
-
 /*
  * Class:     com_intel_oneapi_dal_table_ColumnAccessor
  * Method:    cPullLong
