@@ -102,5 +102,4 @@ sycl::queue *getQueue(const compute_device device) {
     default: {
         return getQue();
     }
-    }
 }

@@ -39,7 +39,10 @@ Java_com_intel_oneapi_dal_table_SimpleMetadataImpl_cGetFeatureCount(
     printf("SimpleMetadata getfeaturecount \n");
     table_metadata *mdata =
         ((std::shared_ptr<table_metadata> *)cTableAddr)->get();
+<<<<<<< HEAD
     printf("get value : %ld\n", mdata->get_feature_count());
+=======
+>>>>>>> rollback to edb9f3d
     return (jlong)mdata->get_feature_count();
 }
 
@@ -54,7 +57,10 @@ Java_com_intel_oneapi_dal_table_SimpleMetadataImpl_cGetFeatureType(
     printf("SimpleMetadata getfeaturetype \n");
     table_metadata *mdata =
         ((std::shared_ptr<table_metadata> *)cTableAddr)->get();
+<<<<<<< HEAD
     printf("get value : %d\n", mdata->get_feature_type(cindex));
+=======
+>>>>>>> rollback to edb9f3d
     return (jint)mdata->get_feature_type(cindex);
 }
 
@@ -69,6 +75,6 @@ Java_com_intel_oneapi_dal_table_SimpleMetadataImpl_cGetDataType(
     printf("SimpleMetadata getdatatype \n");
     table_metadata *mdata =
         ((std::shared_ptr<table_metadata> *)cTableAddr)->get();
-    printf("get value : %d\n", mdata->get_data_type(cindex));
+
     return (jint)mdata->get_data_type(cindex);
 }
