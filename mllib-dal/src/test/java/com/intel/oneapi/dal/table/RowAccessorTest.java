@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class RowAccessorTest {
-
     @Test
     public void readDoubleTableDataFromRowAccessor() {
         double[] data = {5.236359d, 8.718667d, 40.724176d, 10.770023d, 90.119887d, 3.815366d,
