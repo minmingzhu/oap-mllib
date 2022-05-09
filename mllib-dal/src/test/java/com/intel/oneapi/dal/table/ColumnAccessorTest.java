@@ -49,6 +49,7 @@ public class ColumnAccessorTest {
 
         ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
         double[] columnData = accessor.pullDouble(0, 1 , 3);
+
         assertEquals(new Long(columnData.length), new Long(2));
         double[] tableData = table.getDoubleData();
         for (int i = 0; i < columnData.length; i++) {
