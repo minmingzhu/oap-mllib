@@ -143,7 +143,6 @@ object OneDAL {
     val arrayDouble = rowAcc.pullDouble(0, 1)
     Vectors.dense(arrayDouble)
   }
-
   // Convert DAL numeric table to array of vectors
   def numericTableToVectors(table: NumericTable): Array[Vector] = {
     val numRows = table.getNumberOfRows.toInt
@@ -176,7 +175,6 @@ object OneDAL {
 
     resArray
   }
-
 
   def makeNumericTable(cData: Long): NumericTable = {
     val context = new DaalContext()
