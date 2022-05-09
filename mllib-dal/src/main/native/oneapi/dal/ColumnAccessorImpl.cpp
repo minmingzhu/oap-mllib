@@ -34,6 +34,7 @@
 #include "oneapi/dal/table/column_accessor.hpp"
 #include "service.h"
 
+
 using namespace std;
 using namespace oneapi::dal;
 typedef std::shared_ptr<homogen_table> homogenPtr;
