@@ -39,6 +39,7 @@ using namespace std;
 using namespace oneapi::dal;
 typedef std::shared_ptr<homogen_table> homogenPtr;
 
+
 /*
  * Class:     com_intel_oneapi_dal_table_ColumnAccessor
  * Method:    cPull
@@ -154,4 +155,3 @@ switch(getComputeDevice(cComputeDevice)) {
     env->SetIntArrayRegion(newIntArray, 0, col_values.get_count(), col_values.get_data());
     return newIntArray;
 }
-
