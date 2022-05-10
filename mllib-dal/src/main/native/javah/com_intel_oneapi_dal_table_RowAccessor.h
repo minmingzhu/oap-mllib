@@ -31,13 +31,6 @@ JNIEXPORT jfloatArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPullF
 JNIEXPORT jintArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPullInt
   (JNIEnv *, jobject, jlong, jlong, jlong, jint);
 
-/*
- * Class:     com_intel_oneapi_dal_table_RowAccessor
- * Method:    cPullLong
- * Signature: (JJJ)[J
- */
-JNIEXPORT jlongArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPullLong
-  (JNIEnv *, jobject, jlong, jlong, jlong, jint);
 
 #ifdef __cplusplus
 }

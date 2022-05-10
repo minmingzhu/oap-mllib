@@ -34,8 +34,6 @@
 #include "oneapi/dal/table/column_accessor.hpp"
 #include "service.h"
 
-#include "service.h"
-
 using namespace std;
 using namespace oneapi::dal;
 
@@ -51,40 +49,27 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cP
   homogen_table *htable =
           ((std::shared_ptr<homogen_table> *)cTableAddr)->get();
   column_accessor<const double> *acc = new column_accessor<const double>(*htable);
-  double* col_doubles;
   jdoubleArray newDoubleArray;
   switch(getComputeDevice(cComputeDevice)) {
        case compute_device::host:{
               const auto col_values = acc->pull(cColumnIndex, {cRowStartIndex, cRowEndIndex});
-              col_doubles = new double[col_values.get_count()];
-              for (std::int64_t i = 0; i < col_values.get_count(); i++) {
-                  col_doubles[i] = col_values[i];
-              }
               newDoubleArray = env->NewDoubleArray(col_values.get_count());
-              env->SetDoubleArrayRegion(newDoubleArray, 0, col_values.get_count(), col_doubles);
+              env->SetDoubleArrayRegion(newDoubleArray, 0, col_values.get_count(), col_values.get_data());
               return newDoubleArray;
        }
 #ifdef CPU_GPU_PROFILE
        case compute_device::cpu:{
               sycl::queue *cpu_queue = getQueue(compute_device::cpu);
               const auto cpu_col_values = acc->pull(*cpu_queue, cColumnIndex, {cRowStartIndex, cRowEndIndex});
-              col_doubles = new double[cpu_col_values.get_count()];
-              for (std::int64_t i = 0; i < cpu_col_values.get_count(); i++) {
-                  col_doubles[i] = cpu_col_values[i];
-              }
               newDoubleArray = env->NewDoubleArray(cpu_col_values.get_count());
-              env->SetDoubleArrayRegion(newDoubleArray, 0, cpu_col_values.get_count(), col_doubles);
+              env->SetDoubleArrayRegion(newDoubleArray, 0, cpu_col_values.get_count(), cpu_col_values.get_data());
               return newDoubleArray;
        }
        case compute_device::gpu:{
               sycl::queue *gpu_queue = getQueue(compute_device::gpu);
               const auto gpu_col_values = acc->pull(*gpu_queue, cColumnIndex, {cRowStartIndex, cRowEndIndex});
-              col_doubles = new double[gpu_col_values.get_count()];
-              for (std::int64_t i = 0; i < gpu_col_values.get_count(); i++) {
-                  col_doubles[i] = gpu_col_values[i];
-              }
               newDoubleArray = env->NewDoubleArray(gpu_col_values.get_count());
-              env->SetDoubleArrayRegion(newDoubleArray, 0, gpu_col_values.get_count(), col_doubles);
+              env->SetDoubleArrayRegion(newDoubleArray, 0, gpu_col_values.get_count(), gpu_col_values.get_data());
               return newDoubleArray;
        }
 #endif
@@ -93,3 +78,87 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cP
        }
     }
   }
+
+/*
+ * Class:     com_intel_oneapi_dal_table_ColumnAccessor
+ * Method:    cPull
+ * Signature: (JJ)[D
+ */
+JNIEXPORT jfloatArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cPullFloat
+  (JNIEnv *env, jobject, jlong cTableAddr, jlong cColumnIndex, jlong cRowStartIndex,
+   jlong cRowEndIndex, jint cComputeDevice) {
+  printf("ColumnAccessor PullFloat \n");
+  homogen_table *htable =
+          ((std::shared_ptr<homogen_table> *)cTableAddr)->get();
+  column_accessor<const float> *acc = new column_accessor<const float>(*htable);
+  jfloatArray newFloatArray;
+  switch(getComputeDevice(cComputeDevice)) {
+       case compute_device::host:{
+              const auto col_values = acc->pull(cColumnIndex, {cRowStartIndex, cRowEndIndex});
+              newFloatArray = env->NewFloatArray(col_values.get_count());
+              env->SetFloatArrayRegion(newFloatArray, 0, col_values.get_count(), col_values.get_data());
+              return newFloatArray;
+       }
+#ifdef CPU_GPU_PROFILE
+       case compute_device::cpu:{
+              sycl::queue *cpu_queue = getQueue(compute_device::cpu);
+              const auto cpu_col_values = acc->pull(*cpu_queue, cColumnIndex, {cRowStartIndex, cRowEndIndex});
+              newFloatArray = env->NewFloatArray(cpu_col_values.get_count());
+              env->SetFloatArrayRegion(newFloatArray, 0, cpu_col_values.get_count(), cpu_col_values.get_data());
+              return newFloatArray;
+       }
+       case compute_device::gpu:{
+              sycl::queue *gpu_queue = getQueue(compute_device::gpu);
+              const auto gpu_col_values = acc->pull(*gpu_queue, cColumnIndex, {cRowStartIndex, cRowEndIndex});
+              newFloatArray = env->NewFloatArray(gpu_col_values.get_count());
+              env->SetFloatArrayRegion(newFloatArray, 0, gpu_col_values.get_count(), gpu_col_values.get_data());
+              return newFloatArray;
+       }
+#endif
+       default: {
+             return newFloatArray;
+       }
+    }
+  }
+
+/*
+* Class:     com_intel_oneapi_dal_table_ColumnAccessor
+* Method:    cPull
+* Signature: (JJ)[D
+*/
+JNIEXPORT jintArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cPullInt
+(JNIEnv *env, jobject, jlong cTableAddr, jlong cColumnIndex, jlong cRowStartIndex,
+ jlong cRowEndIndex, jint cComputeDevice) {
+printf("ColumnAccessor PullInt \n");
+homogen_table *htable =
+        ((std::shared_ptr<homogen_table> *)cTableAddr)->get();
+column_accessor<const int> *acc = new column_accessor<const int>(*htable);
+jintArray newIntArray;
+switch(getComputeDevice(cComputeDevice)) {
+     case compute_device::host:{
+            const auto col_values = acc->pull(cColumnIndex, {cRowStartIndex, cRowEndIndex});
+            newIntArray = env->NewIntArray(col_values.get_count());
+            env->SetIntArrayRegion(newIntArray, 0, col_values.get_count(), col_values.get_data());
+            return newIntArray;
+     }
+#ifdef CPU_GPU_PROFILE
+     case compute_device::cpu:{
+            sycl::queue *cpu_queue = getQueue(compute_device::cpu);
+            const auto cpu_col_values = acc->pull(*cpu_queue, cColumnIndex, {cRowStartIndex, cRowEndIndex});
+            newIntArray = env->NewIntArray(cpu_col_values.get_count());
+            env->SetIntArrayRegion(newIntArray, 0, cpu_col_values.get_count(), cpu_col_values.get_data());
+            return newIntArray;
+     }
+     case compute_device::gpu:{
+            sycl::queue *gpu_queue = getQueue(compute_device::gpu);
+            const auto gpu_col_values = acc->pull(*gpu_queue, cColumnIndex, {cRowStartIndex, cRowEndIndex});
+            newIntArray = env->NewIntArray(gpu_col_values.get_count());
+            env->SetIntArrayRegion(newIntArray, 0, gpu_col_values.get_count(), gpu_col_values.get_data());
+            return newIntArray;
+     }
+#endif
+     default: {
+           return newIntArray;
+     }
+  }
+}

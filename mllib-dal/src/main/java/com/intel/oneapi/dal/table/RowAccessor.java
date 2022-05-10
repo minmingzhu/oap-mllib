@@ -40,15 +40,4 @@ public class RowAccessor {
     private native int[] cPullInt(long cObject, long cRowStartIndex,
                                   long cRowEndIndex, int computeDeviceIndex);
 
-    public long[] pullLong(Common.ComputeDevice device){
-        return this.cPullLong(this.cObject, 0, -1, device.ordinal());
-    }
-
-    public long[] pullLong(long rowStartIndex, long rowEndIndex, Common.ComputeDevice device){
-        return this.cPullLong(this.cObject, rowStartIndex, rowEndIndex, device.ordinal());
-    }
-
-    private native long[] cPullLong(long cObject, long cRowStartIndex,
-                                    long cRowEndIndex, int computeDeviceIndex);
-
 }

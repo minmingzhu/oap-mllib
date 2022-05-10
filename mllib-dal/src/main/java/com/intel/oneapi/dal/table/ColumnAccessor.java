@@ -18,8 +18,8 @@ public class ColumnAccessor {
     private native double[] cPullDouble(long cObject, long cColumnIndex,
                                         long cRowStartIndex, long cRowEndIndex, int computeDeviceIndex);
 
-    public float[] pullFloat(long columnIndex, int computeDeviceIndex){
-        return this.cPullFloat(this.cObject, columnIndex, 0, -1, computeDeviceIndex);
+    public float[] pullFloat(long columnIndex, Common.ComputeDevice device){
+        return this.cPullFloat(this.cObject, columnIndex, 0, -1, device.ordinal());
     }
 
     public float[] pullFloat(long columnIndex, long rowStartIndex, long rowEndIndex, Common.ComputeDevice device){
@@ -40,14 +40,4 @@ public class ColumnAccessor {
     private native int[] cPullInt(long cObject, long cColumnIndex, long cRowStartIndex,
                                   long cRowEndIndex, int computeDeviceIndex);
 
-    public long[] pullLong(long columnIndex, Common.ComputeDevice device){
-        return this.cPullLong(this.cObject, columnIndex, 0, -1, device.ordinal());
-    }
-
-    public long[] pullLong(long columnIndex, long rowStartIndex, long rowEndIndex, Common.ComputeDevice device){
-        return this.cPullLong(this.cObject, columnIndex, rowStartIndex, rowEndIndex, device.ordinal());
-    }
-
-    private native long[] cPullLong(long cObject, long cColumnIndex, long cRowStartIndex,
-                                    long cRowEndIndex, int computeDeviceIndex);
 }
