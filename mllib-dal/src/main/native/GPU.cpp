@@ -18,10 +18,11 @@ static sycl::queue *getQue(const sycl::device device) {
     if (!cVector.empty()) {
         return cVector[0].get();
     } else {
-       sycl::queue *queue = new sycl::queue(device);
-       std::shared_ptr<sycl::queue> *queuePtr = new std::shared_ptr<sycl::queue>(queue);
-       setVector(queuePtr);
-       return cVector[0].get();
+        sycl::queue *queue = new sycl::queue(device);
+        std::shared_ptr<sycl::queue> *queuePtr =
+            new std::shared_ptr<sycl::queue>(queue);
+        setVector(queuePtr);
+        return cVector[0].get();
     }
     mtx.unlock();
 }
@@ -84,7 +85,6 @@ sycl::device getAssignedGPU(ccl::communicator &comm, int size, int rankId,
 
     return rank_gpu;
 }
-
 
 sycl::queue *getQueue(const compute_device device) {
     std::cout << "Get Queue" << std::endl;
