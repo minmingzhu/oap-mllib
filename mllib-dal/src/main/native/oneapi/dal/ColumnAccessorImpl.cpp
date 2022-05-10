@@ -34,7 +34,6 @@
 #include "oneapi/dal/table/column_accessor.hpp"
 #include "service.h"
 
-
 using namespace std;
 using namespace oneapi::dal;
 typedef std::shared_ptr<homogen_table> homogenPtr;
@@ -78,6 +77,7 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cP
       env->SetDoubleArrayRegion(newDoubleArray, 0, col_values.get_count(), col_values.get_data());
       return newDoubleArray;
 }
+
 
 /*
  * Class:     com_intel_oneapi_dal_table_ColumnAccessor
