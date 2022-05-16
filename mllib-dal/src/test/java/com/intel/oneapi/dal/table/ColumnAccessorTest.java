@@ -15,8 +15,8 @@ public class ColumnAccessorTest {
         HomogenTable table = new HomogenTable(5, 2,
                 data, CommonTest.getDevice());
 
-        ColumnAccessor accessor = new ColumnAccessor(table.getcObejct());
-        double[] columnData = accessor.pullDouble(0, CommonTest.getDevice());
+        ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
+        double[] columnData = accessor.pullDouble(0);
         assertEquals(new Long(columnData.length), table.getRowCount());
         double[] tableData = table.getDoubleData();
         for (int i = 0; i < columnData.length; i++) {
@@ -31,8 +31,8 @@ public class ColumnAccessorTest {
         HomogenTable table = new HomogenTable(5, 2,
                 data, CommonTest.getDevice());
 
-        ColumnAccessor accessor = new ColumnAccessor(table.getcObejct());
-        double[] columnData = accessor.pullDouble(1, CommonTest.getDevice());
+        ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
+        double[] columnData = accessor.pullDouble(1);
         assertEquals(new Long(columnData.length), table.getRowCount());
         double[] tableData = table.getDoubleData();
 
@@ -48,8 +48,8 @@ public class ColumnAccessorTest {
         HomogenTable table = new HomogenTable(5, 2,
                 data, CommonTest.getDevice());
 
-        ColumnAccessor accessor = new ColumnAccessor(table.getcObejct());
-        double[] columnData = accessor.pullDouble(0, 1 , 3, CommonTest.getDevice());
+        ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
+        double[] columnData = accessor.pullDouble(0, 1 , 3);
         assertEquals(new Long(columnData.length), new Long(2));
         double[] tableData = table.getDoubleData();
         for (int i = 0; i < columnData.length; i++) {
@@ -64,8 +64,8 @@ public class ColumnAccessorTest {
         HomogenTable table = new HomogenTable(5, 2,
                 data, CommonTest.getDevice());
 
-        ColumnAccessor accessor = new ColumnAccessor(table.getcObejct());
-        float[] columnData = accessor.pullFloat(0, CommonTest.getDevice());
+        ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
+        float[] columnData = accessor.pullFloat(0);
         assertEquals(new Long(columnData.length), table.getRowCount());
         float[] tableData = table.getFloatData();
         for (int i = 0; i < columnData.length; i++) {
@@ -80,8 +80,8 @@ public class ColumnAccessorTest {
         HomogenTable table = new HomogenTable(5, 2,
                 data, CommonTest.getDevice());
 
-        ColumnAccessor accessor = new ColumnAccessor(table.getcObejct());
-        float[] columnData = accessor.pullFloat(1, CommonTest.getDevice());
+        ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
+        float[] columnData = accessor.pullFloat(1);
         assertEquals(new Long(columnData.length), table.getRowCount());
         float[] tableData = table.getFloatData();
 
@@ -97,8 +97,8 @@ public class ColumnAccessorTest {
         HomogenTable table = new HomogenTable(5, 2,
                 data, CommonTest.getDevice());
 
-        ColumnAccessor accessor = new ColumnAccessor(table.getcObejct());
-        float[] columnData = accessor.pullFloat(0, 1 , 3, CommonTest.getDevice());
+        ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
+        float[] columnData = accessor.pullFloat(0, 1 , 3);
         assertEquals(new Long(columnData.length), new Long(2));
         float[] tableData = table.getFloatData();
         for (int i = 0; i < columnData.length; i++) {
@@ -112,8 +112,8 @@ public class ColumnAccessorTest {
         HomogenTable table = new HomogenTable(5, 2,
                 data, CommonTest.getDevice());
 
-        ColumnAccessor accessor = new ColumnAccessor(table.getcObejct());
-        int[] columnData = accessor.pullInt(0, CommonTest.getDevice());
+        ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
+        int[] columnData = accessor.pullInt(0);
         assertEquals(new Long(columnData.length), table.getRowCount());
         int[] tableData = table.getIntData();
         for (int i = 0; i < columnData.length; i++) {
@@ -127,8 +127,8 @@ public class ColumnAccessorTest {
         HomogenTable table = new HomogenTable(5, 2,
                 data, CommonTest.getDevice());
 
-        ColumnAccessor accessor = new ColumnAccessor(table.getcObejct());
-        int[] columnData = accessor.pullInt(1, CommonTest.getDevice());
+        ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
+        int[] columnData = accessor.pullInt(1);
         assertEquals(new Long(columnData.length), table.getRowCount());
         int[] tableData = table.getIntData();
 
@@ -143,8 +143,8 @@ public class ColumnAccessorTest {
         HomogenTable table = new HomogenTable(5, 2,
                 data, CommonTest.getDevice());
 
-        ColumnAccessor accessor = new ColumnAccessor(table.getcObejct());
-        int[] columnData = accessor.pullInt(0, 1 , 3, CommonTest.getDevice());
+        ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
+        int[] columnData = accessor.pullInt(0, 1 , 3);
         assertEquals(new Long(columnData.length), new Long(2));
         int[] tableData = table.getIntData();
         for (int i = 0; i < columnData.length; i++) {

@@ -15,9 +15,8 @@ public class RowAccessorTest {
         HomogenTable table = new HomogenTable(5, 2,
                 data, CommonTest.getDevice());
 
-        RowAccessor accessor = new RowAccessor(table.getcObejct());
-        double[] rowData = accessor.pullDouble( 0 , table.getRowCount(),
-                CommonTest.getDevice());
+        RowAccessor accessor = new RowAccessor(table.getcObejct(), CommonTest.getDevice());
+        double[] rowData = accessor.pullDouble( 0 , table.getRowCount());
         assertEquals(new Long(rowData.length), new Long(table.getColumnCount() * table.getRowCount()));
         assertArrayEquals(rowData, data);
         for (int i = 0; i < rowData.length; i++) {
@@ -31,9 +30,8 @@ public class RowAccessorTest {
         HomogenTable table = new HomogenTable(5, 2,
                 data, CommonTest.getDevice());
 
-        RowAccessor accessor = new RowAccessor(table.getcObejct());
-        float[] rowData = accessor.pullFloat( 0 , table.getRowCount(),
-                CommonTest.getDevice());
+        RowAccessor accessor = new RowAccessor(table.getcObejct(), CommonTest.getDevice());
+        float[] rowData = accessor.pullFloat( 0 , table.getRowCount());
         assertEquals(new Long(rowData.length), new Long(table.getColumnCount() * table.getRowCount()));
         assertArrayEquals(rowData, data);
         for (int i = 0; i < rowData.length; i++) {
@@ -46,9 +44,8 @@ public class RowAccessorTest {
         HomogenTable table = new HomogenTable(5, 2,
                 data, CommonTest.getDevice());
 
-        RowAccessor accessor = new RowAccessor(table.getcObejct());
-        int[] rowData = accessor.pullInt( 0 , table.getRowCount(),
-                CommonTest.getDevice());
+        RowAccessor accessor = new RowAccessor(table.getcObejct(), CommonTest.getDevice());
+        int[] rowData = accessor.pullInt( 0 , table.getRowCount());
         assertEquals(new Long(rowData.length), new Long(table.getColumnCount() * table.getRowCount()));
         assertArrayEquals(rowData, data);
         for (int i = 0; i < rowData.length; i++) {

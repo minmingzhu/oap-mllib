@@ -117,9 +117,9 @@ object OneDAL {
     Vectors.dense(arrayDouble)
   }
 
-  def homogenTableNx1ToVector(cTable: Long, device: Common.ComputeDevice): Vector = {
-    val columnAcc = new ColumnAccessor(cTable)
-    val arrayDouble = columnAcc.pullDouble(0, device)
+  def homogenTableNx1ToVector(cTable: Long, device: Common.ComputeDevice ): Vector = {
+    val columnAcc = new ColumnAccessor(cTable, device)
+    val arrayDouble = columnAcc.pullDouble(0)
     Vectors.dense(arrayDouble)
   }
 
@@ -138,8 +138,8 @@ object OneDAL {
   }
 
   def homogenTable1xNToVector(table: HomogenTable, device: Common.ComputeDevice): Vector = {
-    val rowAcc = new RowAccessor(table.getcObejct)
-    val arrayDouble = rowAcc.pullDouble(0, 1, device)
+    val rowAcc = new RowAccessor(table.getcObejct, device)
+    val arrayDouble = rowAcc.pullDouble(0, 1)
     Vectors.dense(arrayDouble)
   }
   // Convert DAL numeric table to array of vectors
@@ -163,12 +163,12 @@ object OneDAL {
   def homogenTableToVectors(table: HomogenTable, device: Common.ComputeDevice): Array[Vector] = {
     val numRows = table.getRowCount.toInt
 
-    val rowAcc = new RowAccessor(table.getcObejct())
+    val rowAcc = new RowAccessor(table.getcObejct(), device)
 
     val resArray = new Array[Vector](numRows.toInt)
 
     for (row <- 0 until numRows) {
-      val internArray = rowAcc.pullDouble( row, row + 1, device)
+      val internArray = rowAcc.pullDouble( row, row + 1)
       resArray(row) = Vectors.dense(internArray)
     }
 
