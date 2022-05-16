@@ -104,4 +104,5 @@ sycl::queue &getQueue(const compute_device device) {
         std::cout << "No Device!" << std::endl;
         exit(-1);
     }
+    }
 }
