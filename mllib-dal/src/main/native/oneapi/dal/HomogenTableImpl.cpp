@@ -341,12 +341,11 @@ JNIEXPORT jlong JNICALL
 Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetMetaData(
     JNIEnv *env, jobject, jlong cTableAddr) {
     printf("HomogenTable getMetaData \n");
-    homogen_table htable =
-        *((homogen_table *)cTableAddr);
+    homogen_table htable = *((homogen_table *)cTableAddr);
     table_metadata *mdata = (table_metadata *)&(htable.get_metadata());
-    metadataPtr metaPtr(mdata);
-    saveShareMetaPtrVector(metaPtr);
-    return (jlong)metaPtr.get();
+    metadataPtr *metaPtr = new metadataPtr(mdata);
+    saveShareMetaPtrVector(*metaPtr);
+    return (jlong)metaPtr->get();
 }
 
 /*
