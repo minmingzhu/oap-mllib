@@ -82,7 +82,6 @@ public class ColumnAccessorTest {
 
         ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
         float[] columnData = accessor.pullFloat(1);
-        
         assertEquals(new Long(columnData.length), table.getRowCount());
         float[] tableData = table.getFloatData();
 
@@ -115,7 +114,6 @@ public class ColumnAccessorTest {
 
         ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
         int[] columnData = accessor.pullInt(0);
-
         assertEquals(new Long(columnData.length), table.getRowCount());
         int[] tableData = table.getIntData();
         for (int i = 0; i < columnData.length; i++) {
@@ -131,7 +129,6 @@ public class ColumnAccessorTest {
 
         ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
         int[] columnData = accessor.pullInt(1);
-        
         assertEquals(new Long(columnData.length), table.getRowCount());
         int[] tableData = table.getIntData();
 
@@ -148,7 +145,6 @@ public class ColumnAccessorTest {
 
         ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
         int[] columnData = accessor.pullInt(0, 1 , 3);
-
         assertEquals(new Long(columnData.length), new Long(2));
         int[] tableData = table.getIntData();
         for (int i = 0; i < columnData.length; i++) {
