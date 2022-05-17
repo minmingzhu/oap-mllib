@@ -64,8 +64,6 @@ public class HomogenTableImpl implements HomogenTableIface {
 
     }
 
-    private native long cEmptyTableInit();
-
     @Override
     public long getColumnCount() {
         return cGetColumnCount(this.cObject);
@@ -144,7 +142,6 @@ public class HomogenTableImpl implements HomogenTableIface {
     public void addHomogenTable(long homogenTableAddr ) {
         this.cObject = cAddHomogenTable(this.cObject, homogenTableAddr);
     }
-
     private native long iInit(long rowCount,
                               long colCount,
                               int[] data,
@@ -180,5 +177,6 @@ public class HomogenTableImpl implements HomogenTableIface {
     private native long[] cGetLongData(long cObject);
     private native float[] cGetFloatData(long cObject);
     private native double[] cGetDoubleData(long cObject);
-    private native long cAddHomogenTable(long cObject, long homogenTableAddr );
+    private native long cAddHomogenTable(long cObject, long homogenTableAddr);
+    private native long cEmptyTableInit();
 }

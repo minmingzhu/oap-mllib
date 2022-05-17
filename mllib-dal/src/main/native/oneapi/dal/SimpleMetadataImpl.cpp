@@ -39,7 +39,6 @@ Java_com_intel_oneapi_dal_table_SimpleMetadataImpl_cGetFeatureCount(
     printf("SimpleMetadata getfeaturecount \n");
     table_metadata mdata = *((table_metadata *)cTableAddr);
     return (jlong)mdata.get_feature_count();
-
 }
 
 /*
@@ -54,7 +53,6 @@ Java_com_intel_oneapi_dal_table_SimpleMetadataImpl_cGetFeatureType(
     table_metadata mdata = *((table_metadata *)cTableAddr);
 
     return (jint)mdata.get_feature_type(cindex);
-
 }
 
 /*
@@ -68,5 +66,4 @@ Java_com_intel_oneapi_dal_table_SimpleMetadataImpl_cGetDataType(
     printf("SimpleMetadata getdatatype \n");
     table_metadata mdata = *((table_metadata *)cTableAddr);
     return (jint)mdata.get_data_type(cindex);
-
 }
