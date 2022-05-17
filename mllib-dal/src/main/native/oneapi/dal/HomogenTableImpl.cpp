@@ -429,10 +429,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cEmptyT
   (JNIEnv *env, jobject) {
       printf(" init empty HomogenTable \n");
       homogen_table *h_table = new homogen_table();
-      std::shared_ptr<homogen_table> *tablePtr =
-              new std::shared_ptr<homogen_table>(h_table);
-      cVector.push_back(*tablePtr);
-      return (jlong)tablePtr;
+      homogenPtr tablePtr = std::make_shared<homogen_table>(*h_table);
+      saveShareHomogenPtrVector(tablePtr);
+      return (jlong)tablePtr.get();
   }
 
 /*
@@ -443,21 +442,19 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cEmptyT
 JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cAddHomogenTable
  (JNIEnv *env, jobject, jlong mergedHomogenTablePtr,jlong homogenTablePtr){
        printf("oneDal addHomogenTable \n");
-       homogen_table *mergeTable =
-              ((std::shared_ptr<homogen_table> *)mergedHomogenTablePtr)->get();
-       homogen_table *homogenTable =
-                     ((std::shared_ptr<homogen_table> *)homogenTablePtr)->get();
-       if(mergeTable->has_data()){
+       homogen_table mergeTable = *((homogen_table *)mergedHomogenTablePtr);
+       homogen_table homogenTable = *((homogen_table *)homogenTablePtr);
+       if(mergeTable.has_data()){
               printf("oneDal addHomogenTable mergeTable is not null \n");
-              const double* mergeData = mergeTable->get_data<double>();
-              const int mergeDatasize = mergeTable->get_column_count() * mergeTable->get_row_count();
+              const double* mergeData = mergeTable.get_data<double>();
+              const int mergeDatasize = mergeTable.get_column_count() * mergeTable.get_row_count();
 
 
-              const double* homogenData = homogenTable->get_data<double>();
-              const int homogenDatasize = homogenTable->get_column_count() * homogenTable->get_row_count();
+              const double* homogenData = homogenTable.get_data<double>();
+              const int homogenDatasize = homogenTable.get_column_count() * homogenTable.get_row_count();
 
-              long cRowCount = mergeTable->get_row_count() + homogenTable->get_row_count() ;
-              long cColCount = mergeTable->get_column_count();
+              long cRowCount = mergeTable.get_row_count() + homogenTable.get_row_count();
+              long cColCount = mergeTable.get_column_count();
               double* row_doubles = new double[mergeDatasize + homogenDatasize];
               for (std::int64_t i = 0; i < mergeDatasize; i++) {
                   row_doubles[i] = mergeData[i];
@@ -468,10 +465,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cAddHom
 
               homogen_table *resultTable = new homogen_table(
                       row_doubles, cRowCount, cColCount, detail::empty_delete<const double>());
-              std::shared_ptr<homogen_table> *resultTablePtr =
-                                 new std::shared_ptr<homogen_table>(resultTable);
-              cVector.push_back(*resultTablePtr);
-              return (jlong)resultTablePtr;
+              homogenPtr resultTablePtr = std::make_shared<homogen_table>(*resultTable);
+              saveShareHomogenPtrVector(resultTablePtr);
+              return (jlong)resultTablePtr.get();
        } else {
              return (jlong)homogenTablePtr;
        }
