@@ -42,7 +42,6 @@ using namespace daal::data_management;
 
 #include "error_handling.h"
 
-enum class compute_device { host, cpu, gpu };
 typedef double algorithmFpType;
 typedef std::vector<daal::byte> ByteBuffer;
 enum class compute_device { host, cpu, gpu };
