@@ -609,6 +609,10 @@ object OneDAL {
                                          numCols: Int,
                                          device: Common.ComputeDevice): HomogenTable = {
     printf(s"vectorsToDenseHomogenTable numRows: $numRows numCols: $numCols \n")
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2356c5466128a09c9f051cdb4a00863abbd9e904
     val arrayDouble = new Array[Double](numRows * numCols)
     var index = 0
     it.foreach { curVector =>
