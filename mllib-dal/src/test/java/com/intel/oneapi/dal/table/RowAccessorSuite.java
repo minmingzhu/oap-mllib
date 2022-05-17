@@ -17,7 +17,6 @@ public class RowAccessorSuite {
         HomogenTable table = new HomogenTable(5, 2,
                 data, ROW_MAJOR, CommonTest.getDevice());
 
-
         RowAccessor accessor = new RowAccessor(table.getcObejct());
         double[] rowData = accessor.pullDouble( 0 , table.getRowCount(), CommonTest.getDevice());
         assertEquals(new Long(rowData.length), new Long(table.getColumnCount() * table.getRowCount()));
