@@ -155,37 +155,3 @@ Java_com_intel_oap_mllib_OneDAL_00024_cNewCSRNumericTableDouble(
 
     return (jlong)ret;
 }
-/*
- * Class:     com_intel_oap_mllib_OneDAL__
- * Method:    cAddHomogenTable
- * Signature: (JJ)V
- */
-JNIEXPORT void JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cAddHomogenTable(
-    JNIEnv *env, jobject, jlong rowMergedHomogenTableAddr,
-    jlong homogenTableAddr) {
-    printf("oneDal addHomogenTable \n");
-    homogen_table *mergeTable =
-        ((std::shared_ptr<homogen_table> *)rowMergedHomogenTableAddr)->get();
-    const double *mergeData = mergeTable->get_data<double>();
-    const int mergeDatasize =
-        mergeTable->get_column_count() * mergeTable->get_row_count();
-
-    homogen_table *homogenTable =
-        ((std::shared_ptr<homogen_table> *)homogenTableAddr)->get();
-    const double *homogenData = homogenTable->get_data<double>();
-    const int homogenDatasize =
-        homogenTable->get_column_count() * homogenTable->get_row_count();
-
-    long cRowCount =
-        mergeTable->get_row_count() + homogenTable->get_row_count();
-    long cColCount = mergeTable->get_column_count();
-    double *row_doubles = new double[mergeDatasize + homogenDatasize];
-    for (std::int64_t i = 0; i < mergeDatasize; i++) {
-        row_doubles[i] = mergeData[i];
-    }
-    for (std::int64_t i = 0; i < homogenDatasize; i++) {
-        row_doubles[mergeDatasize + i] = homogenData[i];
-    }
-    mergeTable = new homogen_table(mergeData, cRowCount, cColCount,
-                                   detail::empty_delete<const double>());
-}
