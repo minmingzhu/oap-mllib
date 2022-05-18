@@ -37,7 +37,7 @@ class KMeansDALImpl(var nClusters: Int,
                    ) extends Serializable with Logging {
 
   def train(data: RDD[Vector]): MLlibKMeansModel = {
-
+    System.out.println("KMeansDALImpl")
     val coalescedTables = OneDAL.rddVectorToMergedTables(data, executorNum)
 
     val kvsIPPort = getOneCCLIPPort(coalescedTables)
@@ -50,13 +50,18 @@ class KMeansDALImpl(var nClusters: Int,
       val result = new KMeansResult()
       val tableArr = table.next()
       if (isDPC) {
+        System.out.println("KMeansDALImpl isDPC")
         val computeDevice = if (useDevice.toUpperCase().equals("GPU")) {
+          System.out.println("KMeansDALImpl GPU")
           Common.ComputeDevice.GPU
         } else if (useDevice.equals("CPU")) {
+          System.out.println("KMeansDALImpl CPU")
           Common.ComputeDevice.CPU
         } else {
+          System.out.println("KMeansDALImpl HOST")
           Common.ComputeDevice.HOST
         }
+        System.out.println("KMeansDALImpl init")
         OneCCL.init()
         val initCentroids = OneDAL.makeHomogenTable(centers, computeDevice)
         cCentroids = cKMeansOneapiComputeWithInitCenters(

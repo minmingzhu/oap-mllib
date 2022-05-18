@@ -40,6 +40,7 @@ static jlong doKMeansOneAPICompute(JNIEnv *env, jobject obj, jlong pNumTabData,
                                    jlong pNumTabCenters, jint cluster_num,
                                    jdouble tolerance, jint iteration_num,
                                    jint cComputeDevice, jobject resultObj) {
+    std::cout << "oneDAL (native): Do KMeans OneAPI Compute " << std::endl;
     homogen_table *htable = ((HomogenTablePtr *)pNumTabData)->get();
     homogen_table *centroids = ((HomogenTablePtr *)pNumTabCenters)->get();
     const auto kmeans_desc = kmeans::descriptor<>()
@@ -126,7 +127,7 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
     JNIEnv *env, jobject obj, jlong pNumTabData, jlong pNumTabCenters,
     jint cluster_num, jdouble tolerance, jint iteration_num,
     jint cComputeDevice, jobject resultObj) {
-    std::cout << "oneDAL (native): use GPU kernels with GPU(s)" << std::endl;
+    std::cout << "oneDAL (native): use GPU DPC++ kernels with " << std::endl;
     jlong ret = doKMeansOneAPICompute(env, obj, pNumTabData, pNumTabCenters,
                                       cluster_num, tolerance, iteration_num,
                                       cComputeDevice, resultObj);
