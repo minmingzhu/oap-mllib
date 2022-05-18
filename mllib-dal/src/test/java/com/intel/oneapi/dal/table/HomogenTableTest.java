@@ -46,18 +46,18 @@ public class HomogenTableTest {
                 data, CommonTest.getDevice());
 
 
-//        assertEquals(true, table.hasData());
-//        assertEquals(new Long(2), table.getColumnCount());
-//        assertEquals(new Long(5), table.getRowCount());
-//        assertEquals(Common.DataLayout.ROW_MAJOR,table.getDataLayout());
-//
-//        TableMetadata metadata = table.getMetaData();
-//        for (int i =0; i < 2; i++) {
-//            assertEquals(metadata.getDataType(i), FLOAT64);
-//            assertEquals(metadata.getFeatureType(i), Common.FeatureType.RATIO);
-//        }
-//
-//        assertArrayEquals(data, table.getDoubleData());
+        assertEquals(true, table.hasData());
+        assertEquals(new Long(2), table.getColumnCount());
+        assertEquals(new Long(5), table.getRowCount());
+        assertEquals(Common.DataLayout.ROW_MAJOR,table.getDataLayout());
+
+        TableMetadata metadata = table.getMetaData();
+        for (int i =0; i < 2; i++) {
+            assertEquals(metadata.getDataType(i), FLOAT64);
+            assertEquals(metadata.getFeatureType(i), Common.FeatureType.RATIO);
+        }
+
+        assertArrayEquals(data, table.getDoubleData());
 
     }
     @Test
