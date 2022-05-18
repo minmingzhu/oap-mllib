@@ -134,8 +134,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_fInit(
     jint cLayout, jint cComputeDevice) {
     printf("HomogenTable float init \n");
     jfloat *fData = env->GetFloatArrayElements(cData, NULL);
-    homogen_table *h_table ;
-    homogenPtr tablePtr ;
+    homogen_table *h_table;
+    homogenPtr tablePtr;
     switch(getComputeDevice(cComputeDevice)) {
          case compute_device::host:{
              h_table = new homogen_table(
@@ -183,11 +183,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_dInit(
     JNIEnv *env, jobject, jlong cRowCount, jlong cColCount, jdoubleArray cData,
     jint cLayout, jint cComputeDevice) {
     printf("HomogenTable double init \n");
-    std::cout << "jdoubleArray " << cData
-                      << std::endl;
     jdouble *fData = env->GetDoubleArrayElements(cData, NULL);
-    homogen_table *h_table ;
-    homogenPtr tablePtr ;
+    homogen_table *h_table;
+    homogenPtr tablePtr;
     switch(getComputeDevice(cComputeDevice)) {
          case compute_device::host:{
              h_table = new homogen_table(
@@ -237,8 +235,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_lInit(
     jint cLayout, jint cComputeDevice) {
     printf("HomogenTable long init \n");
     jlong *fData = env->GetLongArrayElements(cData, NULL);
-    homogen_table *h_table ;
-    homogenPtr tablePtr ;
+    homogen_table *h_table;
+    homogenPtr tablePtr;
     switch(getComputeDevice(cComputeDevice)) {
          case compute_device::host:{
              h_table = new homogen_table(

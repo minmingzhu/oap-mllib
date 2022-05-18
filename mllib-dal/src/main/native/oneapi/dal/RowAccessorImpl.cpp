@@ -22,7 +22,6 @@
 #include <typeinfo>
 #include <vector>
 
-<<<<<<< HEAD
 #ifdef CPU_GPU_PROFILE
 #include "GPU.h"
 #endif
