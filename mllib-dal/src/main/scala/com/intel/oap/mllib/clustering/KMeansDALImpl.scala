@@ -61,8 +61,9 @@ class KMeansDALImpl(var nClusters: Int,
           System.out.println("KMeansDALImpl HOST")
           Common.ComputeDevice.HOST
         }
-        System.out.println("KMeansDALImpl init")
-        OneCCL.init()
+        System.out.println("KMeansDALImpl init start")
+        OneCCL.initDpcpp()
+        System.out.println("KMeansDALImpl init end")
         val initCentroids = OneDAL.makeHomogenTable(centers, computeDevice)
         cCentroids = cKMeansOneapiComputeWithInitCenters(
           tableArr,
