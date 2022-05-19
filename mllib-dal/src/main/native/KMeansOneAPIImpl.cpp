@@ -63,23 +63,26 @@ static jlong doKMeansOneAPICompute(JNIEnv *env, jobject obj, jlong pNumTabData,
                 *cpu_queue);
         rank_id = comm.get_rank();
         auto rank_count = comm.get_rank_count();
-        auto input_vec =
-            split_table_by_rows<double>(*cpu_queue, *htable, rank_count);
-        kmeans::train_input local_input{input_vec[rank_id], *centroids};
+        kmeans::train_input local_input{*htable, *centroids};
         result_train = preview::train(comm, kmeans_desc, local_input);
         break;
     }
     case compute_device::gpu: {
+        std::cout << "oneDAL (native): compute gpu " << std::endl;
         sycl::queue *gpu_queue = getQueue(true);
+        std::cout << "oneDAL (native): get queue " << std::endl;
         auto comm =
             preview::spmd::make_communicator<preview::spmd::backend::ccl>(
                 *gpu_queue);
+        std::cout << "oneDAL (native): make communicator " << std::endl;
         rank_id = comm.get_rank();
+        std::cout << "oneDAL (native): comm.get_rank()  %d \n" << rank_id << std::endl;
         auto rank_count = comm.get_rank_count();
-        auto input_vec =
-            split_table_by_rows<double>(*gpu_queue, *htable, rank_count);
-        kmeans::train_input local_input{input_vec[rank_id], *centroids};
+        std::cout << "oneDAL (native): comm.get_rank_count()  %d \n" << rank_count << std::endl;
+        kmeans::train_input local_input{*htable, *centroids};
+        std::cout << "oneDAL (native): train input  %d \n" << rank_count << std::endl;
         result_train = preview::train(comm, kmeans_desc, local_input);
+        std::cout << "oneDAL (native): train result  %d \n" << rank_count << std::endl;
         break;
     }
 #endif
@@ -90,11 +93,11 @@ static jlong doKMeansOneAPICompute(JNIEnv *env, jobject obj, jlong pNumTabData,
 
     if (rank_id == 0) {
         printf("iteration_num: %d \n ", iteration_num);
-        //        std::cout << "iteration_num: " << iteration_num << std::endl;
-        //        std::cout << "Iteration count: " <<
-        //        result_train.get_iteration_count() << std::endl; std::cout <<
-        //        "Objective function value: " <<
-        //        result_train.get_objective_function_value() << std::endl;
+        std::cout << "iteration_num: " << iteration_num << std::endl;
+        std::cout << "Iteration count: " <<  result_train.get_iteration_count()
+                      << std::endl;
+        std::cout << "Objective function value: " << result_train.get_objective_function_value()
+                      << std::endl;
         // Get the class of the input object
         jclass clazz = env->GetObjectClass(resultObj);
         // Get Field references
