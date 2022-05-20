@@ -61,6 +61,7 @@ patchelf --set-soname libfabric.so $TARGET_DIR/libfabric.so
 cp $I_MPI_ROOT/lib/release_mt/libmpi.so.12.0.0 $TARGET_DIR/libmpi.so.12
 
 cp $DAALROOT/lib/intel64/libJavaAPI.so.1.1 $TARGET_DIR/libJavaAPI.so
+cp $DAALROOT/lib/intel64/libonedal_dpc.so.1.1 $TARGET_DIR/libonedal_dpc.so
 
 cp $TBBROOT/lib/intel64/gcc4.8/libtbb.so.12.5 $TARGET_DIR/libtbb.so.12
 cp $TBBROOT/lib/intel64/gcc4.8/libtbbmalloc.so.2.5 $TARGET_DIR/libtbbmalloc.so.2

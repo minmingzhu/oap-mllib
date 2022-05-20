@@ -110,8 +110,8 @@ ifeq ($(POLICY_PROFILE),DEFAULT_HOST_POLICY)
 endif
 
 ifeq ($(PLATFORM_PROFILE),CPU_GPU_PROFILE)
-  CPP_SRCS += ./GPU.cpp
-  OBJS += ./GPU.o
+  CPP_SRCS += ./GPU.cpp ./DPCPPGPU.cpp
+  OBJS += ./GPU.o ./DPCPPGPU.o
 endif
 
 # Output Binary
