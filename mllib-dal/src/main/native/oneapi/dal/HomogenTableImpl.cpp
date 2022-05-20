@@ -26,7 +26,7 @@
 
 
 #ifdef CPU_GPU_PROFILE
-#include "GPU.h"
+#include "DPCPPGPU.h"
 #endif
 
 #ifndef ONEDAL_DATA_PARALLEL

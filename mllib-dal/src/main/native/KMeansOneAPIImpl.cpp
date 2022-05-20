@@ -19,7 +19,7 @@
 #include <iostream>
 
 #ifdef CPU_GPU_PROFILE
-#include "GPU.h"
+#include "DPCPPGPU.h"
 #endif
 #ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
