@@ -5,8 +5,6 @@
 #include "GPU.h"
 #include "service.h"
 
-sycl::queue *queue;
-
 static std::vector<sycl::device> get_gpus() {
     auto platforms = sycl::platform::get_platforms();
     for (auto p : platforms) {
