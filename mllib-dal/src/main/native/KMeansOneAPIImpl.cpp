@@ -26,9 +26,8 @@
 #endif
 
 #include "com_intel_oap_mllib_clustering_KMeansDALImpl.h"
-#include "oneapi/dal.hpp"
 #include "oneapi/dal/algo/kmeans.hpp"
-#include "oneapi/dal/spmd/ccl/communicator.hpp"
+#include "communicator.hpp"
 #include "service.h"
 
 using namespace std;
@@ -62,7 +61,6 @@ static jlong doKMeansOneAPICompute(JNIEnv *env, jobject obj, jlong pNumTabData,
             preview::spmd::make_communicator<preview::spmd::backend::ccl>(
                 *cpu_queue);
         rank_id = comm.get_rank();
-        auto rank_count = comm.get_rank_count();
         kmeans::train_input local_input{*htable, *centroids};
         result_train = preview::train(comm, kmeans_desc, local_input);
         break;
@@ -77,12 +75,10 @@ static jlong doKMeansOneAPICompute(JNIEnv *env, jobject obj, jlong pNumTabData,
         std::cout << "oneDAL (native): make communicator " << std::endl;
         rank_id = comm.get_rank();
         std::cout << "oneDAL (native): comm.get_rank()  %d \n" << rank_id << std::endl;
-        auto rank_count = comm.get_rank_count();
-        std::cout << "oneDAL (native): comm.get_rank_count()  %d \n" << rank_count << std::endl;
         kmeans::train_input local_input{*htable, *centroids};
-        std::cout << "oneDAL (native): train input  %d \n" << rank_count << std::endl;
+        std::cout << "oneDAL (native): train input  %d \n" << std::endl;
         result_train = preview::train(comm, kmeans_desc, local_input);
-        std::cout << "oneDAL (native): train result  %d \n" << rank_count << std::endl;
+        std::cout << "oneDAL (native): train result  %d \n" << std::endl;
         break;
     }
 #endif
