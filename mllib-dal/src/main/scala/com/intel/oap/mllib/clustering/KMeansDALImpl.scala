@@ -71,7 +71,10 @@ class KMeansDALImpl(var nClusters: Int,
           nClusters,
           tolerance,
           maxIterations,
+          executorNum,
           computeDevice.ordinal(),
+          rank,
+          kvsIPPort,
           result
         )
       } else {
@@ -146,5 +149,8 @@ class KMeansDALImpl(var nClusters: Int,
                                                        tolerance: Double,
                                                        iteration_num: Int,
                                                        computeDevice: Int,
+                                                       executor_num: Int,
+                                                       rankId: Int,
+                                                       ip_port: String,
                                                        result: KMeansResult): Long
 }
