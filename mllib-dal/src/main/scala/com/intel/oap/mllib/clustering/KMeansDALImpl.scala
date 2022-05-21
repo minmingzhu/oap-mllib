@@ -38,33 +38,39 @@ class KMeansDALImpl(var nClusters: Int,
 
   def train(data: RDD[Vector]): MLlibKMeansModel = {
     System.out.println("KMeansDALImpl")
-    val coalescedTables = OneDAL.rddVectorToMergedTables(data, executorNum)
-
-    val kvsIPPort = getOneCCLIPPort(coalescedTables)
-
     val sparkContext = data.sparkContext
     val isDPC = sparkContext.getConf.getBoolean("spark.oap.mllib.isDPC", false)
     val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", "GPU")
+    val computeDevice = if (useDevice.toUpperCase().equals("GPU")) {
+      System.out.println("KMeansDALImpl GPU")
+      Common.ComputeDevice.GPU
+    } else if (useDevice.equals("CPU")) {
+      System.out.println("KMeansDALImpl CPU")
+      Common.ComputeDevice.CPU
+    } else {
+      System.out.println("KMeansDALImpl HOST")
+      Common.ComputeDevice.HOST
+    }
+    val coalescedTables = if (isDPC) {
+      System.out.println("KMeansDALImpl merge homogenTable")
+      OneDAL.rddVectorToMergedHomogenTables(data, executorNum, computeDevice)
+    }
+    else {
+      System.out.println("KMeansDALImpl merge numericTable")
+      OneDAL.rddVectorToMergedTables(data, executorNum)
+    }
+
+    val kvsIPPort = getOneCCLIPPort(coalescedTables)
     val results = coalescedTables.mapPartitionsWithIndex { (rank, table) =>
       var cCentroids = 0L
       val result = new KMeansResult()
       val tableArr = table.next()
       if (isDPC) {
-        System.out.println("KMeansDALImpl isDPC")
-        val computeDevice = if (useDevice.toUpperCase().equals("GPU")) {
-          System.out.println("KMeansDALImpl GPU")
-          Common.ComputeDevice.GPU
-        } else if (useDevice.equals("CPU")) {
-          System.out.println("KMeansDALImpl CPU")
-          Common.ComputeDevice.CPU
-        } else {
-          System.out.println("KMeansDALImpl HOST")
-          Common.ComputeDevice.HOST
-        }
         System.out.println("KMeansDALImpl init start")
         OneCCL.initDpcpp()
         System.out.println("KMeansDALImpl init end")
         val initCentroids = OneDAL.makeHomogenTable(centers, computeDevice)
+        System.out.println("convert array to initCentroids homogentable")
         cCentroids = cKMeansOneapiComputeWithInitCenters(
           tableArr,
           initCentroids.getcObejct(),
