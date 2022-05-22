@@ -39,6 +39,7 @@ static jlong doKMeansHostOneAPICompute(JNIEnv *env, jint rankId, jlong pNumTabDa
                                    jlong pNumTabCenters, jint cluster_num, jdouble tolerance, jint iteration_num,
                                    jint executor_num, const ccl::string &ipPort, cl::sycl::queue *,
                                    jobject resultObj) {
+          std::cout << "oneDAL (native): HOST compute start , rankid %ld "<< rankId  << std::endl;
           const bool isRoot = (rankId == ccl_root);
           homogen_table *htable = ((HomogenTablePtr *)pNumTabData)->get();
           homogen_table *centroids = ((HomogenTablePtr *)pNumTabCenters)->get();
@@ -49,11 +50,11 @@ static jlong doKMeansHostOneAPICompute(JNIEnv *env, jint rankId, jlong pNumTabDa
           auto result_train = train(kmeans_desc, *htable, *centroids);
           if (isRoot) {
                   printf("iteration_num: %d \n ", iteration_num);
-                  //        std::cout << "iteration_num: " << iteration_num << std::endl;
-                  //        std::cout << "Iteration count: " <<
-                  //        result_train.get_iteration_count() << std::endl; std::cout <<
-                  //        "Objective function value: " <<
-                  //        result_train.get_objective_function_value() << std::endl;
+                  std::cout << "iteration_num: " << iteration_num << std::endl;
+                  std::cout << "Iteration count: " <<
+                          result_train.get_iteration_count() << std::endl;
+                  std::cout << "Objective function value: " <<
+                          result_train.get_objective_function_value() << std::endl;
                   // Get the class of the input object
                   jclass clazz = env->GetObjectClass(resultObj);
                   // Get Field references
@@ -81,6 +82,7 @@ static jlong doKMeansCPUOneAPICompute(JNIEnv *env, jint rankId, jlong pNumTabDat
                                    jlong pNumTabCenters, jint cluster_num, jdouble tolerance, jint iteration_num,
                                    jint executor_num, const ccl::string &ipPort, cl::sycl::queue *cpu_queue,
                                    jobject resultObj) {
+    std::cout << "oneDAL (native): CPU compute start , rankid %ld "<< rankId  << std::endl;
     const bool isRoot = (rankId == ccl_root);
     homogen_table *htable = ((HomogenTablePtr *)pNumTabData)->get();
     homogen_table *centroids = ((HomogenTablePtr *)pNumTabCenters)->get();
@@ -93,11 +95,11 @@ static jlong doKMeansCPUOneAPICompute(JNIEnv *env, jint rankId, jlong pNumTabDat
     auto result_train = preview::train(comm, kmeans_desc, local_input);
     if (isRoot) {
         printf("iteration_num: %d \n ", iteration_num);
-        //        std::cout << "iteration_num: " << iteration_num << std::endl;
-        //        std::cout << "Iteration count: " <<
-        //        result_train.get_iteration_count() << std::endl; std::cout <<
-        //        "Objective function value: " <<
-        //        result_train.get_objective_function_value() << std::endl;
+        std::cout << "iteration_num: " << iteration_num << std::endl;
+        std::cout << "Iteration count: " <<
+                   result_train.get_iteration_count() << std::endl;
+        std::cout << "Objective function value: " <<
+                   result_train.get_objective_function_value() << std::endl;
         // Get the class of the input object
         jclass clazz = env->GetObjectClass(resultObj);
         // Get Field references
@@ -124,7 +126,7 @@ static jlong doKMeansGPUOneAPICompute(JNIEnv *env, jint rankId, jlong pNumTabDat
                                     jlong pNumTabCenters, jint cluster_num, jdouble tolerance, jint iteration_num,
                                     jint executor_num, const ccl::string &ipPort, cl::sycl::queue *gpu_queue,
                                     jobject resultObj) {
-     std::cout << "oneDAL (native): GPU kernels start " << std::endl;
+     std::cout << "oneDAL (native): CPU compute start , rankid %ld "<< rankId  << std::endl;
      const bool isRoot = (rankId == ccl_root);
      homogen_table *htable = ((HomogenTablePtr *)pNumTabData)->get();
      homogen_table *centroids = ((HomogenTablePtr *)pNumTabCenters)->get();
@@ -132,20 +134,15 @@ static jlong doKMeansGPUOneAPICompute(JNIEnv *env, jint rankId, jlong pNumTabDat
                                   .set_cluster_count(cluster_num)
                                   .set_max_iteration_count(iteration_num)
                                   .set_accuracy_threshold(tolerance);
-     std::cout << "oneDAL (native): make descriptor " << std::endl;
      auto comm = preview::spmd::make_communicator<preview::spmd::backend::ccl>(*gpu_queue, executor_num, rankId, ipPort);
-     std::cout << "oneDAL (native): make communicator " << std::endl;
      kmeans::train_input local_input { *htable, *centroids };
-     std::cout << "oneDAL (native): make train_input " << std::endl;
      auto result_train = preview::train(comm, kmeans_desc, local_input);
-     std::cout << "oneDAL (native): make result_train " << std::endl;
      if (isRoot) {
-         printf("iteration_num: %d \n ", iteration_num);
-         //        std::cout << "iteration_num: " << iteration_num << std::endl;
-         //        std::cout << "Iteration count: " <<
-         //        result_train.get_iteration_count() << std::endl; std::cout <<
-         //        "Objective function value: " <<
-         //        result_train.get_objective_function_value() << std::endl;
+         std::cout << "iteration_num: " << iteration_num << std::endl;
+         std::cout << "Iteration count: " <<
+              result_train.get_iteration_count() << std::endl;
+         std::cout << "Objective function value: " <<
+              result_train.get_objective_function_value() << std::endl;
          // Get the class of the input object
          jclass clazz = env->GetObjectClass(resultObj);
          // Get Field references
@@ -185,7 +182,7 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
     jlong ret = 0L;
     switch (getComputeDevice(compute_device)) {
        case compute_device::host: {
-            jlong ret = doKMeansHostOneAPICompute(env, rankId, pNumTabData, pNumTabCenters,
+            ret = doKMeansHostOneAPICompute(env, rankId, pNumTabData, pNumTabCenters,
                                               cluster_num, tolerance, iteration_num, executor_num,
                                               ipPort, nullptr, resultObj);
        }
@@ -193,14 +190,14 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
        case compute_device::cpu: {
             cout << "oneDAL (native): use DPCPP CPU kernels" << endl;
             cl::sycl::queue *cpu_queue = getQueue(false);
-            jlong ret = doKMeansCPUOneAPICompute(env, rankId, pNumTabData, pNumTabCenters,
+            ret = doKMeansCPUOneAPICompute(env, rankId, pNumTabData, pNumTabCenters,
                                               cluster_num, tolerance, iteration_num, executor_num,
                                               ipPort, cpu_queue, resultObj);
        }
        case compute_device::gpu: {
             cout << "oneDAL (native): use DPCPP GPU kernels" << endl;
             cl::sycl::queue *gpu_queue = getQueue(true);
-            jlong ret = doKMeansGPUOneAPICompute(env, rankId, pNumTabData, pNumTabCenters,
+            ret = doKMeansGPUOneAPICompute(env, rankId, pNumTabData, pNumTabCenters,
                                               cluster_num, tolerance, iteration_num, executor_num,
                                               ipPort, gpu_queue, resultObj);
        }

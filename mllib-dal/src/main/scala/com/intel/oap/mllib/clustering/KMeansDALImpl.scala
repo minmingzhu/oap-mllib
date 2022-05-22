@@ -37,26 +37,20 @@ class KMeansDALImpl(var nClusters: Int,
                    ) extends Serializable with Logging {
 
   def train(data: RDD[Vector]): MLlibKMeansModel = {
-    System.out.println("KMeansDALImpl")
     val sparkContext = data.sparkContext
     val isDPC = sparkContext.getConf.getBoolean("spark.oap.mllib.isDPC", false)
     val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", "GPU")
     val computeDevice = if (useDevice.toUpperCase().equals("GPU")) {
-      System.out.println("KMeansDALImpl GPU")
       Common.ComputeDevice.GPU
     } else if (useDevice.equals("CPU")) {
-      System.out.println("KMeansDALImpl CPU")
       Common.ComputeDevice.CPU
     } else {
-      System.out.println("KMeansDALImpl HOST")
       Common.ComputeDevice.HOST
     }
     val coalescedTables = if (isDPC) {
-      System.out.println("KMeansDALImpl merge homogenTable")
       OneDAL.rddVectorToMergedHomogenTables(data, executorNum, computeDevice)
     }
     else {
-      System.out.println("KMeansDALImpl merge numericTable")
       OneDAL.rddVectorToMergedTables(data, executorNum)
     }
 
@@ -66,11 +60,8 @@ class KMeansDALImpl(var nClusters: Int,
       val result = new KMeansResult()
       val tableArr = table.next()
       if (isDPC) {
-        System.out.println("KMeansDALImpl init start")
         OneCCL.initDpcpp()
-        System.out.println("KMeansDALImpl init end")
         val initCentroids = OneDAL.makeHomogenTable(centers, computeDevice)
-        System.out.println("convert array to initCentroids homogentable")
         cCentroids = cKMeansOneapiComputeWithInitCenters(
           tableArr,
           initCentroids.getcObejct(),
@@ -98,21 +89,27 @@ class KMeansDALImpl(var nClusters: Int,
         )
       }
 
-      val ret = if (OneCCL.isRoot()) {
-        assert(cCentroids != 0)
-        if (isDPC) {
+      val ret = if (isDPC) {
+        if (rank == 0) {
+          assert(cCentroids != 0)
           val centerVectors = OneDAL.homogenTableToVectors(OneDAL.makeHomogenTable(cCentroids),
-            Common.ComputeDevice.GPU)
+            computeDevice)
           Iterator((centerVectors, result.totalCost, result.iterationNum))
         } else {
-          val centerVectors = OneDAL.numericTableToVectors(OneDAL.makeNumericTable(cCentroids))
-          Iterator((centerVectors, result.totalCost, result.iterationNum))
+          Iterator.empty
         }
       } else {
-        Iterator.empty
+          if (OneCCL.isRoot()) {
+            assert(cCentroids != 0)
+            val centerVectors = OneDAL.numericTableToVectors(OneDAL.makeNumericTable(cCentroids))
+            Iterator((centerVectors, result.totalCost, result.iterationNum))
+          } else {
+            Iterator.empty
+          }
       }
-
-      OneCCL.cleanup()
+      if (!isDPC) {
+        OneCCL.cleanup()
+      }
 
       ret
     }.collect()
