@@ -32,7 +32,6 @@
 
 #include "com_intel_oneapi_dal_table_HomogenTableImpl.h"
 #include "oneapi/dal/table/homogen.hpp"
-#include "oneapi/dal/detail/memory_impl_dpc.hpp"
 #include "service.h"
 
 using namespace std;
@@ -96,8 +95,7 @@ template <typename T>
        long cRowCount = targetTable.get_row_count() + sourceTable.get_row_count();
        long cColCount = targetTable.get_column_count();
        std::shared_ptr<T> p(new T[targetDatasize + sourceDatasize], [](T* p){
-            std::cout << "delete[] p" << std::endl;
-            delete[] p; //需要使用delete[]
+            delete[] p; 
         });
        for (std::int64_t i = 0; i < targetDatasize; i++) {
            p.get()[i] = targetData[i];
