@@ -37,6 +37,7 @@
 
 using namespace std;
 using namespace oneapi::dal;
+typedef std::shared_ptr<homogen_table> homogenPtr;
 
 
 /*
@@ -48,48 +49,110 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
   (JNIEnv *env, jobject, jlong cTableAddr, jlong cRowStartIndex, jlong cRowEndIndex,
    jint cComputeDevice){
   printf("RowAccessor PullDouble \n");
-  homogen_table *htable =
-          ((std::shared_ptr<homogen_table> *)cTableAddr)->get();
-  row_accessor<const double> *acc = new row_accessor<const double>(*htable);
-  double* row_doubles;
+  homogen_table htable = *((homogen_table *)cTableAddr);
+  row_accessor<const double> acc {htable};
   jdoubleArray newDoubleArray;
+  oneapi::dal::array<double> row_values;
   switch(getComputeDevice(cComputeDevice)) {
          case compute_device::host:{
-                const auto row_values = acc->pull({cRowStartIndex, cRowEndIndex});
-                row_doubles = new double[row_values.get_count()];
-                for (std::int64_t i = 0; i < row_values.get_count(); i++) {
-                  row_doubles[i] = row_values[i];
-                }
-                newDoubleArray = env->NewDoubleArray(row_values.get_count());
-                env->SetDoubleArrayRegion(newDoubleArray, 0, row_values.get_count(), row_doubles);
-                return newDoubleArray;
+                row_values = acc.pull({cRowStartIndex, cRowEndIndex});
+                break;
          }
 #ifdef CPU_GPU_PROFILE
          case compute_device::cpu:{
-                sycl::queue *cpu_queue = getQueue(false);
-                const auto cpu_row_values = acc->pull(*cpu_queue, {cRowStartIndex, cRowEndIndex});
-                row_doubles = new double[cpu_row_values.get_count()];
-                for (std::int64_t i = 0; i < cpu_row_values.get_count(); i++) {
-                   row_doubles[i] = cpu_row_values[i];
-                }
-                newDoubleArray = env->NewDoubleArray(cpu_row_values.get_count());
-                env->SetDoubleArrayRegion(newDoubleArray, 0, cpu_row_values.get_count(), row_doubles);
-                return newDoubleArray;
+                sycl::queue cpu_queue = getQueue(compute_device::cpu);
+                row_values = acc.pull(cpu_queue, {cRowStartIndex, cRowEndIndex});
+                break;
          }
          case compute_device::gpu:{
-                sycl::queue *gpu_queue = getQueue(true);
-                const auto gpu_row_values = acc->pull(*gpu_queue, {cRowStartIndex, cRowEndIndex});
-                row_doubles = new double[gpu_row_values.get_count()];
-                for (std::int64_t i = 0; i < gpu_row_values.get_count(); i++) {
-                   row_doubles[i] = gpu_row_values[i];
-                }
-                jdoubleArray newDoubleArray = env->NewDoubleArray(gpu_row_values.get_count());
-                env->SetDoubleArrayRegion(newDoubleArray, 0, gpu_row_values.get_count(), row_doubles);
-                return newDoubleArray;
+                sycl::queue gpu_queue = getQueue(compute_device::gpu);
+                row_values = acc.pull(gpu_queue, {cRowStartIndex, cRowEndIndex});
+                break;
          }
 #endif
          default: {
                return newDoubleArray;
          }
       }
+      newDoubleArray = env->NewDoubleArray(row_values.get_count());
+      env->SetDoubleArrayRegion(newDoubleArray, 0, row_values.get_count(),  row_values.get_data());
+      return newDoubleArray;
+  }
+
+/*
+ * Class:     com_intel_oneapi_dal_table_RowAccessor
+ * Method:    cPull
+ * Signature: (JJ)[D
+ */
+JNIEXPORT jfloatArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPullFloat
+  (JNIEnv *env, jobject, jlong cTableAddr, jlong cRowStartIndex, jlong cRowEndIndex,
+   jint cComputeDevice){
+  printf("RowAccessor PullFloat \n");
+  homogen_table htable = *((homogen_table *)cTableAddr);
+  row_accessor<const float> acc { htable };
+  jfloatArray newFloatArray;
+  oneapi::dal::array<float> row_values;
+  switch(getComputeDevice(cComputeDevice)) {
+         case compute_device::host:{
+                row_values = acc.pull({cRowStartIndex, cRowEndIndex});
+                break;
+         }
+#ifdef CPU_GPU_PROFILE
+         case compute_device::cpu:{
+                sycl::queue cpu_queue = getQueue(compute_device::cpu);
+                row_values = acc.pull(cpu_queue, {cRowStartIndex, cRowEndIndex});
+                break;
+         }
+         case compute_device::gpu:{
+                sycl::queue gpu_queue = getQueue(compute_device::gpu);
+                row_values = acc.pull(gpu_queue, {cRowStartIndex, cRowEndIndex});
+                break;
+         }
+#endif
+         default: {
+               return newFloatArray;
+         }
+      }
+      newFloatArray = env->NewFloatArray(row_values.get_count());
+      env->SetFloatArrayRegion(newFloatArray, 0, row_values.get_count(), row_values.get_data());
+      return newFloatArray;
+  }
+
+/*
+ * Class:     com_intel_oneapi_dal_table_RowAccessor
+ * Method:    cPull
+ * Signature: (JJ)[D
+ */
+JNIEXPORT jintArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPullInt
+  (JNIEnv *env, jobject, jlong cTableAddr, jlong cRowStartIndex, jlong cRowEndIndex,
+   jint cComputeDevice){
+  printf("RowAccessor PullInt \n");
+  homogen_table htable = *((homogen_table *)cTableAddr);
+  row_accessor<const int> acc { htable };
+  jintArray newIntArray;
+  oneapi::dal::array<int> row_values;
+  switch(getComputeDevice(cComputeDevice)) {
+         case compute_device::host:{
+                row_values = acc.pull({cRowStartIndex, cRowEndIndex});
+                break;
+         }
+#ifdef CPU_GPU_PROFILE
+         case compute_device::cpu:{
+                sycl::queue cpu_queue = getQueue(compute_device::cpu);
+                row_values = acc.pull(cpu_queue, {cRowStartIndex, cRowEndIndex});
+                break;
+         }
+         case compute_device::gpu:{
+                sycl::queue gpu_queue = getQueue(compute_device::gpu);
+                row_values = acc.pull(gpu_queue, {cRowStartIndex, cRowEndIndex});
+                break;
+         }
+#endif
+         default: {
+               return newIntArray;
+         }
+      }
+      newIntArray = env->NewIntArray(row_values.get_count());
+      env->SetIntArrayRegion(newIntArray, 0, row_values.get_count(), row_values.get_data());
+      return newIntArray;
   }

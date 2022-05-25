@@ -3,9 +3,9 @@ package com.intel.oneapi.dal.table;
 public class HomogenTable extends Table {
     HomogenTableImpl impl;
 
-    public HomogenTable(){
+    public HomogenTable(Common.ComputeDevice device){
         super();
-        impl = new HomogenTableImpl();
+        impl = new HomogenTableImpl(device);
     }
 
     public HomogenTable(long cTable){
@@ -19,7 +19,7 @@ public class HomogenTable extends Table {
                         Common.ComputeDevice device){
         super();
         // default
-        Common.DataLayout dataLayout = Common.DataLayout.ROWMAJOR;
+        Common.DataLayout dataLayout = Common.DataLayout.ROW_MAJOR;
         impl = new HomogenTableImpl(rowCount, colCount, data,
                 dataLayout, device);
     }
@@ -41,7 +41,7 @@ public class HomogenTable extends Table {
                         Common.ComputeDevice device){
         super();
         // default
-        Common.DataLayout dataLayout = Common.DataLayout.ROWMAJOR;
+        Common.DataLayout dataLayout = Common.DataLayout.ROW_MAJOR;
         impl = new HomogenTableImpl(rowCount, colCount, data,
                 dataLayout, device);
     }
@@ -62,7 +62,7 @@ public class HomogenTable extends Table {
                         Common.ComputeDevice device){
         super();
         // default
-        Common.DataLayout dataLayout = Common.DataLayout.ROWMAJOR;
+        Common.DataLayout dataLayout = Common.DataLayout.ROW_MAJOR;
         impl = new HomogenTableImpl(rowCount, colCount, data,
                 dataLayout, device);
     }
@@ -83,7 +83,7 @@ public class HomogenTable extends Table {
                         Common.ComputeDevice device){
         super();
         // default
-        Common.DataLayout dataLayout = Common.DataLayout.ROWMAJOR;
+        Common.DataLayout dataLayout = Common.DataLayout.ROW_MAJOR;
         impl = new HomogenTableImpl(rowCount, colCount, data,
                 dataLayout, device);
     }
@@ -97,7 +97,6 @@ public class HomogenTable extends Table {
         impl = new HomogenTableImpl(rowCount, colCount, data,
                 dataLayout, device);
     }
-
     @Override
     public Long getColumnCount() {
         return impl.getColumnCount();

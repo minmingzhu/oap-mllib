@@ -2,6 +2,7 @@ package org.apache.spark.ml
 
 import com.intel.oap.mllib.OneDAL
 import com.intel.oneapi.dal.table.{Common, HomogenTable}
+import com.intel.oneapi.dal.table.HomogenTable
 import org.apache.spark.SparkContext
 import org.apache.spark.internal.Logging
 import org.apache.spark.ml.feature.LabeledPoint
@@ -62,6 +63,7 @@ class oneDALSuite extends FunctionsSuite with Logging {
         Iterator(featureArray, labelArray)
     }.collect()
     df.show(10, false)
+
     val mergedata = OneDAL.rddLabeledPointToMergedHomogenTables(df,
       "label", "features",1 , getDevice)
     val results = mergedata.collect()
@@ -72,7 +74,6 @@ class oneDALSuite extends FunctionsSuite with Logging {
     val lData: Array[Double] = labelTable.getDoubleData()
     assert((fData.toArray sameElements expect(0)) === true)
     assert((lData.toArray sameElements expect(1)) === true)
-
   }
 
   test("test rddVector to merged homogenTable") {
@@ -91,11 +92,11 @@ class oneDALSuite extends FunctionsSuite with Logging {
       case Row(v: Vector) => v
     }.cache()
     val result = OneDAL.rddVectorToMergedHomogenTables(rddVectors, 1, getDevice)
+
     val tableAddr = result.collect()
     val table = new HomogenTable(tableAddr(0))
     val rData: Array[Double] = table.getDoubleData()
     assert((rData sameElements expectData) === true)
-
   }
 
   def generateLabeledPointRDD(
@@ -119,7 +120,7 @@ class oneDALSuite extends FunctionsSuite with Logging {
 
   private def getDevice: Common.ComputeDevice = {
     val device = System.getProperty("computeDevice")
-    var computeDevice: Common.ComputeDevice = Common.ComputeDevice.CPU
+    var computeDevice: Common.ComputeDevice = Common.ComputeDevice.HOST
     if(device != null) {
       device.toUpperCase match {
         case "HOST" =>  computeDevice = Common.ComputeDevice.HOST

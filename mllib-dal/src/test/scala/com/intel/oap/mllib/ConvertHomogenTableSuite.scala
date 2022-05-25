@@ -3,7 +3,7 @@ package com.intel.oap.mllib
 import com.intel.daal.data_management.data.{Matrix => DALMatrix, NumericTable}
 import com.intel.daal.services.DaalContext
 import com.intel.oneapi.dal.table.{Common, HomogenTable}
-import com.intel.oneapi.dal.table.Common.DataLayout.ROWMAJOR
+import com.intel.oneapi.dal.table.Common.DataLayout.ROW_MAJOR
 import com.intel.oneapi.dal.table.Common.DataType.FLOAT64
 import org.apache.spark.internal.Logging
 import org.apache.spark.ml.FunctionsSuite
@@ -33,7 +33,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     assert(table.getColumnCount == 10)
     assert(table.getRowCount == 10)
 
-    assert(table.getDataLayout == ROWMAJOR)
+    assert(table.getDataLayout == ROW_MAJOR)
     val metadata = table.getMetaData
     for (i <- 0 until 10) {
       assert(metadata.getDataType(i) == FLOAT64)
@@ -51,7 +51,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     assert(table.getColumnCount == 10)
     assert(table.getRowCount == 1)
 
-    assert(table.getDataLayout == ROWMAJOR)
+    assert(table.getDataLayout == ROW_MAJOR)
     val metadata = table.getMetaData
     for (i <- 0 until 10) {
       assert(metadata.getDataType(i) == FLOAT64)
@@ -80,7 +80,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     assert(table.getColumnCount == 10)
     assert(table.getRowCount == 10)
 
-    assert(table.getDataLayout == ROWMAJOR)
+    assert(table.getDataLayout == ROW_MAJOR)
     val metadata = table.getMetaData
     for (i <- 0 until 10) {
       assert(metadata.getDataType(i) == FLOAT64)
@@ -94,9 +94,9 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     val data = Array(5.308206,9.869278,1.018934,4.292158,6.081011,6.585723,2.411094,4.767308,-3.256320,-6.029562)
 
     val expectData = Array(5.308206,9.869278)
-
     val table = new HomogenTable(5, 2, data, getDevice)
     val vector = OneDAL.homogenTable1xNToVector(table, getDevice)
+
 
     assert(expectData=== vector.toArray)
   }
@@ -141,6 +141,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       85.208661d, 15.966239d)
     val expectMatrix = new DenseMatrix(5, 2, data, isTransposed = true)
     val table = new HomogenTable(5, 2, data, getDevice)
+
     val matrix = OneDAL.homogenTableToMatrix(table)
 
     assert(expectMatrix === matrix)
@@ -154,6 +155,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       85.208661d, 15.966239d)
     val expectMatrix = new OldDenseMatrix(5, 2, data, isTransposed = true)
     val table = new HomogenTable(5, 2, data, getDevice)
+
     val matrix = OneDAL.homogenTableToOldMatrix(table)
 
     assert(expectMatrix === matrix)
@@ -175,6 +177,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     val arrayData = convertArray(data)
     val table = new HomogenTable(10, 10, arrayData, getDevice)
     val array = OneDAL.homogenTableToVectors(table, getDevice)
+
     assert(data === array)
   }
 

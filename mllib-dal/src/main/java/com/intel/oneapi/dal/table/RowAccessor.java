@@ -2,52 +2,41 @@ package com.intel.oneapi.dal.table;
 
 public class RowAccessor {
     private long cObject;
-
-    public RowAccessor(long cObject) {
+    private Common.ComputeDevice cDevice;
+    public RowAccessor(long cObject, Common.ComputeDevice device) {
         this.cObject = cObject;
+        this.cDevice = device;
     }
 
-    public double[] pullDouble(Common.ComputeDevice device){
-        return this.cPullDouble(this.cObject, 0, -1, device.ordinal());
+    public double[] pullDouble(){
+        return this.cPullDouble(this.cObject, 0, -1, this.cDevice.ordinal());
     }
 
-    public double[] pullDouble(long rowStartIndex, long rowEndIndex, Common.ComputeDevice device){
-        return this.cPullDouble(this.cObject, rowStartIndex, rowEndIndex, device.ordinal());
+    public double[] pullDouble(long rowStartIndex, long rowEndIndex){
+        return this.cPullDouble(this.cObject, rowStartIndex, rowEndIndex, this.cDevice.ordinal());
+    }
+
+    public float[] pullFloat(){
+        return this.cPullFloat(this.cObject, 0, -1, this.cDevice.ordinal());
+    }
+
+    public float[] pullFloat(long rowStartIndex, long rowEndIndex){
+        return this.cPullFloat(this.cObject, rowStartIndex, rowEndIndex, this.cDevice.ordinal());
+    }
+
+    public int[] pullInt(){
+        return this.cPullInt(this.cObject, 0, -1, this.cDevice.ordinal());
+    }
+
+    public int[] pullInt(long rowStartIndex, long rowEndIndex){
+        return this.cPullInt(this.cObject, rowStartIndex, rowEndIndex, this.cDevice.ordinal());
     }
 
     private native double[] cPullDouble(long cObject, long cRowStartIndex,
                                         long cRowEndIndex, int computeDeviceIndex);
-
-    public float[] pullFloat(Common.ComputeDevice device){
-        return this.cPullFloat(this.cObject, 0, -1, device.ordinal());
-    }
-
-    public float[] pullFloat(long rowStartIndex, long rowEndIndex, Common.ComputeDevice device){
-        return this.cPullFloat(this.cObject, rowStartIndex, rowEndIndex, device.ordinal());
-    }
-
     private native float[] cPullFloat(long cObject, long cRowStartIndex,
                                       long cRowEndIndex, int computeDeviceIndex);
-
-    public int[] pullInt(Common.ComputeDevice device){
-        return this.cPullInt(this.cObject, 0, -1, device.ordinal());
-    }
-
-    public int[] pullInt(long rowStartIndex, long rowEndIndex, Common.ComputeDevice device){
-        return this.cPullInt(this.cObject, rowStartIndex, rowEndIndex, device.ordinal());
-    }
-
     private native int[] cPullInt(long cObject, long cRowStartIndex,
                                   long cRowEndIndex, int computeDeviceIndex);
 
-    public long[] pullLong(Common.ComputeDevice device){
-        return this.cPullLong(this.cObject, 0, -1, device.ordinal());
-    }
-
-    public long[] pullLong(long rowStartIndex, long rowEndIndex, Common.ComputeDevice device){
-        return this.cPullLong(this.cObject, rowStartIndex, rowEndIndex, device.ordinal());
-    }
-
-    private native long[] cPullLong(long cObject, long cRowStartIndex,
-                                    long cRowEndIndex, int computeDeviceIndex);
 }

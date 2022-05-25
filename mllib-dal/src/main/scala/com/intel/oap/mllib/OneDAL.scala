@@ -28,6 +28,7 @@ import java.lang
 import java.nio.DoubleBuffer
 import java.util.logging.{Level, Logger}
 
+import com.intel.oneapi.dal.table.Common.ComputeDevice
 import com.intel.oneapi.dal.table.{ColumnAccessor, Common, HomogenTable, RowAccessor}
 
 import scala.collection.mutable.ArrayBuffer
@@ -117,9 +118,9 @@ object OneDAL {
     Vectors.dense(arrayDouble)
   }
 
-  def homogenTableNx1ToVector(cTable: Long, device: Common.ComputeDevice): Vector = {
-    val columnAcc = new ColumnAccessor(cTable)
-    val arrayDouble = columnAcc.pullDouble(0, device)
+  def homogenTableNx1ToVector(cTable: Long, device: Common.ComputeDevice ): Vector = {
+    val columnAcc = new ColumnAccessor(cTable, device)
+    val arrayDouble = columnAcc.pullDouble(0)
     Vectors.dense(arrayDouble)
   }
 
@@ -138,8 +139,8 @@ object OneDAL {
   }
 
   def homogenTable1xNToVector(table: HomogenTable, device: Common.ComputeDevice): Vector = {
-    val rowAcc = new RowAccessor(table.getcObejct)
-    val arrayDouble = rowAcc.pullDouble(0, 1, device)
+    val rowAcc = new RowAccessor(table.getcObejct, device)
+    val arrayDouble = rowAcc.pullDouble(0, 1)
     Vectors.dense(arrayDouble)
   }
 
@@ -164,20 +165,18 @@ object OneDAL {
   def homogenTableToVectors(table: HomogenTable, device: Common.ComputeDevice): Array[Vector] = {
     val numRows = table.getRowCount.toInt
 
-    val rowAcc = new RowAccessor(table.getcObejct())
+    val rowAcc = new RowAccessor(table.getcObejct(), device)
 
     val resArray = new Array[Vector](numRows.toInt)
 
     for (row <- 0 until numRows) {
-      val internArray = rowAcc.pullDouble( row, row + 1, device)
+      val internArray = rowAcc.pullDouble( row, row + 1)
       resArray(row) = Vectors.dense(internArray)
     }
     resArray
   }
 
-
   def makeNumericTable(cData: Long): NumericTable = {
-
     val context = new DaalContext()
     val table = new HomogenNumericTable(context, cData)
 
@@ -290,12 +289,9 @@ object OneDAL {
     matrixLabel
   }
 
-
   private[mllib] def doubleArrayToHomogenTable(points: Array[Double],
                                                device: Common.ComputeDevice): HomogenTable = {
-
     val table = new HomogenTable(1, points.length, points, device)
-
     table
   }
 
@@ -486,8 +482,8 @@ object OneDAL {
       partitionCoalescer = Some(new ExecutorInProcessCoalescePartitioner()))
 
     val mergedTables = coalescedTables.mapPartitions { iter =>
-      val mergedFeatures = new HomogenTable()
-      val mergedLabels = new HomogenTable()
+      val mergedFeatures = new HomogenTable(device)
+      val mergedLabels = new HomogenTable(device)
 
       iter.foreach { case (featureAddr, labelAddr) =>
         mergedFeatures.addHomogenTable(featureAddr)
@@ -597,6 +593,7 @@ object OneDAL {
                                          numRows: Int,
                                          numCols: Int,
                                          device: Common.ComputeDevice): HomogenTable = {
+    printf(s"vectorsToDenseHomogenTable numRows: $numRows numCols: $numCols \n")
     val arrayDouble = new Array[Double](numRows * numCols)
     var index = 0
     it.foreach { curVector =>
@@ -609,7 +606,6 @@ object OneDAL {
       }
     }
     val table = new HomogenTable(numRows.toLong, numCols.toLong, arrayDouble, device)
-
     table
   }
 
@@ -705,6 +701,7 @@ object OneDAL {
 
   def rddVectorToMergedHomogenTables(vectors: RDD[Vector], executorNum: Int,
                                      device: Common.ComputeDevice): RDD[Long] = {
+
     require(executorNum > 0)
 
     logger.info(s"Processing partitions with $executorNum executors")
@@ -745,13 +742,12 @@ object OneDAL {
     if (vectors.getStorageLevel != StorageLevel.NONE) {
       vectors.unpersist()
     }
-
-    // Coalesce partitions belonging to the same executor
+   // Coalesce partitions belonging to the same executor
     val coalescedRdd = homogenTables.coalesce(executorNum,
       partitionCoalescer = Some(new ExecutorInProcessCoalescePartitioner()))
 
     val coalescedTables = coalescedRdd.mapPartitions { iter =>
-        val mergedData = new HomogenTable()
+        val mergedData = new HomogenTable(device)
         iter.foreach { address =>
           mergedData.addHomogenTable(address)
         }
@@ -778,5 +774,4 @@ object OneDAL {
   @native def cNewCSRNumericTableDouble(data: Array[Double],
                                         colIndices: Array[Long], rowOffsets: Array[Long],
                                         nFeatures: Long, nVectors: Long): Long
-
 }
