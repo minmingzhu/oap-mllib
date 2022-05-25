@@ -482,8 +482,8 @@ object OneDAL {
       partitionCoalescer = Some(new ExecutorInProcessCoalescePartitioner()))
 
     val mergedTables = coalescedTables.mapPartitions { iter =>
-      val mergedFeatures = new HomogenTable()
-      val mergedLabels = new HomogenTable()
+      val mergedFeatures = new HomogenTable(device)
+      val mergedLabels = new HomogenTable(device)
 
       iter.foreach { case (featureAddr, labelAddr) =>
         mergedFeatures.addHomogenTable(featureAddr)
@@ -747,7 +747,7 @@ object OneDAL {
       partitionCoalescer = Some(new ExecutorInProcessCoalescePartitioner()))
 
     val coalescedTables = coalescedRdd.mapPartitions { iter =>
-        val mergedData = new HomogenTable()
+        val mergedData = new HomogenTable(device)
         iter.foreach { address =>
           mergedData.addHomogenTable(address)
         }

@@ -3,9 +3,9 @@ package com.intel.oneapi.dal.table;
 public class HomogenTable extends Table {
     HomogenTableImpl impl;
 
-    public HomogenTable(){
+    public HomogenTable(Common.ComputeDevice device){
         super();
-        impl = new HomogenTableImpl();
+        impl = new HomogenTableImpl(device);
     }
 
     public HomogenTable(long cTable){
