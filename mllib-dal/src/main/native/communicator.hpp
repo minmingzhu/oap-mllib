@@ -36,7 +36,6 @@ private:
     ccl_info(int size, int rankid, const ccl::string &ipPort) {
         rank = rankid;
         rank_count = size;
-        ccl::kvs::address_type main_addr;
         ccl::string ccl_ip_port(ipPort);
         auto kvs_attr = ccl::create_kvs_attr();
         kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);

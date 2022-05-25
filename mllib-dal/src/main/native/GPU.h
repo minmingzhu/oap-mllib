@@ -9,5 +9,3 @@
 
 sycl::device getAssignedGPU(ccl::communicator &comm, int size, int rankId,
                             jint *gpu_indices, int n_gpu);
-
-sycl::queue &getQueue(const compute_device device);

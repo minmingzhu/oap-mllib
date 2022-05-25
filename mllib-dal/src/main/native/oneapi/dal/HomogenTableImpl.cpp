@@ -35,7 +35,6 @@
 
 #include "com_intel_oneapi_dal_table_HomogenTableImpl.h"
 #include "oneapi/dal/table/homogen.hpp"
-#include "oneapi/dal/detail/memory_impl_dpc.hpp"
 #include "service.h"
 
 using namespace std;
@@ -120,7 +119,7 @@ template <typename T>
         }
 #ifdef CPU_GPU_PROFILE
         case compute_device::cpu:{
-            sycl::queue cpu_queue = getQueue(compute_device::cpu);
+            auto& cpu_queue = getQueue(compute_device::cpu);
             auto cpu_data = sycl::malloc_shared<T>(cRowCount * cColCount, cpu_queue);
             cpu_queue.memcpy(cpu_data, p.get(), sizeof(T) * cRowCount * cColCount).wait();
             resultTablePtr = std::make_shared<homogen_table>(cpu_queue, cpu_data, cRowCount, cColCount,
@@ -129,7 +128,7 @@ template <typename T>
             break;
         }
         case compute_device::gpu:{
-            sycl::queue gpu_queue = getQueue(compute_device::gpu);
+            auto& gpu_queue = getQueue(compute_device::gpu);
             auto gpu_data = sycl::malloc_shared<T>(cRowCount * cColCount, gpu_queue);
             gpu_queue.memcpy(gpu_data, p.get(), sizeof(T) * cRowCount * cColCount).wait();
             resultTablePtr = std::make_shared<homogen_table>(gpu_queue, gpu_data, cRowCount, cColCount,
@@ -168,7 +167,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_iInit(
        }
 #ifdef CPU_GPU_PROFILE
        case compute_device::cpu:{
-             sycl::queue cpu_queue = getQueue(compute_device::cpu);
+             auto& cpu_queue = getQueue(compute_device::cpu);
              int* cpu_data = sycl::malloc_shared<int>(cRowCount * cColCount, cpu_queue);
              cpu_queue.memcpy(cpu_data, fData, sizeof(int) * cRowCount * cColCount).wait();
              tablePtr = std::make_shared<homogen_table>(cpu_queue,
@@ -181,7 +180,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_iInit(
              break;
        }
        case compute_device::gpu:{
-             sycl::queue gpu_queue = getQueue(compute_device::gpu);
+             auto& gpu_queue = getQueue(compute_device::gpu);
              auto gpu_data = sycl::malloc_shared<int>(cRowCount * cColCount, gpu_queue);
              gpu_queue.memcpy(gpu_data, fData, sizeof(int) * cRowCount * cColCount).wait();
              tablePtr = std::make_shared<homogen_table>(gpu_queue, gpu_data, cRowCount, cColCount,
@@ -222,7 +221,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_fInit(
          }
 #ifdef CPU_GPU_PROFILE
          case compute_device::cpu:{
-             sycl::queue cpu_queue = getQueue(compute_device::cpu);
+             auto& cpu_queue = getQueue(compute_device::cpu);
              auto cpu_data = sycl::malloc_shared<float>(cRowCount * cColCount, cpu_queue);
              cpu_queue.memcpy(cpu_data, fData, sizeof(float) * cRowCount * cColCount).wait();
              tablePtr = std::make_shared<homogen_table>(cpu_queue, cpu_data, cRowCount, cColCount,
@@ -231,7 +230,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_fInit(
              break;
          }
          case compute_device::gpu:{
-             sycl::queue gpu_queue = getQueue(compute_device::gpu);
+             auto& gpu_queue = getQueue(compute_device::gpu);
              auto gpu_data = sycl::malloc_shared<float>(cRowCount * cColCount, gpu_queue);
              gpu_queue.memcpy(gpu_data, fData, sizeof(float) * cRowCount * cColCount).wait();
              tablePtr = std::make_shared<homogen_table>(gpu_queue, gpu_data, cRowCount, cColCount,
@@ -271,7 +270,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_dInit(
          }
 #ifdef CPU_GPU_PROFILE
          case compute_device::cpu:{
-             sycl::queue cpu_queue = getQueue(compute_device::cpu);
+             auto& cpu_queue = getQueue(compute_device::cpu);
              auto cpu_data = sycl::malloc_shared<double>(cRowCount * cColCount, cpu_queue);
              cpu_queue.memcpy(cpu_data, fData, sizeof(double) * cRowCount * cColCount).wait();
              tablePtr = std::make_shared<homogen_table>(cpu_queue, cpu_data, cRowCount, cColCount,
@@ -280,7 +279,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_dInit(
              break;
          }
          case compute_device::gpu:{
-             sycl::queue gpu_queue = getQueue(compute_device::gpu);
+             auto& gpu_queue = getQueue(compute_device::gpu);
              auto gpu_data = sycl::malloc_shared<double>(cRowCount * cColCount, gpu_queue);
              gpu_queue.memcpy(gpu_data, fData, sizeof(double) * cRowCount * cColCount).wait();
              tablePtr = std::make_shared<homogen_table>(gpu_queue, gpu_data, cRowCount, cColCount,
@@ -321,7 +320,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_lInit(
          }
 #ifdef CPU_GPU_PROFILE
          case compute_device::cpu:{
-             sycl::queue cpu_queue = getQueue(compute_device::cpu);
+             auto& cpu_queue = getQueue(compute_device::cpu);
              auto cpu_data = sycl::malloc_shared<long>(cRowCount * cColCount, cpu_queue);
              cpu_queue.memcpy(cpu_data, fData, sizeof(long) * cRowCount * cColCount).wait();
              tablePtr = std::make_shared<homogen_table>(cpu_queue, cpu_data, cRowCount, cColCount,
@@ -330,7 +329,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_lInit(
              break;
          }
          case compute_device::gpu:{
-             sycl::queue gpu_queue = getQueue(compute_device::gpu);
+             auto& gpu_queue = getQueue(compute_device::gpu);
              auto gpu_data = sycl::malloc_shared<long>(cRowCount * cColCount, gpu_queue);
              gpu_queue.memcpy(gpu_data, fData, sizeof(long) * cRowCount * cColCount).wait();
              tablePtr = std::make_shared<homogen_table>(gpu_queue, gpu_data, cRowCount, cColCount,

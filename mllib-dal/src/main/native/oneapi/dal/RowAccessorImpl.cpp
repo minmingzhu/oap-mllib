@@ -60,12 +60,12 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
          }
 #ifdef CPU_GPU_PROFILE
          case compute_device::cpu:{
-                sycl::queue cpu_queue = getQueue(compute_device::cpu);
+                auto& cpu_queue = getQueue(compute_device::cpu);
                 row_values = acc.pull(cpu_queue, {cRowStartIndex, cRowEndIndex});
                 break;
          }
          case compute_device::gpu:{
-                sycl::queue gpu_queue = getQueue(compute_device::gpu);
+                auto& gpu_queue = getQueue(compute_device::gpu);
                 row_values = acc.pull(gpu_queue, {cRowStartIndex, cRowEndIndex});
                 break;
          }
@@ -99,12 +99,12 @@ JNIEXPORT jfloatArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPullF
          }
 #ifdef CPU_GPU_PROFILE
          case compute_device::cpu:{
-                sycl::queue cpu_queue = getQueue(compute_device::cpu);
+                auto& cpu_queue = getQueue(compute_device::cpu);
                 row_values = acc.pull(cpu_queue, {cRowStartIndex, cRowEndIndex});
                 break;
          }
          case compute_device::gpu:{
-                sycl::queue gpu_queue = getQueue(compute_device::gpu);
+                auto& gpu_queue = getQueue(compute_device::gpu);
                 row_values = acc.pull(gpu_queue, {cRowStartIndex, cRowEndIndex});
                 break;
          }
@@ -138,12 +138,12 @@ JNIEXPORT jintArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPullInt
          }
 #ifdef CPU_GPU_PROFILE
          case compute_device::cpu:{
-                sycl::queue cpu_queue = getQueue(compute_device::cpu);
+                auto& cpu_queue = getQueue(compute_device::cpu);
                 row_values = acc.pull(cpu_queue, {cRowStartIndex, cRowEndIndex});
                 break;
          }
          case compute_device::gpu:{
-                sycl::queue gpu_queue = getQueue(compute_device::gpu);
+                auto& gpu_queue = getQueue(compute_device::gpu);
                 row_values = acc.pull(gpu_queue, {cRowStartIndex, cRowEndIndex});
                 break;
          }

@@ -3,26 +3,48 @@
 #include <unistd.h>
 
 #include "DPCPPGPU.h"
-#include "service.h"
 
-sycl::queue *queue;
-sycl::queue *getQueue(const bool is_gpu) {
-    std::cout << "Get Queue" << std::endl;
-    if (is_gpu) {
-        std::cout << "selector DPCPP GPU" << std::endl;
-        if (queue == NULL) {
-            auto device_gpu = sycl::gpu_selector{}.select_device();
-            queue = new sycl::queue(device_gpu);
-        }
-        std::cout << "selector DPCPP GPU 11" << std::endl;
-        return queue;
+typedef std::shared_ptr<sycl::queue> queuePtr;
+
+static std::mutex mtx;
+static std::vector<sycl::queue> cVector;
+
+static void saveSyclQueue(const sycl::queue &queue) {
+    mtx.lock();
+    cVector.push_back(queue);
+    mtx.unlock();
+}
+
+static sycl::queue &getSyclQueue(const sycl::device device) {
+    mtx.lock();
+    if (!cVector.empty()) {
+        mtx.unlock();
+        return cVector[0];
     } else {
-        std::cout << "selector DPCPP CPU" << std::endl;
-        if (queue == NULL) {
-            auto device_cpu = sycl::cpu_selector{}.select_device();
-            queue = new sycl::queue(device_cpu);
-        }
-        std::cout << "selector DPCPP CPU 11" << std::endl;
-        return queue;
+        sycl::queue queue{device};
+        saveSyclQueue(queue);
+        mtx.unlock();
+        return cVector[0];
+    }
+}
+
+sycl::queue &getQueue(const compute_device device) {
+    std::cout << "Get Queue" << std::endl;
+
+    switch (device) {
+    case compute_device::gpu: {
+        std::cout << "selector GPU" << std::endl;
+        auto device_gpu = sycl::gpu_selector{}.select_device();
+        return getSyclQueue(device_gpu);
+    }
+    case compute_device::cpu: {
+        std::cout << "selector CPU" << std::endl;
+        auto device_cpu = sycl::cpu_selector{}.select_device();
+        return getSyclQueue(device_cpu);
+    }
+    default: {
+        std::cout << "No Device!" << std::endl;
+        exit(-1);
+    }
     }
 }

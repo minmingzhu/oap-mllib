@@ -40,7 +40,7 @@ static jlong doKMeansHostOneAPICompute(JNIEnv *env, jint rankId,
                                        jint cluster_num, jdouble tolerance,
                                        jint iteration_num, jint executor_num,
                                        const ccl::string &ipPort,
-                                       cl::sycl::queue *, jobject resultObj) {
+                                       jobject resultObj) {
     std::cout << "oneDAL (native): HOST compute start , rankid %ld " << rankId
               << std::endl;
     const bool isRoot = (rankId == ccl_root);
@@ -84,7 +84,7 @@ static jlong doKMeansHostOneAPICompute(JNIEnv *env, jint rankId,
 static jlong doKMeansCPUOneAPICompute(
     JNIEnv *env, jint rankId, jlong pNumTabData, jlong pNumTabCenters,
     jint cluster_num, jdouble tolerance, jint iteration_num, jint executor_num,
-    const ccl::string &ipPort, cl::sycl::queue *cpu_queue, jobject resultObj) {
+    const ccl::string &ipPort, cl::sycl::queue &cpu_queue, jobject resultObj) {
     std::cout << "oneDAL (native): CPU compute start , rankid %ld " << rankId
               << std::endl;
     const bool isRoot = (rankId == ccl_root);
@@ -95,7 +95,7 @@ static jlong doKMeansCPUOneAPICompute(
                                  .set_max_iteration_count(iteration_num)
                                  .set_accuracy_threshold(tolerance);
     auto comm = preview::spmd::make_communicator<preview::spmd::backend::ccl>(
-        *cpu_queue, executor_num, rankId, ipPort);
+        cpu_queue, executor_num, rankId, ipPort);
     kmeans::train_input local_input{*htable, *centroids};
     auto result_train = preview::train(comm, kmeans_desc, local_input);
     if (isRoot) {
@@ -130,7 +130,7 @@ static jlong doKMeansCPUOneAPICompute(
 static jlong doKMeansGPUOneAPICompute(
     JNIEnv *env, jint rankId, jlong pNumTabData, jlong pNumTabCenters,
     jint cluster_num, jdouble tolerance, jint iteration_num, jint executor_num,
-    const ccl::string &ipPort, cl::sycl::queue *gpu_queue, jobject resultObj) {
+    const ccl::string &ipPort, cl::sycl::queue &gpu_queue, jobject resultObj) {
     std::cout << "oneDAL (native): CPU compute start , rankid %ld " << rankId
               << std::endl;
     const bool isRoot = (rankId == ccl_root);
@@ -141,7 +141,7 @@ static jlong doKMeansGPUOneAPICompute(
                                  .set_max_iteration_count(iteration_num)
                                  .set_accuracy_threshold(tolerance);
     auto comm = preview::spmd::make_communicator<preview::spmd::backend::ccl>(
-        *gpu_queue, executor_num, rankId, ipPort);
+        gpu_queue, executor_num, rankId, ipPort);
     kmeans::train_input local_input{*htable, *centroids};
     auto result_train = preview::train(comm, kmeans_desc, local_input);
     if (isRoot) {
@@ -191,19 +191,19 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
     case compute_device::host: {
         ret = doKMeansHostOneAPICompute(
             env, rankId, pNumTabData, pNumTabCenters, cluster_num, tolerance,
-            iteration_num, executor_num, ipPort, nullptr, resultObj);
+            iteration_num, executor_num, ipPort, resultObj);
     }
 #ifdef CPU_GPU_PROFILE
     case compute_device::cpu: {
         cout << "oneDAL (native): use DPCPP CPU kernels" << endl;
-        cl::sycl::queue *cpu_queue = getQueue(false);
+        auto &cpu_queue = getQueue(compute_device::cpu);
         ret = doKMeansCPUOneAPICompute(
             env, rankId, pNumTabData, pNumTabCenters, cluster_num, tolerance,
             iteration_num, executor_num, ipPort, cpu_queue, resultObj);
     }
     case compute_device::gpu: {
         cout << "oneDAL (native): use DPCPP GPU kernels" << endl;
-        cl::sycl::queue *gpu_queue = getQueue(true);
+        auto &gpu_queue = getQueue(compute_device::gpu);
         ret = doKMeansGPUOneAPICompute(
             env, rankId, pNumTabData, pNumTabCenters, cluster_num, tolerance,
             iteration_num, executor_num, ipPort, gpu_queue, resultObj);
