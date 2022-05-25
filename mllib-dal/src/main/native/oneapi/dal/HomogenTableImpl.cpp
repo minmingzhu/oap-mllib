@@ -35,6 +35,7 @@
 
 #include "com_intel_oneapi_dal_table_HomogenTableImpl.h"
 #include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/detail/memory_impl_dpc.hpp"
 #include "service.h"
 
 using namespace std;
@@ -97,7 +98,7 @@ template <typename T>
        long cRowCount = targetTable.get_row_count() + sourceTable.get_row_count();
        long cColCount = targetTable.get_column_count();
        std::shared_ptr<T> p(new T[targetDatasize + sourceDatasize], [](T* p){
-            delete[] p; 
+            delete[] p;
         });
        for (std::int64_t i = 0; i < targetDatasize; i++) {
            p.get()[i] = targetData[i];
@@ -258,6 +259,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_dInit(
     jboolean isCopy = true;
     jdouble *fData = env->GetDoubleArrayElements(cData, &isCopy);
     const std::vector<sycl::event> dependencies = {};
+    homogenPtr tablePtr;
     switch(getComputeDevice(cComputeDevice)) {
          case compute_device::host:{
              tablePtr = std::make_shared<homogen_table>(fData, cRowCount, cColCount,
@@ -426,7 +428,6 @@ Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetIntData(JNIEnv *env,
     homogen_table htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
     const int *data = htable.get_data<int>();
     const int datasize = htable.get_column_count() * htable.get_row_count();
-
     jintArray newIntArray = env->NewIntArray(datasize);
     env->SetIntArrayRegion(newIntArray, 0, datasize, data);
     return newIntArray;
@@ -539,3 +540,4 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cAddHom
            return (jlong)sourceTablePtr;
        }
  }
+
