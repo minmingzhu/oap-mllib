@@ -35,7 +35,6 @@
 
 #include "com_intel_oneapi_dal_table_HomogenTableImpl.h"
 #include "oneapi/dal/table/homogen.hpp"
-#include "oneapi/dal/detail/memory_impl_dpc.hpp"
 #include "service.h"
 
 using namespace std;
