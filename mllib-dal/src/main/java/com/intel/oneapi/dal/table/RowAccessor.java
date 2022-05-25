@@ -5,7 +5,7 @@ public class RowAccessor {
     private Common.ComputeDevice cDevice;
     public RowAccessor(long cObject, Common.ComputeDevice device) {
         this.cObject = cObject;
-        this.cDevice =device;
+        this.cDevice = device;
     }
 
     public double[] pullDouble(){
