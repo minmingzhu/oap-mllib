@@ -98,7 +98,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     val vector = OneDAL.homogenTable1xNToVector(table, getDevice)
 
 
-    assert(expectData=== vector.toArray)
+    assert(expectData === vector.toArray)
   }
 
   test("test convert numerictable Nx1 to vector "){
