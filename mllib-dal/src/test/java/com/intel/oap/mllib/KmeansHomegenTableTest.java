@@ -64,6 +64,6 @@ public class KmeansHomegenTableTest {
                null, null, 0, 0);
         KMeansResult result = new KMeansResult();
         kmeansDAL.cKMeansOneapiComputeWithInitCenters(dataTable.getcObejct(), centroidsTable.getcObejct(),20, 0.001,
-                5, Common.ComputeDevice.HOST.ordinal(),1, 1, "127.0.0.1_3000" , result);
+                5, 1, Common.ComputeDevice.HOST.ordinal(), 0, "127.0.0.1_3000" , result);
     }
 }
