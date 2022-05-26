@@ -17,6 +17,7 @@
 #include <chrono>
 #include <iomanip>
 #include <iostream>
+#include <mutex>
 
 #ifdef CPU_GPU_PROFILE
 #include "DPCPPGPU.h"
@@ -36,13 +37,13 @@ const int ccl_root = 0;
 
 typedef std::shared_ptr<homogen_table> homogenPtr;
 
-std::mutex mtx;
-std::vector<homogenPtr> cHomogenVector;
+std::mutex kmtx;
+std::vector<homogenPtr> cVector;
 
 static void saveShareHomogenPtrVector(const homogenPtr &ptr) {
-       mtx.lock();
-       cHomogenVector.push_back(ptr);
-       mtx.unlock();
+       kmtx.lock();
+       cVector.push_back(ptr);
+       kmtx.unlock();
 }
 static jlong doKMeansHostOneAPICompute(JNIEnv *env, jint rankId,
                                        jlong pNumTabData, jlong pNumTabCenters,
