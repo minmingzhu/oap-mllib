@@ -8,12 +8,6 @@ typedef std::shared_ptr<sycl::queue> queuePtr;
 static std::mutex mtx;
 static std::vector<sycl::queue> cVector;
 
-static void saveSyclQueue(const sycl::queue &queue) {
-    mtx.lock();
-    cVector.push_back(queue);
-    mtx.unlock();
-}
-
 static sycl::queue &getSyclQueue(const sycl::device device) {
     mtx.lock();
     if (!cVector.empty()) {
@@ -21,7 +15,7 @@ static sycl::queue &getSyclQueue(const sycl::device device) {
         return cVector[0];
     } else {
         sycl::queue queue{device};
-        saveSyclQueue(queue);
+        cVector.push_back(queue);
         mtx.unlock();
         return cVector[0];
     }
