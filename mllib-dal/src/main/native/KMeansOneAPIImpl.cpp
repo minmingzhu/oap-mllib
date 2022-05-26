@@ -34,10 +34,10 @@ using namespace std;
 using namespace oneapi::dal;
 const int ccl_root = 0;
 
-typedef std::shared_ptr<homogen_table> HomogenTablePtr;
+typedef std::shared_ptr<homogen_table> homogenPtr;
 
 std::mutex mtx;
-std::vector<HomogenTablePtr> cHomogenVector;
+std::vector<homogenPtr> cHomogenVector;
 
 static void saveShareHomogenPtrVector(const homogenPtr &ptr) {
        mtx.lock();
@@ -80,7 +80,7 @@ static jlong doKMeansHostOneAPICompute(JNIEnv *env, jint rankId,
         env->SetDoubleField(resultObj, totalCostField,
                             result_train.get_objective_function_value());
 
-        HomogenTablePtr centroidsPtr =std::make_shared<homogen_table>(result_train.get_model().get_centroids());
+        homogenPtr centroidsPtr =std::make_shared<homogen_table>(result_train.get_model().get_centroids());
         saveShareHomogenPtrVector(centroidsPtr);
         return (jlong)centroidsPtr.get();
     } else {
@@ -126,7 +126,7 @@ static jlong doKMeansCPUOneAPICompute(
         env->SetDoubleField(resultObj, totalCostField,
                             result_train.get_objective_function_value());
 
-        HomogenTablePtr centroidsPtr =std::make_shared<homogen_table>(result_train.get_model().get_centroids());
+        homogenPtr centroidsPtr =std::make_shared<homogen_table>(result_train.get_model().get_centroids());
         saveShareHomogenPtrVector(centroidsPtr);
         return (jlong)centroidsPtr.get();
     } else {
@@ -170,7 +170,7 @@ static jlong doKMeansGPUOneAPICompute(
         env->SetDoubleField(resultObj, totalCostField,
                             result_train.get_objective_function_value());
 
-        HomogenTablePtr centroidsPtr =std::make_shared<homogen_table>(result_train.get_model().get_centroids());
+        homogenPtr centroidsPtr =std::make_shared<homogen_table>(result_train.get_model().get_centroids());
         saveShareHomogenPtrVector(centroidsPtr);
         return (jlong)centroidsPtr.get();
     } else {
