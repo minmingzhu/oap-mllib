@@ -35,6 +35,15 @@ using namespace oneapi::dal;
 const int ccl_root = 0;
 
 typedef std::shared_ptr<homogen_table> HomogenTablePtr;
+
+std::mutex mtx;
+std::vector<HomogenTablePtr> cHomogenVector;
+
+static void saveShareHomogenPtrVector(const homogenPtr &ptr) {
+       mtx.lock();
+       cHomogenVector.push_back(ptr);
+       mtx.unlock();
+}
 static jlong doKMeansHostOneAPICompute(JNIEnv *env, jint rankId,
                                        jlong pNumTabData, jlong pNumTabCenters,
                                        jint cluster_num, jdouble tolerance,
@@ -72,6 +81,7 @@ static jlong doKMeansHostOneAPICompute(JNIEnv *env, jint rankId,
                             result_train.get_objective_function_value());
 
         HomogenTablePtr centroidsPtr =std::make_shared<homogen_table>(result_train.get_model().get_centroids());
+        saveShareHomogenPtrVector(centroidsPtr);
         return (jlong)centroidsPtr.get();
     } else {
         return (jlong)0;
@@ -117,6 +127,7 @@ static jlong doKMeansCPUOneAPICompute(
                             result_train.get_objective_function_value());
 
         HomogenTablePtr centroidsPtr =std::make_shared<homogen_table>(result_train.get_model().get_centroids());
+        saveShareHomogenPtrVector(centroidsPtr);
         return (jlong)centroidsPtr.get();
     } else {
         return (jlong)0;
@@ -127,7 +138,7 @@ static jlong doKMeansGPUOneAPICompute(
     JNIEnv *env, jint rankId, jlong pNumTabData, jlong pNumTabCenters,
     jint cluster_num, jdouble tolerance, jint iteration_num, jint executor_num,
     const ccl::string &ipPort, cl::sycl::queue &gpu_queue, jobject resultObj) {
-    std::cout << "oneDAL (native): CPU compute start , rankid %ld " << rankId
+    std::cout << "oneDAL (native): GPU compute start , rankid %ld " << rankId
               << std::endl;
     const bool isRoot = (rankId == ccl_root);
     homogen_table htable = *((homogen_table *)pNumTabData);
@@ -160,6 +171,7 @@ static jlong doKMeansGPUOneAPICompute(
                             result_train.get_objective_function_value());
 
         HomogenTablePtr centroidsPtr =std::make_shared<homogen_table>(result_train.get_model().get_centroids());
+        saveShareHomogenPtrVector(centroidsPtr);
         return (jlong)centroidsPtr.get();
     } else {
         return (jlong)0;
