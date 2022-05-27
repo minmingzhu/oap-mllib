@@ -1,5 +1,7 @@
 package com.intel.oap.mllib
 
+import org.junit.jupiter.api.Assertions.assertArrayEquals
+
 import com.intel.daal.data_management.data.{Matrix => DALMatrix, NumericTable}
 import com.intel.daal.services.DaalContext
 import com.intel.oneapi.dal.table.{Common, HomogenTable}
@@ -40,8 +42,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       assert(metadata.getFeatureType(i) == Common.FeatureType.RATIO)
     }
 
-    assert(table.getDoubleData === convertArray(data))
-
+    assertArrayEquals(table.getDoubleData, convertArray(data))
   }
 
   test("test convert doublearray to homogentable") {
@@ -57,7 +58,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       assert(metadata.getDataType(i) == FLOAT64)
       assert(metadata.getFeatureType(i) == Common.FeatureType.RATIO)
     }
-    assert(table.getDoubleData === data)
+    assertArrayEquals(table.getDoubleData, data)
 
   }
 
@@ -87,7 +88,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
       assert(metadata.getFeatureType(i) == Common.FeatureType.RATIO)
     }
 
-    assert(table.getDoubleData === convertArray(data))
+    assertArrayEquals(table.getDoubleData, convertArray(data))
   }
 
   test("test convert homogentable 1xN to vector "){
@@ -98,7 +99,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     val vector = OneDAL.homogenTable1xNToVector(table, getDevice)
 
 
-    assert(expectData === vector.toArray)
+    assertArrayEquals(expectData, vector.toArray)
   }
 
   test("test convert numerictable Nx1 to vector "){
@@ -117,7 +118,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     val expectData = Array(5.308206, 7.279464, -6.615791, -4.792007, 7.700725, 6.991900, 5.794488, -2.486670, 2.204855, -9.948613)
     val matrix = OneDAL.makeNumericTable(data)
     val vector = OneDAL.numericTableNx1ToVector(matrix)
-    assert(expectData === vector.toArray)
+    assertArrayEquals(expectData, vector.toArray)
   }
 
   test("test convert homogentable Nx1 to vector "){
@@ -130,7 +131,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     val table = new HomogenTable(5, 2, data, getDevice)
     val vector = OneDAL.homogenTableNx1ToVector(table.getcObejct(), getDevice)
 
-    assert(expectData === vector.toArray)
+    assertArrayEquals(expectData, vector.toArray)
   }
 
   test("test convert homogentable to matrix "){
@@ -144,7 +145,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
 
     val matrix = OneDAL.homogenTableToMatrix(table)
 
-    assert(expectMatrix === matrix)
+    assertArrayEquals(expectMatrix.toArray, matrix.toArray)
   }
 
   test("test convert homogentable to oldmatrix "){
@@ -158,7 +159,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
 
     val matrix = OneDAL.homogenTableToOldMatrix(table)
 
-    assert(expectMatrix === matrix)
+    assertArrayEquals(expectMatrix.toArray, matrix.toArray)
   }
 
   test("test convert homogentable to vector "){
@@ -178,7 +179,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     val table = new HomogenTable(10, 10, arrayData, getDevice)
     val array = OneDAL.homogenTableToVectors(table, getDevice)
 
-    assert(data === array)
+    assertArrayEquals(convertArray(data), convertArray(array))
   }
 
   def convertArray(arrayVectors: Array[Vector]): Array[Double] = {
@@ -218,7 +219,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     var computeDevice: Common.ComputeDevice = Common.ComputeDevice.HOST
     if(device != null) {
       device.toUpperCase match {
-        case "HOST" =>  computeDevice = Common.ComputeDevice.HOST
+        case "HOST" => computeDevice = Common.ComputeDevice.HOST
         case "CPU"  => computeDevice = Common.ComputeDevice.CPU
         case "GPU"  => computeDevice = Common.ComputeDevice.GPU
         case _  => "Invalid Device"
