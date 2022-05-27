@@ -41,9 +41,9 @@ std::mutex kmtx;
 std::vector<homogenPtr> cVector;
 
 static void saveShareHomogenPtrVector(const homogenPtr &ptr) {
-       kmtx.lock();
-       cVector.push_back(ptr);
-       kmtx.unlock();
+    kmtx.lock();
+    cVector.push_back(ptr);
+    kmtx.unlock();
 }
 static jlong doKMeansHostOneAPICompute(JNIEnv *env, jint rankId,
                                        jlong pNumTabData, jlong pNumTabCenters,
@@ -81,7 +81,8 @@ static jlong doKMeansHostOneAPICompute(JNIEnv *env, jint rankId,
         env->SetDoubleField(resultObj, totalCostField,
                             result_train.get_objective_function_value());
 
-        homogenPtr centroidsPtr =std::make_shared<homogen_table>(result_train.get_model().get_centroids());
+        homogenPtr centroidsPtr = std::make_shared<homogen_table>(
+            result_train.get_model().get_centroids());
         saveShareHomogenPtrVector(centroidsPtr);
         return (jlong)centroidsPtr.get();
     } else {
@@ -127,7 +128,8 @@ static jlong doKMeansCPUOneAPICompute(
         env->SetDoubleField(resultObj, totalCostField,
                             result_train.get_objective_function_value());
 
-        homogenPtr centroidsPtr =std::make_shared<homogen_table>(result_train.get_model().get_centroids());
+        homogenPtr centroidsPtr = std::make_shared<homogen_table>(
+            result_train.get_model().get_centroids());
         saveShareHomogenPtrVector(centroidsPtr);
         return (jlong)centroidsPtr.get();
     } else {
@@ -171,7 +173,8 @@ static jlong doKMeansGPUOneAPICompute(
         env->SetDoubleField(resultObj, totalCostField,
                             result_train.get_objective_function_value());
 
-        homogenPtr centroidsPtr =std::make_shared<homogen_table>(result_train.get_model().get_centroids());
+        homogenPtr centroidsPtr = std::make_shared<homogen_table>(
+            result_train.get_model().get_centroids());
         saveShareHomogenPtrVector(centroidsPtr);
         return (jlong)centroidsPtr.get();
     } else {
@@ -194,7 +197,8 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
     const char *ipport = env->GetStringUTFChars(ip_port, 0);
     std::string ipPort = std::string(ipport);
     jlong ret = 0L;
-    printf("oneDAL (native):  KMeansOneapiComputeWithInitCenters %d \n", compute_device);
+    printf("oneDAL (native):  KMeansOneapiComputeWithInitCenters %d \n",
+           compute_device);
     switch (getComputeDevice(compute_device)) {
     case compute_device::host: {
         printf("oneDAL (native):  KMeansOneapiComputeWithInitCenters host \n");
