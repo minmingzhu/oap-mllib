@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class ColumnAccessorTest {
-    
+  
     @Test
     public void getDoubleFirstColumnFromHomogenTable() throws Exception {
         double[] data = {5.236359d, 8.718667d, 40.724176d, 10.770023d, 90.119887d, 3.815366d,
@@ -83,6 +83,7 @@ public class ColumnAccessorTest {
 
         ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
         float[] columnData = accessor.pullFloat(1);
+
         assertEquals(new Long(columnData.length), table.getRowCount());
         float[] tableData = table.getFloatData();
 

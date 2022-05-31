@@ -143,7 +143,6 @@ public class HomogenTableImpl implements HomogenTableIface {
     public void addHomogenTable(long homogenTableAddr ) {
         this.cObject = cAddHomogenTable(this.cObject, homogenTableAddr, this.device.ordinal());
     }
-
     private native long iInit(long rowCount,
                               long colCount,
                               int[] data,

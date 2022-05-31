@@ -19,7 +19,6 @@
 #include <set>
 
 #include "com_intel_oap_mllib_OneDAL__.h"
-#include "oneapi/dal/table/homogen.hpp"
 #include "service.h"
 #include "oneapi/dal/table/homogen.hpp"
 
@@ -154,5 +153,4 @@ Java_com_intel_oap_mllib_OneDAL_00024_cNewCSRNumericTableDouble(
     CSRNumericTablePtr *ret = new CSRNumericTablePtr(numericTable);
 
     return (jlong)ret;
-
 }

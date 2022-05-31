@@ -1,6 +1,7 @@
 package com.intel.oap.mllib
 
 import org.junit.jupiter.api.Assertions.assertArrayEquals
+
 import com.intel.daal.data_management.data.{Matrix => DALMatrix, NumericTable}
 import com.intel.daal.services.DaalContext
 import com.intel.oneapi.dal.table.{Common, HomogenTable}
@@ -143,6 +144,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     val table = new HomogenTable(5, 2, data, getDevice)
 
     val matrix = OneDAL.homogenTableToMatrix(table)
+
     assertArrayEquals(expectMatrix.toArray, matrix.toArray)
   }
 
@@ -177,6 +179,7 @@ class ConvertHomogenTableSuite extends FunctionsSuite with Logging {
     val arrayData = convertArray(data)
     val table = new HomogenTable(10, 10, arrayData, getDevice)
     val array = OneDAL.homogenTableToVectors(table, getDevice)
+
     assertArrayEquals(convertArray(data), convertArray(array))
   }
 

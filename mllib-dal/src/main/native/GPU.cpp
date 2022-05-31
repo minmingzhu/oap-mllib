@@ -3,7 +3,6 @@
 #include <unistd.h>
 
 #include "GPU.h"
-#include "service.h"
 
 static std::vector<sycl::device> get_gpus() {
     auto platforms = sycl::platform::get_platforms();
