@@ -53,7 +53,6 @@ Java_com_intel_oneapi_dal_table_SimpleMetadataImpl_cGetFeatureType(
     printf("SimpleMetadata getfeaturetype \n");
     table_metadata mdata = *reinterpret_cast<table_metadata *>(cTableAddr);
     return (jint)mdata.get_feature_type(cindex);
-
 }
 
 /*
