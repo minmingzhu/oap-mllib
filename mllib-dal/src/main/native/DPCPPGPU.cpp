@@ -12,13 +12,15 @@ static std::vector<sycl::queue> cVector;
 static sycl::queue getSyclQueue(const sycl::device device) {
     mtx.lock();
     if (!cVector.empty()) {
+        const auto device = cVector[0];
         mtx.unlock();
-        return cVector[0];
+        return device;
     } else {
         sycl::queue queue{device};
         cVector.push_back(queue);
+        const auto device = cVector[0];
         mtx.unlock();
-        return cVector[0];
+        return device;
     }
 }
 

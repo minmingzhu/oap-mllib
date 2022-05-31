@@ -27,7 +27,6 @@
 #else
 #include <daal.h>
 #endif
-#include <oneapi/dal.hpp>
 using namespace daal::data_management;
 
 #include <algorithm>

@@ -759,20 +759,6 @@ SerializationIfacePtr deserializeDAALObject(daal::byte *buff, size_t length) {
     return dataArch.getAsSharedPtr();
 }
 
-template <typename T> void print_table_int(const oneapi::dal::table &table) {
-    if (!table.has_data())
-        return;
-    auto arr = oneapi::dal::row_accessor<const T>(table).pull();
-    const auto x = arr.get_data();
-
-    for (std::int64_t i = 0; i < table.get_row_count(); i++) {
-        for (std::int64_t j = 0; j < table.get_column_count(); j++) {
-            std::cout << x[i * table.get_column_count() + j];
-        }
-        std::cout << std::endl;
-    }
-}
-
 compute_device getComputeDevice(size_t cComputeDevice) {
     compute_device device;
     switch (cComputeDevice) {
