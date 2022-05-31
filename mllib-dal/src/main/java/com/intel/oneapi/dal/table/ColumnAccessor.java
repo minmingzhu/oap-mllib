@@ -17,8 +17,8 @@ public class ColumnAccessor {
         return this.cPullDouble(this.cObject, columnIndex, rowStartIndex, rowEndIndex, this.cDevice.ordinal());
     }
 
-    public float[] pullFloat(long columnIndex, Common.ComputeDevice device){
-        return this.cPullFloat(this.cObject, columnIndex, 0, -1, device.ordinal());
+    public float[] pullFloat(long columnIndex){
+        return this.cPullFloat(this.cObject, columnIndex, 0, -1, this.cDevice.ordinal());
     }
 
     public float[] pullFloat(long columnIndex, long rowStartIndex, long rowEndIndex){

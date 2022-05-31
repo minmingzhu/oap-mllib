@@ -210,7 +210,7 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
 #ifdef CPU_GPU_PROFILE
     case compute_device::cpu: {
         cout << "oneDAL (native): use DPCPP CPU kernels" << endl;
-        auto &cpu_queue = getQueue(compute_device::cpu);
+        auto cpu_queue = getQueue(compute_device::cpu);
         ret = doKMeansCPUOneAPICompute(
             env, rankId, pNumTabData, pNumTabCenters, cluster_num, tolerance,
             iteration_num, executor_num, ipPort, cpu_queue, resultObj);
@@ -218,7 +218,7 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
     }
     case compute_device::gpu: {
         cout << "oneDAL (native): use DPCPP GPU kernels" << endl;
-        auto &gpu_queue = getQueue(compute_device::gpu);
+        auto gpu_queue = getQueue(compute_device::gpu);
         ret = doKMeansGPUOneAPICompute(
             env, rankId, pNumTabData, pNumTabCenters, cluster_num, tolerance,
             iteration_num, executor_num, ipPort, gpu_queue, resultObj);
