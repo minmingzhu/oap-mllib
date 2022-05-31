@@ -55,8 +55,10 @@ static jlong doKMeansHostOneAPICompute(JNIEnv *env, jint rankId,
     std::cout << "oneDAL (native): HOST compute start , rankid %ld " << rankId
               << std::endl;
     const bool isRoot = (rankId == ccl_root);
-    homogen_table htable = *reinterpret_cast<const homogen_table *>(pNumTabData);
-    homogen_table centroids = *reinterpret_cast<const homogen_table *>(pNumTabCenters);
+    homogen_table htable =
+        *reinterpret_cast<const homogen_table *>(pNumTabData);
+    homogen_table centroids =
+        *reinterpret_cast<const homogen_table *>(pNumTabCenters);
     const auto kmeans_desc = kmeans::descriptor<>()
                                  .set_cluster_count(cluster_num)
                                  .set_max_iteration_count(iteration_num)
@@ -99,8 +101,10 @@ static jlong doKMeansCPUOneAPICompute(
     std::cout << "oneDAL (native): CPU compute start , rankid %ld " << rankId
               << std::endl;
     const bool isRoot = (rankId == ccl_root);
-    homogen_table htable = *reinterpret_cast<const homogen_table *>(pNumTabData);
-    homogen_table centroids = *reinterpret_cast<const homogen_table *>(pNumTabCenters);
+    homogen_table htable =
+        *reinterpret_cast<const homogen_table *>(pNumTabData);
+    homogen_table centroids =
+        *reinterpret_cast<const homogen_table *>(pNumTabCenters);
     const auto kmeans_desc = kmeans::descriptor<>()
                                  .set_cluster_count(cluster_num)
                                  .set_max_iteration_count(iteration_num)
@@ -145,8 +149,10 @@ static jlong doKMeansGPUOneAPICompute(
     std::cout << "oneDAL (native): GPU compute start , rankid %ld " << rankId
               << std::endl;
     const bool isRoot = (rankId == ccl_root);
-    homogen_table htable = *reinterpret_cast<const homogen_table *>(pNumTabData);
-    homogen_table centroids = *reinterpret_cast<const homogen_table *>(pNumTabCenters);
+    homogen_table htable =
+        *reinterpret_cast<const homogen_table *>(pNumTabData);
+    homogen_table centroids =
+        *reinterpret_cast<const homogen_table *>(pNumTabCenters);
     const auto kmeans_desc = kmeans::descriptor<>()
                                  .set_cluster_count(cluster_num)
                                  .set_max_iteration_count(iteration_num)
