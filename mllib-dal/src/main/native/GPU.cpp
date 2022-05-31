@@ -3,8 +3,6 @@
 #include <unistd.h>
 
 #include "GPU.h"
-<<<<<<< HEAD
-=======
 typedef std::shared_ptr<sycl::queue> queuePtr;
 
 static std::mutex mtx;
@@ -24,7 +22,6 @@ static sycl::queue getSyclQueue(const sycl::device device) {
         return device;
     }
 }
->>>>>>> rdd_to_homogenTable
 
 static std::vector<sycl::device> get_gpus() {
     auto platforms = sycl::platform::get_platforms();
@@ -83,4 +80,25 @@ sycl::device getAssignedGPU(ccl::communicator &comm, int size, int rankId,
     auto rank_gpu = gpus[gpu_selected % gpus.size()];
 
     return rank_gpu;
+}
+
+sycl::queue getQueue(const compute_device device) {
+    std::cout << "Get Queue" << std::endl;
+
+    switch (device) {
+    case compute_device::gpu: {
+        std::cout << "selector GPU" << std::endl;
+        auto device_gpu = sycl::gpu_selector{}.select_device();
+        return getSyclQueue(device_gpu);
+    }
+    case compute_device::cpu: {
+        std::cout << "selector CPU" << std::endl;
+        auto device_cpu = sycl::cpu_selector{}.select_device();
+        return getSyclQueue(device_cpu);
+    }
+    default: {
+        std::cout << "No Device!" << std::endl;
+        exit(-1);
+    }
+    }
 }
