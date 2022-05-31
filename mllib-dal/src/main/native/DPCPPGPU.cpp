@@ -9,7 +9,7 @@ typedef std::shared_ptr<sycl::queue> queuePtr;
 static std::mutex mtx;
 static std::vector<sycl::queue> cVector;
 
-static sycl::queue &getSyclQueue(const sycl::device device) {
+static sycl::queue getSyclQueue(const sycl::device device) {
     mtx.lock();
     if (!cVector.empty()) {
         mtx.unlock();

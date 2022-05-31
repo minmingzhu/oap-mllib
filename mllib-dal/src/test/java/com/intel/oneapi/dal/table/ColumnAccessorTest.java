@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class ColumnAccessorTest {
+    
     @Test
     public void getDoubleFirstColumnFromHomogenTable() throws Exception {
         double[] data = {5.236359d, 8.718667d, 40.724176d, 10.770023d, 90.119887d, 3.815366d,
@@ -66,7 +67,6 @@ public class ColumnAccessorTest {
 
         ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
         float[] columnData = accessor.pullFloat(0);
-
         assertEquals(new Long(columnData.length), table.getRowCount());
         float[] tableData = table.getFloatData();
         for (int i = 0; i < columnData.length; i++) {
@@ -83,7 +83,6 @@ public class ColumnAccessorTest {
 
         ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
         float[] columnData = accessor.pullFloat(1);
-
         assertEquals(new Long(columnData.length), table.getRowCount());
         float[] tableData = table.getFloatData();
 
@@ -101,7 +100,6 @@ public class ColumnAccessorTest {
 
         ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
         float[] columnData = accessor.pullFloat(0, 1 , 3);
-
         assertEquals(new Long(columnData.length), new Long(2));
         float[] tableData = table.getFloatData();
         for (int i = 0; i < columnData.length; i++) {
@@ -132,10 +130,8 @@ public class ColumnAccessorTest {
 
         ColumnAccessor accessor = new ColumnAccessor(table.getcObejct(), CommonTest.getDevice());
         int[] columnData = accessor.pullInt(1);
-
         assertEquals(new Long(columnData.length), table.getRowCount());
         int[] tableData = table.getIntData();
-
         for (int i = 0; i < columnData.length; i++) {
             assertEquals(columnData[i], tableData[i * table.getColumnCount().intValue() + 1]);
         }

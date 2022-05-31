@@ -23,8 +23,6 @@
 #include <vector>
 #include <mutex>
 
-
-
 #ifdef CPU_GPU_PROFILE
 #include "DPCPPGPU.h"
 #endif
