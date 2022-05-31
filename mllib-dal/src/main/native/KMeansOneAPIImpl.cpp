@@ -29,6 +29,7 @@
 #include "com_intel_oap_mllib_clustering_KMeansDALImpl.h"
 #include "communicator.hpp"
 #include "oneapi/dal/algo/kmeans.hpp"
+#include "oneapi/dal/table/homogen.hpp"
 #include "service.h"
 
 using namespace std;
