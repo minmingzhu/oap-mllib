@@ -49,7 +49,7 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cP
   (JNIEnv *env, jobject, jlong cTableAddr, jlong cColumnIndex, jlong cRowStartIndex,
    jlong cRowEndIndex, jint cComputeDevice) {
   printf("ColumnAccessor PullDouble \n");
-  homogen_table htable = *((homogen_table *)cTableAddr);
+  homogen_table htable = *reinterpret_cast<homogen_table *>(cTableAddr);
   column_accessor<const double> acc{ htable };
   oneapi::dal::array<double> col_values;
   jdoubleArray newDoubleArray;
@@ -88,7 +88,7 @@ JNIEXPORT jfloatArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cPu
   (JNIEnv *env, jobject, jlong cTableAddr, jlong cColumnIndex, jlong cRowStartIndex,
    jlong cRowEndIndex, jint cComputeDevice) {
   printf("ColumnAccessor PullFloat \n");
-  homogen_table htable = *((homogen_table *)cTableAddr);
+  homogen_table htable = *reinterpret_cast<homogen_table *>(cTableAddr);
   column_accessor<const float> acc{ htable };
   oneapi::dal::array<float> col_values;
   jfloatArray newFloatArray;
@@ -127,7 +127,7 @@ JNIEXPORT jintArray JNICALL Java_com_intel_oneapi_dal_table_ColumnAccessor_cPull
 (JNIEnv *env, jobject, jlong cTableAddr, jlong cColumnIndex, jlong cRowStartIndex,
  jlong cRowEndIndex, jint cComputeDevice) {
     printf("ColumnAccessor PullInt \n");
-    homogen_table htable = *((homogen_table *)cTableAddr);
+    homogen_table htable = *reinterpret_cast<homogen_table *>(cTableAddr);
     column_accessor<const int> acc { htable };
     oneapi::dal::array<int> col_values;
     jintArray newIntArray;

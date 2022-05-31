@@ -22,7 +22,7 @@ static sycl::queue &getSyclQueue(const sycl::device device) {
     }
 }
 
-sycl::queue &getQueue(const compute_device device) {
+sycl::queue getQueue(const compute_device device) {
     std::cout << "Get Queue" << std::endl;
 
     switch (device) {

@@ -3,6 +3,28 @@
 #include <unistd.h>
 
 #include "GPU.h"
+<<<<<<< HEAD
+=======
+typedef std::shared_ptr<sycl::queue> queuePtr;
+
+static std::mutex mtx;
+static std::vector<sycl::queue> cVector;
+
+static sycl::queue getSyclQueue(const sycl::device device) {
+    mtx.lock();
+    if (!cVector.empty()) {
+        auto device = cVector[0];
+        mtx.unlock();
+        return device;
+    } else {
+        sycl::queue queue{device};
+        cVector.push_back(queue);
+        auto device = cVector[0];
+        mtx.unlock();
+        return device;
+    }
+}
+>>>>>>> rdd_to_homogenTable
 
 static std::vector<sycl::device> get_gpus() {
     auto platforms = sycl::platform::get_platforms();

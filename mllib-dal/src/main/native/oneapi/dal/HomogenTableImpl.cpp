@@ -98,8 +98,7 @@ template <typename T>
        long cRowCount = targetTable.get_row_count() + sourceTable.get_row_count();
        long cColCount = targetTable.get_column_count();
        std::shared_ptr<T> p(new T[targetDatasize + sourceDatasize], [](T* p){
-            std::cout << "delete[] p" << std::endl;
-            delete[] p; //需要使用delete[]
+            delete[] p; 
         });
        for (std::int64_t i = 0; i < targetDatasize; i++) {
            p.get()[i] = targetData[i];
@@ -357,7 +356,7 @@ JNIEXPORT jlong JNICALL
 Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetColumnCount(
     JNIEnv *env, jobject, jlong cTableAddr) {
     printf("HomogenTable getcolumncount %ld \n", cTableAddr);
-    homogen_table htable = *((homogen_table *)cTableAddr);
+    homogen_table htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
     return htable.get_column_count();
 }
 
@@ -370,7 +369,7 @@ JNIEXPORT jlong JNICALL
 Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetRowCount(
     JNIEnv *env, jobject, jlong cTableAddr) {
     printf("HomogenTable getrowcount \n");
-    homogen_table htable = *((homogen_table *)cTableAddr);
+    homogen_table htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
     return htable.get_row_count();
 }
 
@@ -383,7 +382,7 @@ JNIEXPORT jlong JNICALL
 Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetKind(JNIEnv *env, jobject,
                                                           jlong cTableAddr) {
     printf("HomogenTable getkind \n");
-    homogen_table htable = *((homogen_table *)cTableAddr);
+    homogen_table htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
     return htable.get_kind();
 }
 
@@ -396,7 +395,7 @@ JNIEXPORT jint JNICALL
 Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetDataLayout(
     JNIEnv *env, jobject, jlong cTableAddr) {
     printf("HomogenTable getDataLayout \n");
-    homogen_table htable = *((homogen_table *)cTableAddr);
+    homogen_table  htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
     return (jint)htable.get_data_layout();
 }
 
@@ -409,8 +408,8 @@ JNIEXPORT jlong JNICALL
 Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetMetaData(
     JNIEnv *env, jobject, jlong cTableAddr) {
     printf("HomogenTable getMetaData \n");
-    homogen_table htable = *((homogen_table *)cTableAddr);
-    table_metadata *mdata = (table_metadata *)&(htable.get_metadata());
+    homogen_table htable = *reinterpret_cast<homogen_table *>(cTableAddr);
+    const table_metadata *mdata = reinterpret_cast<const table_metadata *>(&htable.get_metadata());
     metadataPtr metaPtr = std::make_shared<table_metadata>(*mdata);
     saveShareMetaPtrVector(metaPtr);
     return (jlong)metaPtr.get();
@@ -426,7 +425,7 @@ Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetIntData(JNIEnv *env,
                                                              jobject,
                                                              jlong cTableAddr) {
     printf("HomogenTable getIntData \n");
-    homogen_table htable = *((homogen_table *)cTableAddr);
+    homogen_table htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
     const int *data = htable.get_data<int>();
     const int datasize = htable.get_column_count() * htable.get_row_count();
     jintArray newIntArray = env->NewIntArray(datasize);
@@ -443,8 +442,7 @@ JNIEXPORT jfloatArray JNICALL
 Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetFloatData(
     JNIEnv *env, jobject, jlong cTableAddr) {
     printf("HomogenTable getFloatData \n");
-    homogen_table htable =
-        *((homogen_table *)cTableAddr);
+    homogen_table htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
     const float *data = htable.get_data<float>();
     const int datasize = htable.get_column_count() * htable.get_row_count();
 
@@ -462,8 +460,7 @@ JNIEXPORT jlongArray JNICALL
 Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetLongData(
     JNIEnv *env, jobject, jlong cTableAddr) {
     printf("HomogenTable getLongData \n");
-    homogen_table htable =
-        *((homogen_table *)cTableAddr);
+    homogen_table htable = *reinterpret_cast<homogen_table *>(cTableAddr);
     const long *data = htable.get_data<long>();
     const int datasize = htable.get_column_count() * htable.get_row_count();
 
@@ -481,8 +478,7 @@ JNIEXPORT jdoubleArray JNICALL
 Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetDoubleData(
     JNIEnv *env, jobject, jlong cTableAddr) {
     printf("HomogenTable getDoubleData \n");
-    homogen_table htable =
-        *((homogen_table *)cTableAddr);
+    homogen_table htable = *reinterpret_cast<homogen_table *>(cTableAddr);
     const double *data = htable.get_data<double>();
     const int datasize = htable.get_column_count() * htable.get_row_count();
     jdoubleArray newDoubleArray = env->NewDoubleArray(datasize);
@@ -498,8 +494,7 @@ Java_com_intel_oneapi_dal_table_HomogenTableImpl_cGetDoubleData(
 JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cEmptyTableInit
   (JNIEnv *env, jobject) {
       printf(" init empty HomogenTable \n");
-      homogen_table *h_table = new homogen_table();
-      homogenPtr tablePtr = std::make_shared<homogen_table>(*h_table);
+      homogenPtr tablePtr = std::make_shared<homogen_table>();
       saveShareHomogenPtrVector(tablePtr);
       return (jlong)tablePtr.get();
   }
@@ -512,8 +507,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cEmptyT
 JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cAddHomogenTable
  (JNIEnv *env, jobject, jlong targetTablePtr, jlong sourceTablePtr, jint cComputeDevice){
        printf("oneDal addHomogenTable \n");
-       homogen_table targetTable = *((homogen_table *)targetTablePtr);
-       homogen_table sourceTable = *((homogen_table *)sourceTablePtr);
+       homogen_table targetTable = *reinterpret_cast<homogen_table *>(targetTablePtr);
+       homogen_table sourceTable = *reinterpret_cast<homogen_table *>(sourceTablePtr);
        const auto targetMetaData = targetTable.get_metadata();
        const auto sourceMetaData = sourceTable.get_metadata();
        if(targetTable.has_data()){
@@ -546,4 +541,3 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_cAddHom
            return (jlong)sourceTablePtr;
        }
  }
-

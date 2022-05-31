@@ -1,5 +1,7 @@
 package org.apache.spark.ml
 
+import org.junit.jupiter.api.Assertions.assertArrayEquals
+
 import com.intel.oap.mllib.OneDAL
 import com.intel.oneapi.dal.table.{Common, HomogenTable}
 import com.intel.oneapi.dal.table.HomogenTable
@@ -43,7 +45,7 @@ class oneDALSuite extends FunctionsSuite with Logging {
     val resultMatrix = OneDAL.numericTableToMatrix(csr)
     val matrix = Matrices.fromVectors(data)
 
-    assert((resultMatrix.toArray sameElements matrix.toArray) === true)
+    assertArrayEquals(resultMatrix.toArray, matrix.toArray)
   }
 
   test("test rddLabeledPoint to merged HomogenTables") {
@@ -60,7 +62,7 @@ class oneDALSuite extends FunctionsSuite with Logging {
             }
             labelArray.append(label)
         }
-        Iterator(featureArray, labelArray)
+        Iterator(featureArray.toArray, labelArray.toArray)
     }.collect()
     df.show(10, false)
 
@@ -72,8 +74,8 @@ class oneDALSuite extends FunctionsSuite with Logging {
 
     val fData: Array[Double] = featureTable.getDoubleData()
     val lData: Array[Double] = labelTable.getDoubleData()
-    assert((fData.toArray sameElements expect(0)) === true)
-    assert((lData.toArray sameElements expect(1)) === true)
+    assertArrayEquals(fData, expect(0))
+    assertArrayEquals(lData, expect(1))
   }
 
   test("test rddVector to merged homogenTable") {
@@ -96,7 +98,7 @@ class oneDALSuite extends FunctionsSuite with Logging {
     val tableAddr = result.collect()
     val table = new HomogenTable(tableAddr(0))
     val rData: Array[Double] = table.getDoubleData()
-    assert((rData sameElements expectData) === true)
+    assertArrayEquals(rData, expectData)
   }
 
   def generateLabeledPointRDD(
@@ -123,10 +125,10 @@ class oneDALSuite extends FunctionsSuite with Logging {
     var computeDevice: Common.ComputeDevice = Common.ComputeDevice.HOST
     if(device != null) {
       device.toUpperCase match {
-        case "HOST" =>  computeDevice = Common.ComputeDevice.HOST
-        case "CPU"  => computeDevice = Common.ComputeDevice.CPU
-        case "GPU"  => computeDevice = Common.ComputeDevice.GPU
-        case _  => "Invalid Device"
+        case "HOST" => computeDevice = Common.ComputeDevice.HOST
+        case "CPU" => computeDevice = Common.ComputeDevice.CPU
+        case "GPU" => computeDevice = Common.ComputeDevice.GPU
+        case _ => "Invalid Device"
       }
     }
     System.out.println("getDevice : " + computeDevice)

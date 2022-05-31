@@ -8,4 +8,4 @@
 #include <CL/sycl.hpp>
 #include <jni.h>
 
-sycl::queue &getQueue(const compute_device device);
+sycl::queue getQueue(const compute_device device);
