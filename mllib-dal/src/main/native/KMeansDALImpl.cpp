@@ -21,9 +21,6 @@
 #ifdef CPU_GPU_PROFILE
 #include "GPU.h"
 #endif
-#ifndef ONEDAL_DATA_PARALLEL
-#define ONEDAL_DATA_PARALLEL
-#endif
 
 #include "OneCCL.h"
 #include "com_intel_oap_mllib_clustering_KMeansDALImpl.h"
