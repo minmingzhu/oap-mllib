@@ -27,6 +27,7 @@
 #else
 #include <daal.h>
 #endif
+
 using namespace daal::data_management;
 
 #include <algorithm>
