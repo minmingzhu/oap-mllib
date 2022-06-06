@@ -33,8 +33,8 @@ class ccl_info {
     friend class de::singleton<ccl_info>;
 
 private:
-    ccl_info(int size, int rankid, const ccl::string &ip_port) {
-        rank = rankid;
+    ccl_info(int size, int rank_id, const ccl::string &ip_port) {
+        rank = rank_id;
         rank_count = size;
         ccl::string ccl_ip_port(ip_port);
         auto kvs_attr = ccl::create_kvs_attr();
