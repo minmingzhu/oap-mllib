@@ -24,7 +24,7 @@
 #include <mutex>
 
 #ifdef CPU_GPU_PROFILE
-#include "DPCPPGPU.h"
+#include "GPU.h"
 #endif
 
 #ifndef ONEDAL_DATA_PARALLEL

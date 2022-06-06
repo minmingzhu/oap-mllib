@@ -73,7 +73,6 @@ endif
 
 CPP_SRCS += \
   ./OneCCL.cpp ./OneDAL.cpp ./service.cpp ./error_handling.cpp \
-  ./KMeansDALImpl.cpp \
   ./KMeansOneAPIImpl.cpp \
   ./PCADALImpl.cpp \
   ./ALSDALImpl.cpp ./ALSShuffle.cpp \
@@ -89,7 +88,6 @@ CPP_SRCS += \
 
 OBJS += \
   ./OneCCL.o ./OneDAL.o ./service.o ./error_handling.o \
-  ./KMeansDALImpl.o \
   ./KMeansOneAPIImpl.o \
   ./PCADALImpl.o \
   ./ALSDALImpl.o ./ALSShuffle.o \
@@ -106,10 +104,8 @@ DEFINES=-D$(PLATFORM_PROFILE)
 
 
 ifeq ($(PLATFORM_PROFILE),CPU_GPU_PROFILE)
-  CPP_SRCS += ./GPU.cpp \
-              ./DPCPPGPU.cpp
-  OBJS += ./GPU.o \
-          ./DPCPPGPU.o
+  CPP_SRCS += ./GPU.cpp
+  OBJS += ./GPU.o
 endif
 
 # Output Binary

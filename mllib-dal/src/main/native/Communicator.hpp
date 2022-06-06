@@ -21,7 +21,7 @@
 
 #include "oneapi/ccl.hpp"
 #include "oneapi/dal/detail/ccl/communicator.hpp"
-#include "singleton.hpp"
+#include "Singleton.hpp"
 
 namespace de = oneapi::dal::detail;
 namespace oneapi::dal::preview::spmd {
@@ -33,10 +33,10 @@ class ccl_info {
     friend class de::singleton<ccl_info>;
 
 private:
-    ccl_info(int size, int rankid, const ccl::string &ipPort) {
+    ccl_info(int size, int rankid, const ccl::string &ip_port) {
         rank = rankid;
         rank_count = size;
-        ccl::string ccl_ip_port(ipPort);
+        ccl::string ccl_ip_port(ip_port);
         auto kvs_attr = ccl::create_kvs_attr();
         kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
         kvs = ccl::create_main_kvs(kvs_attr);
@@ -49,8 +49,8 @@ public:
 };
 
 template <typename Backend>
-communicator<device_memory_access::none> make_communicator(int size, int rank, const ccl::string &ipPort) {
-    auto& info = de::singleton<ccl_info>::get(size, rank, ipPort);
+communicator<device_memory_access::none> make_communicator(int size, int rank, const ccl::string &ip_port) {
+    auto& info = de::singleton<ccl_info>::get(size, rank, ip_port);
     // integral cast
     return oneapi::dal::detail::ccl_communicator<device_memory_access::none>{ info.kvs,
                                                                       info.rank,
@@ -58,8 +58,8 @@ communicator<device_memory_access::none> make_communicator(int size, int rank, c
 }
 
 template <typename Backend>
-communicator<device_memory_access::usm> make_communicator(sycl::queue& queue, int size, int rank, const ccl::string &ipPort) {
-    auto& info = de::singleton<ccl_info>::get(size, rank, ipPort);
+communicator<device_memory_access::usm> make_communicator(sycl::queue& queue, int size, int rank, const ccl::string &ip_port) {
+    auto& info = de::singleton<ccl_info>::get(size, rank, ip_port);
     return oneapi::dal::detail::ccl_communicator<device_memory_access::usm>{
         queue,
         info.kvs,

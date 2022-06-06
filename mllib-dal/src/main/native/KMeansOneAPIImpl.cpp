@@ -20,14 +20,14 @@
 #include <mutex>
 
 #ifdef CPU_GPU_PROFILE
-#include "DPCPPGPU.h"
+#include "GPU.h"
 #endif
 #ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
 #endif
 
+#include "Communicator.hpp"
 #include "com_intel_oap_mllib_clustering_KMeansDALImpl.h"
-#include "communicator.hpp"
 #include "oneapi/dal/algo/kmeans.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "service.h"

@@ -38,7 +38,6 @@ class KMeansDALImpl(var nClusters: Int,
 
   def train(data: RDD[Vector]): MLlibKMeansModel = {
     val sparkContext = data.sparkContext
-    val isDPC = sparkContext.getConf.getBoolean("spark.oap.mllib.isDPC", false)
     val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", "GPU")
     val computeDevice = if (useDevice.toUpperCase().equals("GPU")) {
       Common.ComputeDevice.GPU
@@ -47,50 +46,28 @@ class KMeansDALImpl(var nClusters: Int,
     } else {
       Common.ComputeDevice.HOST
     }
-    val coalescedTables = if (isDPC) {
-      OneDAL.rddVectorToMergedHomogenTables(data, executorNum, computeDevice)
-    }
-    else {
-      OneDAL.rddVectorToMergedTables(data, executorNum)
-    }
-
+    val coalescedTables = OneDAL.rddVectorToMergedHomogenTables(data, executorNum, computeDevice)
     val kvsIPPort = getOneCCLIPPort(coalescedTables)
     val results = coalescedTables.mapPartitionsWithIndex { (rank, table) =>
       var cCentroids = 0L
       val result = new KMeansResult()
       val tableArr = table.next()
-      if (isDPC) {
-        OneCCL.initDpcpp()
-        val initCentroids = OneDAL.makeHomogenTable(centers, computeDevice)
-        cCentroids = cKMeansOneapiComputeWithInitCenters(
-          tableArr,
-          initCentroids.getcObejct(),
-          nClusters,
-          tolerance,
-          maxIterations,
-          executorNum,
-          computeDevice.ordinal(),
-          rank,
-          kvsIPPort,
-          result
-        )
-      } else {
-        OneCCL.init(executorNum, rank, kvsIPPort)
-        val initCentroids = OneDAL.makeNumericTable(centers)
-        cCentroids = cKMeansDALComputeWithInitCenters(
-          tableArr,
-          initCentroids.getCNumericTable,
-          nClusters,
-          tolerance,
-          maxIterations,
-          executorNum,
-          executorCores,
-          result
-        )
-      }
+      OneCCL.initDpcpp()
+      val initCentroids = OneDAL.makeHomogenTable(centers, computeDevice)
+      cCentroids = cKMeansOneapiComputeWithInitCenters(
+        tableArr,
+        initCentroids.getcObejct(),
+        nClusters,
+        tolerance,
+        maxIterations,
+        executorNum,
+        computeDevice.ordinal(),
+        rank,
+        kvsIPPort,
+        result
+      )
 
-      val ret = if (isDPC) {
-        if (rank == 0) {
+      val ret = if (rank == 0) {
           assert(cCentroids != 0)
           val centerVectors = OneDAL.homogenTableToVectors(OneDAL.makeHomogenTable(cCentroids),
             computeDevice)
@@ -98,19 +75,6 @@ class KMeansDALImpl(var nClusters: Int,
         } else {
           Iterator.empty
         }
-      } else {
-          if (OneCCL.isRoot()) {
-            assert(cCentroids != 0)
-            val centerVectors = OneDAL.numericTableToVectors(OneDAL.makeNumericTable(cCentroids))
-            Iterator((centerVectors, result.totalCost, result.iterationNum))
-          } else {
-            Iterator.empty
-          }
-      }
-      if (!isDPC) {
-        OneCCL.cleanup()
-      }
-
       ret
     }.collect()
 
@@ -137,16 +101,6 @@ class KMeansDALImpl(var nClusters: Int,
     parentModel
   }
 
-  // Single entry to call KMeans DAL backend with initial centers, output centers
-  @native private def cKMeansDALComputeWithInitCenters(data: Long, centers: Long,
-                                                       cluster_num: Int,
-                                                       tolerance: Double,
-                                                       iteration_num: Int,
-                                                       executor_num: Int,
-                                                       executor_cores: Int,
-                                                       result: KMeansResult): Long
-
-  // Single entry to call DPC++ KMeans oneapi backend with initial centers, output centers
   @native private[mllib] def cKMeansOneapiComputeWithInitCenters(data: Long, centers: Long,
                                                        cluster_num: Int,
                                                        tolerance: Double,

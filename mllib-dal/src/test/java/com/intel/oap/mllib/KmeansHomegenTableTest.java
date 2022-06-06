@@ -19,8 +19,8 @@ public class KmeansHomegenTableTest {
         // Create an object of filereader
         // class with CSV file as a parameter.
         
-        FileReader datareader = new FileReader("/home/beaver/opt/oap-mllib/mllib-dal/src/test/java/com/intel/oap/mllib/data/kmeans_dense_train_data.csv");
-        FileReader centroidsreader = new FileReader("/home/beaver/opt/oap-mllib/mllib-dal/src/test/java/com/intel/oap/mllib/data/kmeans_dense_train_centroids.csv");
+        FileReader datareader = new FileReader("src/test/java/com/intel/oap/mllib/data/kmeans_dense_train_centroids.csv");
+        FileReader centroidsreader = new FileReader("src/test/java/com/intel/oap/mllib/data/kmeans_dense_train_centroids.csv");
 
         // create csvReader object passing
         // file reader as a parameter

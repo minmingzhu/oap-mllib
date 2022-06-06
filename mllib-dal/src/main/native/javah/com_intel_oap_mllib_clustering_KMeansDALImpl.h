@@ -9,14 +9,6 @@ extern "C" {
 #endif
 /*
  * Class:     com_intel_oap_mllib_clustering_KMeansDALImpl
- * Method:    cKMeansDALComputeWithInitCenters
- * Signature: (JJIDIIILcom/intel/oap/mllib/clustering/KMeansResult;)J
- */
-JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansDALComputeWithInitCenters
-  (JNIEnv *, jobject, jlong, jlong, jint, jdouble, jint, jint, jint, jobject);
-
-/*
- * Class:     com_intel_oap_mllib_clustering_KMeansDALImpl
  * Method:    cKMeansOneapiComputeWithInitCenters
  * Signature: (JJIDIILcom/intel/oap/mllib/clustering/KMeansResult;)J
  */
