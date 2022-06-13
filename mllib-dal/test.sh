@@ -50,7 +50,7 @@ suiteArray=(
   "HomogenTableTest" \
   "ColumnAccessorTest" \
   "RowAccessorTest" \
-  "com.intel.oap.mllib.KmeansHomegenTableTest" \
+  "com.intel.oap.mllib.KmeansHomegenTableSuite" \
   "com.intel.oap.mllib.ConvertHomogenTableSuite"
 )
 

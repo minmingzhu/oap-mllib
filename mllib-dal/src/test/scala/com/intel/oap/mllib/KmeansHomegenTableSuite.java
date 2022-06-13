@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 class KmeansHomegenTableSuite {
     @Test
-    public void computeKmenasHomogenTable() throws Exception {
+    public void computeKmeansHomogenTable() throws Exception {
         double[] expectCentroids = {
                 46.964348, 53.593376, -52.973740, -39.790489, -70.001411, 71.253716, -47.509434, -98.567551, -61.581421, -78.373512, -76.407326, 52.974354, 54.360466, 93.591499, -95.720619, -13.518152, 7.915907, -0.310325, -87.498383, -3.236778,
                 28.443605, 69.337891, -19.093294, -84.507889, -62.735977, -75.870331, 71.256622, -3.230225, 90.361931, 91.283150, 32.653885, 29.934725, 96.525673, -49.022247, 19.994081, -75.833252, 91.019196, -19.009062, -77.813286, -49.776817,
@@ -103,7 +103,6 @@ class KmeansHomegenTableSuite {
             BigDecimal bd = new BigDecimal(i);
             return bd.setScale(6, BigDecimal.ROUND_HALF_DOWN).doubleValue();
         }).toArray();
-        System.out.println(arrayList.get(2));
         assertArrayEquals(expectCentroids, arr);
     }
 }
