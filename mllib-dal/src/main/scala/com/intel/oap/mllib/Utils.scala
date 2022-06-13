@@ -22,6 +22,8 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.{SPARK_VERSION, SparkConf, SparkContext}
 import java.net.InetAddress
 
+import com.intel.oneapi.dal.table.Common
+
 object Utils {
 
   def isOAPEnabled(): Boolean = {

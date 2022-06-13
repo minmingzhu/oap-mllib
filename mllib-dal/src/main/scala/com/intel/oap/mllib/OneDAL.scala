@@ -170,7 +170,7 @@ object OneDAL {
     val resArray = new Array[Vector](numRows.toInt)
 
     for (row <- 0 until numRows) {
-      val internArray = rowAcc.pullDouble( row, row + 1)
+      val internArray = rowAcc.pullDouble(row, row + 1)
       resArray(row) = Vectors.dense(internArray)
     }
     resArray

@@ -51,7 +51,7 @@ object OneCCL extends Logging {
 
   def initDpcpp(): Unit = {
     setExecutorEnv()
-    logInfo(s"MPI init")
+    logInfo(s"oneccl init")
     // cclParam is output from native code
     c_initDpcpp()
   }

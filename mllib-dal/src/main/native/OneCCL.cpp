@@ -90,15 +90,8 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
 JNIEXPORT jint JNICALL
 Java_com_intel_oap_mllib_OneCCL_00024_c_1initDpcpp(JNIEnv *env, jobject) {
     std::cerr << "OneCCL (native): init dpcpp" << std::endl;
-
-    auto t1 = std::chrono::high_resolution_clock::now();
-
     ccl::init();
-    auto t2 = std::chrono::high_resolution_clock::now();
-    auto duration =
-        std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
-    std::cerr << "OneCCL (native): init dpcpp took " << duration << " secs"
-              << std::endl;
+
     return 1;
 }
 
