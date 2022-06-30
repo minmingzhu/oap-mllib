@@ -28,7 +28,7 @@ class KmeansHomogenTableSuite extends FunctionsSuite with Logging {
 
         val dataTable = new HomogenTable(sourceData.length, sourceData(0).length, TestCommon.convertArray(sourceData), Common.ComputeDevice.HOST);
         val centroidsTable = new HomogenTable(centroidData.length, centroidData(0).length, TestCommon.convertArray(centroidData), Common.ComputeDevice.HOST);
-
+        OneCCL.initDpcpp()
         val kmeansDAL = new KMeansDALImpl(0, 0, 0,
             null, null, 0, 0);
         val result = new KMeansResult();
