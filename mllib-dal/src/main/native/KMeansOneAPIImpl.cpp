@@ -25,6 +25,7 @@
 #endif
 
 #include "Communicator.hpp"
+#include "OutputHelpers.hpp"
 #include "com_intel_oap_mllib_clustering_KMeansDALImpl.h"
 #include "oneapi/dal/algo/kmeans.hpp"
 #include "oneapi/dal/table/homogen.hpp"
