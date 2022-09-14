@@ -51,8 +51,21 @@ static void doPCAOneAPICompute(JNIEnv *env, jint rankId, jlong pNumTabData,
         queue, executorNum, rankId, ipPort);
 
     pca::train_input local_input{htable};
+    auto t1 = std::chrono::high_resolution_clock::now();
     const auto result_train = preview::train(comm, pca_desc, local_input);
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration =
+                std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
+    std::cout << "PCA (native) RankId = << " << rankId
+                  << "; spend training times : " << duration
+                      << " secs" << std::endl;
     if (isRoot) {
+        std::cout << "Means:\n" << result_train.get_means() << std::endl;
+        t2 = std::chrono::high_resolution_clock::now();
+        duration =
+                    std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
+        std::cout << "PCA (native) spend training times : " << duration
+                          << " secs" << std::endl;
         // Return all eigenvalues & eigenvectors
         // Get the class of the input object
         jclass clazz = env->GetObjectClass(resultObj);

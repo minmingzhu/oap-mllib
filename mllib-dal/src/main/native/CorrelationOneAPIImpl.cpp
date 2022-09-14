@@ -52,11 +52,23 @@ static void doCorrelationOneAPICompute(JNIEnv *env, jint rankId,
     auto queue = getQueue(device);
     auto comm = preview::spmd::make_communicator<preview::spmd::backend::ccl>(
         queue, executorNum, rankId, ipPort);
+    auto t1 = std::chrono::high_resolution_clock::now();
     const auto result_train = preview::compute(comm, cor_desc, htable);
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration =
+                std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
+    std::cout << "Correlation (native) RankId = << " << rankId
+                  << "; spend training times : " << duration
+                      << " secs" << std::endl;
     if (isRoot) {
         std::cout << "Mean:\n" << result_train.get_means() << std::endl;
         std::cout << "Correlation:\n"
                   << result_train.get_cor_matrix() << std::endl;
+        t2 = std::chrono::high_resolution_clock::now();
+        duration =
+                  std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
+        std::cout << "Correlation (native) spend training times : " << duration
+                        << " secs" << std::endl;
         // Return all covariance & mean
         jclass clazz = env->GetObjectClass(resultObj);
 
