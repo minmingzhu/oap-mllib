@@ -33,11 +33,13 @@ class ExecutorInProcessCoalescePartitioner
     println(s"prev partitions :${prev.partitions.length}")
 
     prev.partitions.foreach(p => {
+      println(s"p.index :${p.index}")
       val loc = prev.context.getPreferredLocs(prev, p.index)
       println(s"Preferred Locs :${loc.length}")
       loc.foreach {
         case location : ExecutorCacheTaskLocation =>
           val execLoc = "executor_" + location.host + "_" + location.executorId
+          println(s" executor :${execLoc}")
           val partValue = map.getOrElse(execLoc, new mutable.HashSet[Partition]())
           partValue.add(p)
           map.put(execLoc, partValue)
