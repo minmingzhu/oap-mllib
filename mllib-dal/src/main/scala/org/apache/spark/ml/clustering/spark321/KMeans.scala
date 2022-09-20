@@ -162,6 +162,10 @@ class KMeans @Since("1.5.0") (
     val model = copyValues(new KMeansModel(uid, parentModel).setParent(this))
 
     if (handlePersistence) {
+      inputData.unpersist()
+    }
+
+    if (handlePersistence) {
       instances.unpersist()
     }
 
