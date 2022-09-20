@@ -677,11 +677,6 @@ object OneDAL {
       .setName("Repartitioned for conversion")
       .cache()
 
-    // Unpersist instances RDD
-    if (data.getStorageLevel != StorageLevel.NONE) {
-      data.unpersist()
-    }
-
     // convert RDD to HomogenTable
     println(s"partitionsToHomogenTables Partition Size: ${coalescedRdd.getNumPartitions} ")
     val coalescedTables = coalescedRdd.mapPartitionsWithIndex { (index: Int, it: Iterator[Vector]) =>

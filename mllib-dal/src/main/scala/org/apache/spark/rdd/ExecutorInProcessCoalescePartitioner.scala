@@ -52,7 +52,8 @@ class ExecutorInProcessCoalescePartitioner
     }
 
     val sortedGroupArr = groupArr.sortWith(_.partitions(0).index < _.partitions(0).index)
-
+    println(s"coalesce array :${sortedGroupArr.toArray}")
+    println(s"coalesce array size :${sortedGroupArr.length}")
     sortedGroupArr.toArray
   }
 }
