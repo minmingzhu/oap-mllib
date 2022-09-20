@@ -28,6 +28,9 @@ class ExecutorInProcessCoalescePartitioner
   def coalesce(maxPartitions: Int, prev: RDD[_]): Array[PartitionGroup] = {
     val map = new mutable.HashMap[String, mutable.HashSet[Partition]]()
     val groupArr = ArrayBuffer[PartitionGroup]()
+    println(s"maxPartitions :${maxPartitions}")
+    println(s"prev numpartitions :${prev.getNumPartitions}")
+
     prev.partitions.foreach(p => {
       val loc = prev.context.getPreferredLocs(prev, p.index)
       loc.foreach {
