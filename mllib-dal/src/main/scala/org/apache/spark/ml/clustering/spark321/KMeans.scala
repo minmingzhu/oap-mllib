@@ -163,9 +163,6 @@ class KMeans @Since("1.5.0") (
 
     if (handlePersistence) {
       inputData.unpersist()
-    }
-
-    if (handlePersistence) {
       instances.unpersist()
     }
 
