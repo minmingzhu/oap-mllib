@@ -28,19 +28,12 @@ class ExecutorInProcessCoalescePartitioner
   def coalesce(maxPartitions: Int, prev: RDD[_]): Array[PartitionGroup] = {
     val map = new mutable.HashMap[String, mutable.HashSet[Partition]]()
     val groupArr = ArrayBuffer[PartitionGroup]()
-    println(s"maxPartitions :${maxPartitions}")
-    println(s"prev numpartitions :${prev.getNumPartitions}")
-    println(s"prev partitions :${prev.partitions.length}")
 
     prev.partitions.foreach(p => {
-      println(s"p.index :${p.index}")
-      println(s"prev :${prev.getNumPartitions}")
       val loc = prev.context.getPreferredLocs(prev, p.index)
-      println(s"Preferred Locs :${loc.length}")
       loc.foreach {
         case location : ExecutorCacheTaskLocation =>
           val execLoc = "executor_" + location.host + "_" + location.executorId
-          println(s" executor :${execLoc}")
           val partValue = map.getOrElse(execLoc, new mutable.HashSet[Partition]())
           partValue.add(p)
           map.put(execLoc, partValue)
@@ -48,22 +41,18 @@ class ExecutorInProcessCoalescePartitioner
           throw new SparkException("ExecutorInProcessCoalescePartitioner: Invalid task location!")
       }
     })
-    println(s" Partition map size :${map.size}")
     map.foreach(x => {
       val pg = new PartitionGroup(Some(x._1))
       val list = x._2.toList.sortWith(_.index < _.index);
       list.foreach(part => pg.partitions += part)
       groupArr += pg
     })
-    println(s" group array size :${groupArr.length}")
     if (groupArr.length == 0) {
       throw new SparkException(
         "ExecutorInProcessCoalescePartitioner: No partitions or no locations for partitions found.")
     }
 
     val sortedGroupArr = groupArr.sortWith(_.partitions(0).index < _.partitions(0).index)
-    println(s"coalesce array :${sortedGroupArr.toArray}")
-    println(s"coalesce array size :${sortedGroupArr.length}")
     sortedGroupArr.toArray
   }
 }
