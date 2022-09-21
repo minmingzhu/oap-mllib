@@ -42,7 +42,9 @@ class PCADALImpl(val k: Int,
   extends Serializable with Logging {
 
   def train(data: RDD[Vector]): PCADALModel = {
+    // convert and cache normalize Data
     val normalizedData = normalizeData(data)
+    normalizedData.count()
     val sparkContext = normalizedData.sparkContext
     val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", Utils.DefaultComputeDevice)
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
@@ -97,7 +99,7 @@ class PCADALImpl(val k: Int,
     val vectors = input.map(OldVectors.fromML(_))
     val scaler = new MLlibStandardScaler(withMean = true, withStd = false).fit(vectors)
     val res = scaler.transform(vectors)
-    res.map(_.asML)
+    res.map(_.asML).setName("normalizeData").cache()
   }
 
   private[mllib] def getPrincipleComponentsFromDAL(table: HomogenTable,
