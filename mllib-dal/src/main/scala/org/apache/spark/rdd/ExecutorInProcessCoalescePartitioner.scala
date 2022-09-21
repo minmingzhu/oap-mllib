@@ -35,7 +35,6 @@ class ExecutorInProcessCoalescePartitioner
     prev.partitions.foreach(p => {
       println(s"p.index :${p.index}")
       println(s"prev :${prev.getNumPartitions}")
-
       val loc = prev.context.getPreferredLocs(prev, p.index)
       println(s"Preferred Locs :${loc.length}")
       loc.foreach {
