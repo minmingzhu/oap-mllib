@@ -60,7 +60,8 @@ static void doPCAOneAPICompute(JNIEnv *env, jint rankId, jlong pNumTabData,
                   << "; spend training times : " << duration
                       << " secs" << std::endl;
     if (isRoot) {
-        std::cout << "Means:\n" << result_train.get_means() << std::endl;
+        std::cout << "Eigenvectors:\n" << result.get_eigenvectors() << std::endl;
+        std::cout << "Eigenvalues:\n" << result.get_eigenvalues() << std::endl;
         t2 = std::chrono::high_resolution_clock::now();
         duration =
                     std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
