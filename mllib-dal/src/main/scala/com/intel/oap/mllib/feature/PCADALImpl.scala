@@ -42,11 +42,11 @@ class PCADALImpl(val k: Int,
   extends Serializable with Logging {
 
   def train(data: RDD[Vector]): PCADALModel = {
-    val normalizedData = normalizeData(data)
-    val sparkContext = normalizedData.sparkContext
+//    val normalizedData = normalizeData(data)
+    val sparkContext = data.sparkContext
     val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", Utils.DefaultComputeDevice)
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
-    val coalescedTables = OneDAL.coalesceToHomogenTables(normalizedData, executorNum,
+    val coalescedTables = OneDAL.coalesceToHomogenTables(data, executorNum,
       computeDevice)
     val kvsIPPort = getOneCCLIPPort(coalescedTables)
 

@@ -59,9 +59,14 @@ class PCA @Since("1.5.0") (
       case Row(v: Vector) => v
     }
 
+    inputVectors.persist(StorageLevel.MEMORY_AND_DISK)
     val numFeatures = inputVectors.first().size
     require($(k) <= numFeatures,
       s"source vector size $numFeatures must be no less than k=$k")
+
+    if (dataset.storageLevel != StorageLevel.NONE) {
+      dataset.unpersist()
+    }
 
     val isPlatformSupported = Utils.checkClusterPlatformCompatibility(
       dataset.sparkSession.sparkContext)
