@@ -670,13 +670,18 @@ object OneDAL {
 
   def coalesceToHomogenTables(data: RDD[Vector], executorNum: Int,
                                 device: Common.ComputeDevice): RDD[Long] = {
-//    data.collect().foreach(println)
     // Coalesce partitions belonging to the same executor
     val coalescedRdd = data
       .coalesce(executorNum,
         partitionCoalescer = Some(new ExecutorInProcessCoalescePartitioner()))
       .setName("Repartitioned for conversion")
       .cache()
+    coalescedRdd.count()
+
+    // Unpersist instances RDD
+    if (data.getStorageLevel != StorageLevel.NONE) {
+      data.unpersist()
+    }
 
     // convert RDD to HomogenTable
     println(s"partitionsToHomogenTables Partition Size: ${coalescedRdd.getNumPartitions} ")
