@@ -315,7 +315,6 @@ object OneDAL {
     var index = 0
     for( vector: Vector <- arrayVectors) {
       for (i <- 0 until vector.toArray.length ) {
-        println(s"makeHomogenTable ${vector(i)}")
         arrayDouble(index) = vector(i)
         if (index < (numRows * numCols)) {
           index = index + 1
@@ -672,7 +671,6 @@ object OneDAL {
   def coalesceToHomogenTables(data: RDD[Vector], executorNum: Int,
                                 device: Common.ComputeDevice): RDD[Long] = {
     println(s"coalesceToHomogenTables executorNum: ${executorNum} ")
-    data.collect().foreach(println)
 
     // Coalesce partitions belonging to the same executor
     val coalescedRdd = data
