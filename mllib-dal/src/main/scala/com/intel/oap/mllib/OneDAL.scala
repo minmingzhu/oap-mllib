@@ -677,7 +677,8 @@ object OneDAL {
         partitionCoalescer = Some(new ExecutorInProcessCoalescePartitioner()))
       .setName("Repartitioned for conversion")
       .cache()
-    coalescedRdd.collect().foreach(println)
+
+    coalescedRdd.collect()
 
     // Unpersist instances RDD
     if (data.getStorageLevel != StorageLevel.NONE) {
