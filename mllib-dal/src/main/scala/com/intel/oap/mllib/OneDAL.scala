@@ -687,8 +687,6 @@ object OneDAL {
     // convert RDD to HomogenTable
     println(s"partitionsToHomogenTables Partition Size: ${coalescedRdd.getNumPartitions} ")
     val coalescedTables = coalescedRdd.mapPartitionsWithIndex { (index: Int, it: Iterator[Vector]) =>
-      println(s" it.size : ${it.size}")
-      it.next().toArray
       val table = makeHomogenTable(it.toArray, device)
       Iterator(table.getcObejct())
     }.cache()
