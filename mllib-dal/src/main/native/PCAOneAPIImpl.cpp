@@ -35,7 +35,7 @@ using namespace oneapi::dal;
 const int ccl_root = 0;
 
 static void doPCAOneAPICompute(JNIEnv *env, jint rankId, jlong pNumTabData,
-                               jint executorNum, const ccl::string &ipPort,
+                               jint k, jint executorNum, const ccl::string &ipPort,
                                jint computeDeviceOrdinal, jobject resultObj) {
     std::cout << "oneDAL (native): compute start , rankid = " << rankId
               << "; device = " << ComputeDeviceString[computeDeviceOrdinal]
@@ -45,7 +45,7 @@ static void doPCAOneAPICompute(JNIEnv *env, jint rankId, jlong pNumTabData,
     homogen_table htable =
         *reinterpret_cast<const homogen_table *>(pNumTabData);
 
-    const auto pca_desc = pca::descriptor{};
+    const auto pca_desc = pca::descriptor{}.set_component_count(k);
     auto queue = getQueue(device);
     auto comm = preview::spmd::make_communicator<preview::spmd::backend::ccl>(
         queue, executorNum, rankId, ipPort);
@@ -93,12 +93,12 @@ static void doPCAOneAPICompute(JNIEnv *env, jint rankId, jlong pNumTabData,
 
 JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_feature_PCADALImpl_cPCATrainDAL(
-    JNIEnv *env, jobject obj, jlong pNumTabData, jint executorNum,
+    JNIEnv *env, jobject obj, jlong pNumTabData, jint k, jint executorNum,
     jint computeDeviceOrdinal, jint rankId, jstring ipPort, jobject resultObj) {
     std::cout << "oneDAL (native): use DPC++ kernels " << std::endl;
     const char *ipPortPtr = env->GetStringUTFChars(ipPort, 0);
     std::string ipPortStr = std::string(ipPortPtr);
-    doPCAOneAPICompute(env, rankId, pNumTabData, executorNum, ipPortStr,
+    doPCAOneAPICompute(env, rankId, pNumTabData, k, executorNum, ipPortStr,
                        computeDeviceOrdinal, resultObj);
     env->ReleaseStringUTFChars(ipPort, ipPortPtr);
     return 0;
