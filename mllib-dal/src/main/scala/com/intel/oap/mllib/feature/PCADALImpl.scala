@@ -139,7 +139,7 @@ class PCADALImpl(val k: Int,
 
   // Single entry to call Correlation PCA DAL backend with parameter K
   @native private[mllib] def cPCATrainDAL(data: Long,
-                                          K: Int,
+                                          k: Int,
                                    executorNum: Int,
                                    computeDeviceOrdinal: Int,
                                    rankId: Int,
