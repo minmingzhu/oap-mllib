@@ -26,9 +26,10 @@ class ExecutorInProcessCoalescePartitioner
   extends PartitionCoalescer with Serializable {
 
   def coalesce(maxPartitions: Int, prev: RDD[_]): Array[PartitionGroup] = {
+    println(s"coalesce")
     val map = new mutable.HashMap[String, mutable.HashSet[Partition]]()
     val groupArr = ArrayBuffer[PartitionGroup]()
-
+    prev.collect().foreach(println)
     prev.partitions.foreach(p => {
       val loc = prev.context.getPreferredLocs(prev, p.index)
       loc.foreach {
@@ -53,6 +54,8 @@ class ExecutorInProcessCoalescePartitioner
     }
 
     val sortedGroupArr = groupArr.sortWith(_.partitions(0).index < _.partitions(0).index)
+    println(s"coalesce ${sortedGroupArr.size}")
+
     sortedGroupArr.toArray
   }
 }
