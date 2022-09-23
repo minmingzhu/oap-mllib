@@ -313,6 +313,7 @@ object OneDAL {
     val numRows: Int = arrayVectors.size
     val arrayDouble = new Array[Double](numRows * numCols)
     var index = 0
+    println(s"makeHomogenTable ${arrayVectors.toArray}")
     for( vector: Vector <- arrayVectors) {
       for (i <- 0 until vector.toArray.length ) {
         arrayDouble(index) = vector(i)
@@ -676,7 +677,7 @@ object OneDAL {
         partitionCoalescer = Some(new ExecutorInProcessCoalescePartitioner()))
       .setName("Repartitioned for conversion")
       .cache()
-    coalescedRdd.count()
+    coalescedRdd.collect()
 
     // Unpersist instances RDD
     if (data.getStorageLevel != StorageLevel.NONE) {
@@ -686,6 +687,8 @@ object OneDAL {
     // convert RDD to HomogenTable
     println(s"partitionsToHomogenTables Partition Size: ${coalescedRdd.getNumPartitions} ")
     val coalescedTables = coalescedRdd.mapPartitionsWithIndex { (index: Int, it: Iterator[Vector]) =>
+      println(s" it.size : ${it.size}")
+      it.next().toArray
       val table = makeHomogenTable(it.toArray, device)
       Iterator(table.getcObejct())
     }.cache()
