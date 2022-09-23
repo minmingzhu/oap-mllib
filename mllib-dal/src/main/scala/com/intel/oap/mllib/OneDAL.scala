@@ -670,7 +670,7 @@ object OneDAL {
 
   def coalesceToHomogenTables(data: RDD[Vector], executorNum: Int,
                                 device: Common.ComputeDevice): RDD[Long] = {
-    data.collect().foreach(println)
+//    data.collect().foreach(println)
     // Coalesce partitions belonging to the same executor
     val coalescedRdd = data
       .coalesce(executorNum,
@@ -681,6 +681,7 @@ object OneDAL {
     // convert RDD to HomogenTable
     println(s"partitionsToHomogenTables Partition Size: ${coalescedRdd.getNumPartitions} ")
     val coalescedTables = coalescedRdd.mapPartitionsWithIndex { (index: Int, it: Iterator[Vector]) =>
+      println(s"it.size: ${it.size} ")
       val table = makeHomogenTable(it.toArray, device)
       Iterator(table.getcObejct())
     }.cache()
