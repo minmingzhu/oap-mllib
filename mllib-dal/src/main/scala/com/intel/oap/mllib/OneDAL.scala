@@ -313,9 +313,9 @@ object OneDAL {
     val numRows: Int = arrayVectors.size
     val arrayDouble = new Array[Double](numRows * numCols)
     var index = 0
-    println(s"makeHomogenTable ${arrayVectors.toArray}")
     for( vector: Vector <- arrayVectors) {
       for (i <- 0 until vector.toArray.length ) {
+        println(s"makeHomogenTable ${vector(i)}")
         arrayDouble(index) = vector(i)
         if (index < (numRows * numCols)) {
           index = index + 1
