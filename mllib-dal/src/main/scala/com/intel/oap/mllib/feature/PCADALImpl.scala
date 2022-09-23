@@ -43,6 +43,7 @@ class PCADALImpl(val k: Int,
 
   def train(data: RDD[Vector]): PCADALModel = {
     val normalizedData = normalizeData(data)
+    normalizedData.count()
     val sparkContext = normalizedData.sparkContext
     val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", Utils.DefaultComputeDevice)
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
