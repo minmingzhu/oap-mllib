@@ -44,6 +44,7 @@ static void doPCAOneAPICompute(JNIEnv *env, jint rankId, jlong pNumTabData,
     ComputeDevice device = getComputeDeviceByOrdinal(computeDeviceOrdinal);
     homogen_table htable =
         *reinterpret_cast<const homogen_table *>(pNumTabData);
+    std::cout << "htable :\n" << htable << std::endl;
 
     const auto pca_desc = pca::descriptor{};
     auto queue = getQueue(device);

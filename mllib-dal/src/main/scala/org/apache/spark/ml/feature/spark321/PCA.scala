@@ -49,6 +49,7 @@ class PCA @Since("1.5.0") (
    */
   @Since("2.0.0")
   override def fit(dataset: Dataset[_]): PCAModel = {
+    dataset.show()
     transformSchema(dataset.schema, logging = true)
     if (dataset.storageLevel == StorageLevel.NONE) {
       dataset.persist()
