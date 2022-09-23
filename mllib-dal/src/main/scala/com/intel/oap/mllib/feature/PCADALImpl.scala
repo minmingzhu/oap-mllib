@@ -57,7 +57,6 @@ class PCADALImpl(val k: Int,
       val result = new PCAResult()
       cPCATrainDAL(
         tableArr,
-        k,
         executorNum,
         computeDevice.ordinal(),
         rank,
@@ -139,7 +138,6 @@ class PCADALImpl(val k: Int,
 
   // Single entry to call Correlation PCA DAL backend with parameter K
   @native private[mllib] def cPCATrainDAL(data: Long,
-                                          k: Int,
                                    executorNum: Int,
                                    computeDeviceOrdinal: Int,
                                    rankId: Int,
