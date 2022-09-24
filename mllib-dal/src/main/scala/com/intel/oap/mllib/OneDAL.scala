@@ -678,8 +678,6 @@ object OneDAL {
       .setName("Repartitioned for conversion")
       .cache()
 
-    coalescedRdd.collect()
-
     // Unpersist instances RDD
     if (data.getStorageLevel != StorageLevel.NONE) {
       data.unpersist()
