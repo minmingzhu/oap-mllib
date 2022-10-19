@@ -54,9 +54,9 @@ static void doSummarizerOneAPICompute(JNIEnv *env, jint rankId,
     const auto result_train = preview::compute(comm, bs_desc, htable);
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
-                std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
+                std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     std::cout << "Summarizer (native) RankId = << " << rankId
-                  << "; spend training times : " << duration
+                  << "; spend training times : " << duration / 1000
                       << " secs" << std::endl;
     if (isRoot) {
         std::cout << "Minimum:\n" << result_train.get_min() << std::endl;
@@ -65,8 +65,8 @@ static void doSummarizerOneAPICompute(JNIEnv *env, jint rankId,
         std::cout << "Variance:\n" << result_train.get_variance() << std::endl;
         t2 = std::chrono::high_resolution_clock::now();
         duration =
-                    std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
-        std::cout << "Summarizer (native) spend training times : " << duration
+                    std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+        std::cout << "Summarizer (native) spend training times : " << duration / 1000
                           << " secs" << std::endl;
         // Return all covariance & mean
         jclass clazz = env->GetObjectClass(resultObj);
