@@ -43,18 +43,20 @@ object BatchCorExample {
     val cor = new CorrelationDALImpl(1, 1)
     val input = "/home/xiaochang/opt/ML/data/HiBench/Correlation/Input/50000/" +
       "part-00000-50f53ad5-b45b-463b-b5c3-0f31f794c601-c000.csv"
+    println(s"read csv")
     val sourceData = readCSV(input)
-
+    println(s"make table")
     val dataTable = new HomogenTable(sourceData.length,
       sourceData(0).length,
       convertArray(sourceData),
       computeDevice)
+    println(s"compute")
     cor.cCorrelationTrainDAL(
-            0L,
+            dataTable.getcObejct(),
             1,
             computeDevice.ordinal(),
             0,
-            "127.0.0.1_3000",
+            "10.165.58.91_3000",
             result
           )
 //    val coalescedTables = rdd.repartition(1).mapPartitionsWithIndex {
