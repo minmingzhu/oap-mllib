@@ -44,11 +44,11 @@ static void doCorrelationOneAPICompute(JNIEnv *env, jint rankId,
               << std::endl;
     const bool isRoot = (rankId == ccl_root);
     ComputeDevice device = getComputeDeviceByOrdinal(computeDeviceOrdinal);
-    homogen_table htable =
-        *reinterpret_cast<const homogen_table *>(pNumTabData);
-    std::cout <<"htable :" <<  htable << std::endl;
-    std::cout <<"htable get_row_count() :" <<  htable.get_row_count() << std::endl;
-    std::cout <<"htable get_column_count():" <<  htable.get_column_count() << std::endl;
+//    homogen_table htable =
+//        *reinterpret_cast<const homogen_table *>(pNumTabData);
+//    std::cout <<"htable :" <<  htable << std::endl;
+//    std::cout <<"htable get_row_count() :" <<  htable.get_row_count() << std::endl;
+//    std::cout <<"htable get_column_count():" <<  htable.get_column_count() << std::endl;
 
     const auto input_file_name = "/home/xiaochang/opt/ML/data/HiBench/Correlation/Input/50000/part-00000-50f53ad5-b45b-463b-b5c3-0f31f794c601-c000.csv";
     std::cout << "input_file_name:\n" << input_file_name << std::endl;

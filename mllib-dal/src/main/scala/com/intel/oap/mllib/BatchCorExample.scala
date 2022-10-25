@@ -46,36 +46,49 @@ object BatchCorExample {
       case Row(v: Vector) => v
     }
     val computeDevice = Common.ComputeDevice.getDeviceByName("GPU")
-    val coalescedTables = rdd.repartition(1).mapPartitionsWithIndex {
-      (index: Int, it: Iterator[Vector]) =>
-        val table = makeHomogenTable(it.toArray, computeDevice)
-        Iterator(table.getcObejct())
-    }.cache()
-    val kvsIPPort = getOneCCLIPPort(coalescedTables)
+    val kvsIPPort = getOneCCLIPPort(rdd)
+    val result = new CorrelationResult()
+
     val cor = new CorrelationDALImpl(1, 1)
-    coalescedTables.count()
-    println(s"1")
-    val results = coalescedTables.mapPartitionsWithIndex{ (rank, table) =>
 
-      val tableArr = table.next()
-      println(tableArr)
-      val computeStartTime = System.nanoTime()
-      val result = new CorrelationResult()
-      println(s"2")
-      cor.cCorrelationTrainDAL(
-        tableArr,
-        1,
-        computeDevice.ordinal(),
-        0,
-        kvsIPPort,
-        result
-      )
-      val computeEndTime = System.nanoTime()
-
-      val durationCompute = (computeEndTime - computeStartTime).toDouble / 1E9
-
-      println(s"CorrelationDAL compute took ${durationCompute} secs")
-      Iterator.empty
-    }.collect()
+    cor.cCorrelationTrainDAL(
+            0,
+            1,
+            computeDevice.ordinal(),
+            0,
+            kvsIPPort,
+            result
+          )
+//    val coalescedTables = rdd.repartition(1).mapPartitionsWithIndex {
+//      (index: Int, it: Iterator[Vector]) =>
+//        val table = makeHomogenTable(it.toArray, computeDevice)
+//        Iterator(table.getcObejct())
+//    }.cache()
+//    val kvsIPPort = getOneCCLIPPort(coalescedTables)
+//    val cor = new CorrelationDALImpl(1, 1)
+//    coalescedTables.count()
+//    println(s"1")
+//    val results = coalescedTables.mapPartitionsWithIndex{ (rank, table) =>
+//
+//      val tableArr = table.next()
+//      println(tableArr)
+//      val computeStartTime = System.nanoTime()
+//      val result = new CorrelationResult()
+//      println(s"2")
+//      cor.cCorrelationTrainDAL(
+//        tableArr,
+//        1,
+//        computeDevice.ordinal(),
+//        0,
+//        kvsIPPort,
+//        result
+//      )
+//      val computeEndTime = System.nanoTime()
+//
+//      val durationCompute = (computeEndTime - computeStartTime).toDouble / 1E9
+//
+//      println(s"CorrelationDAL compute took ${durationCompute} secs")
+//      Iterator.empty
+//    }.collect()
   }
 }
