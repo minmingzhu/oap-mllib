@@ -33,16 +33,13 @@ import scala.io.Source
 
 object BatchCorExample {
   def main(args: Array[String]): Unit = {
-    val spark = SparkSession
-      .builder
-      .appName("CorrelationExample")
-      .getOrCreate()
     val computeDevice = Common.ComputeDevice.getDeviceByName("GPU")
     val result = new CorrelationResult()
 
     val cor = new CorrelationDALImpl(1, 1)
-    val input = "/home/xiaochang/opt/ML/data/HiBench/Correlation/Input/50000/" +
-      "part-00000-50f53ad5-b45b-463b-b5c3-0f31f794c601-c000.csv"
+    val input = args(0)
+    println(s"input ${input}")
+
     println(s"read csv")
     val sourceData = readCSV(input)
     println(s"make table")
