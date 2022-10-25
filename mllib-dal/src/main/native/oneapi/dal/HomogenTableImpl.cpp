@@ -240,6 +240,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_dInit(
              printf("HomogenTable double init 2\n");
              auto data = sycl::malloc_shared<double>(cRowCount * cColCount, queue);
              printf("HomogenTable double init 3\n");
+             printf("memory %ld \n", sizeof(double) * cRowCount * cColCount);
              queue.memcpy(data, fData, sizeof(double) * cRowCount * cColCount).wait();
              printf("HomogenTable double init 4\n");
              tablePtr = std::make_shared<homogen_table>(queue, data, cRowCount, cColCount,
