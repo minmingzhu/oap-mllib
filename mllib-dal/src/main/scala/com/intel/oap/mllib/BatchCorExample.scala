@@ -26,7 +26,9 @@ import org.apache.spark.ml.linalg.{Matrix, Vector}
 import org.apache.spark.ml.stat.Correlation
 import org.apache.spark.sql.functions.{col, split}
 import org.apache.spark.sql.{Row, SparkSession}
-import com.intel.oneapi.dal.table.Common
+import com.intel.oneapi.dal.table.{Common, HomogenTable}
+
+import scala.io.Source
 
 
 object BatchCorExample {
@@ -35,28 +37,24 @@ object BatchCorExample {
       .builder
       .appName("CorrelationExample")
       .getOrCreate()
-    val input = args(0)
-    var data = spark.read.option("quote", " ").csv(input).toDF("features")
-    data = data.select(split(col("features"), ",").alias("features"))
-    data = data.withColumn("features", col("features").cast("array<double>"))
-    data = data.withColumn("features", array_to_vector(col("features")))
-    data.cache()
-    data.show()
-    val rdd = data.select("features").rdd.map {
-      case Row(v: Vector) => v
-    }
     val computeDevice = Common.ComputeDevice.getDeviceByName("GPU")
-    val kvsIPPort = getOneCCLIPPort(rdd)
     val result = new CorrelationResult()
 
     val cor = new CorrelationDALImpl(1, 1)
+    val input = "/home/xiaochang/opt/ML/data/HiBench/Correlation/Input/50000/" +
+      "part-00000-50f53ad5-b45b-463b-b5c3-0f31f794c601-c000.csv"
+    val sourceData = readCSV(input)
 
+    val dataTable = new HomogenTable(sourceData.length,
+      sourceData(0).length,
+      convertArray(sourceData),
+      computeDevice)
     cor.cCorrelationTrainDAL(
-            0,
+            0L,
             1,
             computeDevice.ordinal(),
             0,
-            kvsIPPort,
+            "127.0.0.1_3000",
             result
           )
 //    val coalescedTables = rdd.repartition(1).mapPartitionsWithIndex {
@@ -90,5 +88,32 @@ object BatchCorExample {
 //      println(s"CorrelationDAL compute took ${durationCompute} secs")
 //      Iterator.empty
 //    }.collect()
+  }
+
+  def readCSV(path: String): Array[Array[Double]] = {
+    val bufferedSource = Source.fromFile(path)
+    var matrix: Array[Array[Double]] = Array.empty
+    for (line <- bufferedSource.getLines) {
+      val cols = line.split(",").map(_.trim.toDouble)
+      matrix = matrix :+ cols
+    }
+    bufferedSource.close
+    matrix
+  }
+
+  def convertArray(arrayVectors: Array[Array[Double]]): Array[Double] = {
+    val numCols: Int = arrayVectors.head.size
+    val numRows: Int = arrayVectors.size
+    val arrayDouble = new Array[Double](numRows * numCols)
+    var index = 0
+    for( array: Array[Double] <- arrayVectors) {
+      for (i <- 0 until array.toArray.length ) {
+        arrayDouble(index) = array(i)
+        if (index < (numRows * numCols)) {
+          index = index + 1
+        }
+      }
+    }
+    arrayDouble
   }
 }

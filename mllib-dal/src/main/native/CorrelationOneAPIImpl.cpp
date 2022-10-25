@@ -44,18 +44,18 @@ static void doCorrelationOneAPICompute(JNIEnv *env, jint rankId,
               << std::endl;
     const bool isRoot = (rankId == ccl_root);
     ComputeDevice device = getComputeDeviceByOrdinal(computeDeviceOrdinal);
-//    homogen_table htable =
-//        *reinterpret_cast<const homogen_table *>(pNumTabData);
-//    std::cout <<"htable :" <<  htable << std::endl;
-//    std::cout <<"htable get_row_count() :" <<  htable.get_row_count() << std::endl;
-//    std::cout <<"htable get_column_count():" <<  htable.get_column_count() << std::endl;
+    homogen_table htable =
+        *reinterpret_cast<const homogen_table *>(pNumTabData);
+    std::cout <<"htable :" <<  htable << std::endl;
+    std::cout <<"htable get_row_count() :" <<  htable.get_row_count() << std::endl;
+    std::cout <<"htable get_column_count():" <<  htable.get_column_count() << std::endl;
 
-    const auto input_file_name = "/home/xiaochang/opt/ML/data/HiBench/Correlation/Input/50000/part-00000-50f53ad5-b45b-463b-b5c3-0f31f794c601-c000.csv";
-    std::cout << "input_file_name:\n" << input_file_name << std::endl;
+//    const auto input_file_name = "/home/xiaochang/opt/ML/data/HiBench/Correlation/Input/50000/part-00000-50f53ad5-b45b-463b-b5c3-0f31f794c601-c000.csv";
+//    std::cout << "input_file_name:\n" << input_file_name << std::endl;
     std::cout << "read start" << std::endl;
     auto device1 = sycl::gpu_selector{}.select_device();
     sycl::queue q{ device1 };
-    const auto input = read<table>(q, csv::data_source{ input_file_name });
+//    const auto input = read<table>(q, csv::data_source{ input_file_name });
     const auto cor_desc = covariance::descriptor{}.set_result_options(
         covariance::result_options::cor_matrix |
         covariance::result_options::means);
@@ -68,7 +68,7 @@ static void doCorrelationOneAPICompute(JNIEnv *env, jint rankId,
 //    std::cout <<"rank_count :" <<  comm.get_rank_count() << std::endl;
     std::cout <<"start:" << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
-    const auto result_train = compute(q, cor_desc, input);
+    const auto result_train = compute(q, cor_desc, htable);
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
                 std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
