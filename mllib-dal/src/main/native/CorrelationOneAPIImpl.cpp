@@ -22,7 +22,6 @@
 #define ONEDAL_DATA_PARALLEL
 #endif
 
-#include "Communicator.hpp"
 #include "OutputHelpers.hpp"
 #include "com_intel_oap_mllib_stat_CorrelationDALImpl.h"
 #include "oneapi/dal/algo/covariance.hpp"
@@ -45,15 +44,27 @@ static void doCorrelationOneAPICompute(JNIEnv *env, jint rankId,
     ComputeDevice device = getComputeDeviceByOrdinal(computeDeviceOrdinal);
     homogen_table htable =
         *reinterpret_cast<const homogen_table *>(pNumTabData);
+    std::cout <<"htable :" <<  htable << std::endl;
+    std::cout <<"htable get_row_count() :" <<  htable.get_row_count() << std::endl;
+    std::cout <<"htable get_column_count():" <<  htable.get_column_count() << std::endl;
 
+    std::cout << "read start" << std::endl;
+    auto device1 = sycl::gpu_selector{}.select_device();
+    sycl::queue q{ device1 };
+//    const auto input = read<table>(q, csv::data_source{ input_file_name });
     const auto cor_desc = covariance::descriptor{}.set_result_options(
         covariance::result_options::cor_matrix |
         covariance::result_options::means);
-    auto queue = getQueue(device);
-    auto comm = preview::spmd::make_communicator<preview::spmd::backend::ccl>(
-        queue, executorNum, rankId, ipPort);
+//    auto queue = getQueue(device);
+
+//    auto comm = preview::spmd::make_communicator<preview::spmd::backend::ccl>(queue);
+//    auto rank_id = comm.get_rank();
+//    auto rank_count = comm.get_rank_count();
+//    std::cout <<"rank_id :" <<  comm.get_rank() << std::endl;
+//    std::cout <<"rank_count :" <<  comm.get_rank_count() << std::endl;
+    std::cout <<"start:" << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
-    const auto result_train = preview::compute(comm, cor_desc, htable);
+    const auto result_train = compute(q, cor_desc, htable);
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
                 std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
@@ -67,7 +78,7 @@ static void doCorrelationOneAPICompute(JNIEnv *env, jint rankId,
         t2 = std::chrono::high_resolution_clock::now();
         duration =
                   std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
-        std::cout << "Correlation (native) spend training times : " << duration
+        std::cout << "Correlation batch(native) spend training times : " << duration
                         << " secs" << std::endl;
         // Return all covariance & mean
         jclass clazz = env->GetObjectClass(resultObj);
