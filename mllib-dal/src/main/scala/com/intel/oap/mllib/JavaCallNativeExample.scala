@@ -22,12 +22,15 @@ import scala.io.Source
 object JavaCallNativeExample {
   def main(args: Array[String]): Unit = {
     val input = args(0)
+    printf(s"load csv file")
     val sourceData = readCSV(input)
+    printf(s"create homogentable")
     val dataTable = new HomogenTable(sourceData.length, sourceData(0).length,
       convertArray(sourceData), Common.ComputeDevice.GPU)
 
     val correlationDAL = new CorrelationDALImpl(1, 1)
     val result = new CorrelationResult()
+    printf(s"call native compute")
     correlationDAL.cCorrelationTrainDAL(dataTable.getcObejct(), 1,
         Common.ComputeDevice.GPU.ordinal(), 0, "127.0.0.1_3000", result)
 
