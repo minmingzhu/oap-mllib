@@ -19,7 +19,7 @@ import com.intel.oap.mllib.stat.{CorrelationDALImpl, CorrelationResult}
 import com.intel.oneapi.dal.table.{Common, HomogenTable}
 import scala.io.Source
 
-object JavaCallNativeExample {
+object JavaCallNativeBatchExample {
   def main(args: Array[String]): Unit = {
     val input = args(0)
     printf(s"load csv file")
