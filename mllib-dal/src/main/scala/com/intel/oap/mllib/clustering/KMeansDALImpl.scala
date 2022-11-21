@@ -45,8 +45,15 @@ class KMeansDALImpl(var nClusters: Int,
     val results = coalescedTables.mapPartitionsWithIndex { (rank, table) =>
       var cCentroids = 0L
       val result = new KMeansResult()
+      val gpuIndices = if (useDevice == "GPU") {
+        val resources = TaskContext.get().resources()
+        resources("gpu").addresses.map(_.toInt)
+      } else {
+        null
+      }
+
       val tableArr = table.next()
-      OneCCL.initDpcpp()
+      OneCCL.init(executorNum, rank, kvsIPPort)
       val initCentroids = OneDAL.makeHomogenTable(centers, computeDevice)
       cCentroids = cKMeansOneapiComputeWithInitCenters(
         tableArr,
@@ -54,10 +61,8 @@ class KMeansDALImpl(var nClusters: Int,
         nClusters,
         tolerance,
         maxIterations,
-        executorNum,
         computeDevice.ordinal(),
-        rank,
-        kvsIPPort,
+        gpuIndices,
         result
       )
 
@@ -95,13 +100,12 @@ class KMeansDALImpl(var nClusters: Int,
     parentModel
   }
 
-  @native private[mllib] def cKMeansOneapiComputeWithInitCenters(data: Long, centers: Long,
-                                                       clusterNum: Int,
-                                                       tolerance: Double,
-                                                       iterationNum: Int,
-                                                       executorNum: Int,
-                                                       computeDeviceOrdinal: Int,
-                                                       rankId: Int,
-                                                       ipPort: String,
-                                                       result: KMeansResult): Long
+  @native private[mllib] def cKMeansOneapiComputeWithInitCenters(data: Long,
+                                           centers: Long,
+                                           clusterNum: Int,
+                                           tolerance: Double,
+                                           iterationNum: Int,
+                                           computeDeviceOrdinal: Int,
+                                           gpuIndices: Array[Int],
+                                           result: KMeansResult): Long
 }

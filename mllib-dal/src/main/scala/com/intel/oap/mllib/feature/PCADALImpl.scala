@@ -52,15 +52,19 @@ class PCADALImpl(val k: Int,
 
     val results = coalescedTables.mapPartitionsWithIndex { (rank, table) =>
       val tableArr = table.next()
-      OneCCL.initDpcpp()
+      OneCCL.init(executorNum, rank, kvsIPPort)
 
       val result = new PCAResult()
+      val gpuIndices = if (useDevice == "GPU") {
+        val resources = TaskContext.get().resources()
+        resources("gpu").addresses.map(_.toInt)
+      } else {
+        null
+      }
       cPCATrainDAL(
         tableArr,
-        executorNum,
         computeDevice.ordinal(),
-        rank,
-        kvsIPPort,
+        gpuIndices,
         result
       )
 
@@ -138,9 +142,7 @@ class PCADALImpl(val k: Int,
 
   // Single entry to call Correlation PCA DAL backend with parameter K
   @native private[mllib] def cPCATrainDAL(data: Long,
-                                   executorNum: Int,
                                    computeDeviceOrdinal: Int,
-                                   rankId: Int,
-                                   ipPort: String,
+                                   gpuIndices: Array[Int],
                                    result: PCAResult): Long
 }

@@ -39,17 +39,21 @@ class CorrelationDALImpl(
     val results = coalescedTables.mapPartitionsWithIndex { (rank, table) =>
 
       val tableArr = table.next()
-      OneCCL.initDpcpp()
+      OneCCL.init(executorNum, rank, kvsIPPort)
 
       val computeStartTime = System.nanoTime()
 
       val result = new CorrelationResult()
+      val gpuIndices = if (useDevice == "GPU") {
+        val resources = TaskContext.get().resources()
+        resources("gpu").addresses.map(_.toInt)
+      } else {
+        null
+      }
       cCorrelationTrainDAL(
         tableArr,
-        executorNum,
         computeDevice.ordinal(),
-        rank,
-        kvsIPPort,
+        gpuIndices,
         result
       )
 
@@ -61,7 +65,8 @@ class CorrelationDALImpl(
 
       val ret = if (rank == 0) {
         val convResultStartTime = System.nanoTime()
-        val correlationNumericTable = OneDAL.homogenTableToMatrix(OneDAL.makeHomogenTable(result.correlationNumericTable),
+        val correlationNumericTable = OneDAL.homogenTableToMatrix(
+          OneDAL.makeHomogenTable(result.correlationNumericTable),
              computeDevice)
 
         val convResultEndTime = System.nanoTime()
@@ -88,9 +93,7 @@ class CorrelationDALImpl(
 
 
   @native private[mllib] def cCorrelationTrainDAL(data: Long,
-                                           executorNum: Int,
                                            computeDeviceOrdinal: Int,
-                                           rankId: Int,
-                                           ipPort: String,
+                                           gpuIndices: Array[Int],
                                            result: CorrelationResult): Long
 }

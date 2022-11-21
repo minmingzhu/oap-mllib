@@ -13,7 +13,7 @@ extern "C" {
  * Signature: (JJIDIILcom/intel/oap/mllib/clustering/KMeansResult;)J
  */
 JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCenters
-  (JNIEnv *, jobject, jlong, jlong, jint, jdouble, jint, jint ,jint, jint, jstring, jobject);
+  (JNIEnv *, jobject, jlong, jlong, jint, jdouble, jint, jint, jintArray, jobject);
 
 #ifdef __cplusplus
 }
