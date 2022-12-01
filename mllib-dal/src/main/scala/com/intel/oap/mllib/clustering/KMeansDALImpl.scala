@@ -51,7 +51,7 @@ class KMeansDALImpl(var nClusters: Int,
       } else {
         null
       }
-
+      println(s"gpuIndices length : " + gpuIndices.toList.toString())
       val tableArr = table.next()
       OneCCL.init(executorNum, rank, kvsIPPort)
       val initCentroids = OneDAL.makeHomogenTable(centers, computeDevice)

@@ -50,9 +50,9 @@ static jlong doKMeansOneAPICompute(
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
                                  .set_accuracy_threshold(tolerance);
-    auto t1 = std::chrono::high_resolution_clock::now();
     kmeans::train_input local_input{htable, centroids};
 
+    auto t1 = std::chrono::high_resolution_clock::now();
     kmeans::train_result result_train =
         preview::train(comm, kmeans_desc, local_input);
     auto t2 = std::chrono::high_resolution_clock::now();
