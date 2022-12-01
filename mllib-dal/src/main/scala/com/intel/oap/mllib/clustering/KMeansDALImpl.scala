@@ -38,9 +38,9 @@ class KMeansDALImpl(var nClusters: Int,
 
   def train(data: RDD[Vector]): MLlibKMeansModel = {
     val sparkContext = data.sparkContext
-    val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", Utils.DefaultComputeDevice)
+    val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", "GPU")
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
-    val coalescedTables = OneDAL.rddVectorToMergedHomogenTables(data, executorNum, computeDevice)
+    val coalescedTables = OneDAL.coalesceToHomogenTables(data, executorNum, computeDevice)
     val kvsIPPort = getOneCCLIPPort(coalescedTables)
     val results = coalescedTables.mapPartitionsWithIndex { (rank, table) =>
       var cCentroids = 0L

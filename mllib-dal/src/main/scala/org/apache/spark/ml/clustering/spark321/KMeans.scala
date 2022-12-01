@@ -100,6 +100,10 @@ class KMeans @Since("1.5.0") (
   private def trainWithDAL(instances: RDD[(Vector, Double)],
                            handlePersistence: Boolean): KMeansModel = instrumented { instr =>
 
+    if (handlePersistence) {
+      instances.persist(StorageLevel.MEMORY_AND_DISK)
+    }
+
     val sc = instances.sparkContext
 
     val executor_num = Utils.sparkExecutorNum(sc)
@@ -143,13 +147,12 @@ class KMeans @Since("1.5.0") (
     val strInitMode = $(initMode)
     logInfo(f"Initialization with $strInitMode took $initTimeInSeconds%.3f seconds.")
 
-    if (handlePersistence) {
-      instances.persist(StorageLevel.MEMORY_AND_DISK)
-    }
-
     val inputData = instances.map {
       case (point: Vector, weight: Double) => point
     }
+
+    // Cache for input data
+    inputData.persist(StorageLevel.MEMORY_AND_DISK)
 
     val kmeansDAL = new KMeansDALImpl(getK, getMaxIter, getTol,
       DistanceMeasure.EUCLIDEAN, centers, executor_num, executor_cores)

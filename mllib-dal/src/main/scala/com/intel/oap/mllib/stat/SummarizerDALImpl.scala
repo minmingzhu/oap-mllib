@@ -34,7 +34,7 @@ class SummarizerDALImpl(val executorNum: Int,
     val sparkContext = data.sparkContext
     val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", Utils.DefaultComputeDevice)
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
-    val coalescedTables = OneDAL.rddVectorToMergedHomogenTables(data, executorNum, computeDevice)
+    val coalescedTables = OneDAL.coalesceToHomogenTables(data, executorNum, computeDevice)
     val kvsIPPort = getOneCCLIPPort(data)
 
     val results = coalescedTables.mapPartitionsWithIndex { (rank, table) =>
