@@ -55,10 +55,9 @@ static jlong doKMeansOneAPICompute(
     kmeans::train_result result_train =
         preview::train(comm, kmeans_desc, local_input);
     auto t2 = std::chrono::high_resolution_clock::now();
-        auto duration =
+    auto duration =
                     std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
-        std::cout << "KMeans (native) RankId = << " << rankId
-                      << "; spend training times : " << duration
+        std::cout << "spend training times : " << duration
                           << " secs" << std::endl;
     if (isRoot) {
         std::cout << "Iteration count: " << result_train.get_iteration_count()
