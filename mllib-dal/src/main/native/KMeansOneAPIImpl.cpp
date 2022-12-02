@@ -57,8 +57,9 @@ static jlong doKMeansOneAPICompute(
         preview::train(comm, kmeans_desc, local_input);
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
-                    std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
-        std::cout << "spend training times : " << duration
+                    std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+
+    std::cout << "spend training times : " << duration / 1000
                           << " secs" << std::endl;
     if (isRoot) {
         std::cout << "Iteration count: " << result_train.get_iteration_count()
@@ -66,8 +67,8 @@ static jlong doKMeansOneAPICompute(
         std::cout << "Centroids:\n" << result_train.get_model().get_centroids() << std::endl;
         t2 = std::chrono::high_resolution_clock::now();
         duration =
-                    std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
-        std::cout << "KMeans (native) spend training times : " << duration
+                    std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+        std::cout << "KMeans (native) spend training times : " << duration / 1000
                           << " secs" << std::endl;
         // Get the class of the input object
         jclass clazz = env->GetObjectClass(resultObj);
