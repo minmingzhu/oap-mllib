@@ -19,7 +19,7 @@ package com.intel.oap.mllib.clustering
 import com.intel.oap.mllib.Utils.getOneCCLIPPort
 import com.intel.oap.mllib.{OneCCL, OneDAL, Utils}
 import com.intel.oneapi.dal.table.Common
-import org.apache.spark.TaskContext
+import org.apache.spark.{SparkContext, TaskContext}
 import org.apache.spark.internal.Logging
 import org.apache.spark.ml.linalg.Vector
 import org.apache.spark.ml.util._
@@ -46,7 +46,8 @@ class KMeansDALImpl(var nClusters: Int,
       var cCentroids = 0L
       val result = new KMeansResult()
       val gpuIndices = if (useDevice == "GPU") {
-        val resources = sparkContext.resources
+        val resources = SparkContext.getOrCreate().resources
+
         println(resources("gpu").toString())
         println(resources("gpu").addresses.toList.toString)
         resources("gpu").addresses.map(_.toInt)
