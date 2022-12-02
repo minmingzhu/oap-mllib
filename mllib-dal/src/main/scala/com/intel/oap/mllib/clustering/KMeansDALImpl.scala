@@ -46,7 +46,7 @@ class KMeansDALImpl(var nClusters: Int,
       var cCentroids = 0L
       val result = new KMeansResult()
       val gpuIndices = if (useDevice == "GPU") {
-        val resources = TaskContext.get().resources()
+        val resources = sparkContext.resources
         println(resources("gpu").toString())
         println(resources("gpu").addresses.toList.toString)
         resources("gpu").addresses.map(_.toInt)
