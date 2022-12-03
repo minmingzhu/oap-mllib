@@ -79,7 +79,7 @@ sycl::queue getAssignedGPU(const ComputeDevice device, ccl::communicator &comm,
         std::cout << "selector GPU" << std::endl;
         auto local_rank = getLocalRank(comm, size, rankId);
         auto gpus = get_gpus();
-
+        std::cout << "device size : " << sizeof(gpus) << std::endl;
         std::cout << "rank: " << rankId << " size: " << size
                   << " local_rank: " << local_rank << " n_gpu: " << n_gpu
                   << std::endl;
