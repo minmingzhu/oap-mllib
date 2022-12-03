@@ -92,8 +92,8 @@ sycl::queue getAssignedGPU(const ComputeDevice device, ccl::communicator &comm,
         auto rank_gpu = gpus[gpu_selected % gpus.size()];
         std::cout << " Running on " << rank_gpu.get_info<sycl::info::device::name>() << std::endl;
         std::cout << " Running on " << rank_gpu.get_platform().get_info<sycl::info::platform::name>() << std::endl;
-
-        return getSyclQueue(rank_gpu);
+        sycl::queue queue{rank_gpu};
+        return queue;
     }
 
     default: {
