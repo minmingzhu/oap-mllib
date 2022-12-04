@@ -58,7 +58,7 @@ static jlong doKMeansOneAPICompute(
     auto t2 = std::chrono::high_resolution_clock::now();                    ;
 
     std::cout << "spend training times : "
-              << std::chrono::duration_cast<std::chrono::milliseconds>
+              << (float)std::chrono::duration_cast<std::chrono::milliseconds>
                                 (t2 - t1).count() / 1000
                           << " secs" << std::endl;
     if (isRoot) {
@@ -68,7 +68,7 @@ static jlong doKMeansOneAPICompute(
         t2 = std::chrono::high_resolution_clock::now();
 
         std::cout << "KMeans (native) spend training times : "
-                  << std::chrono::duration_cast<std::chrono::milliseconds>
+                  << (float)std::chrono::duration_cast<std::chrono::milliseconds>
                                  (t2 - t1).count() / 1000
                           << " secs" << std::endl;
         // Get the class of the input object
