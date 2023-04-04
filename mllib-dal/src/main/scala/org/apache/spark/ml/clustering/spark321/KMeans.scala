@@ -157,7 +157,10 @@ class KMeans @Since("1.5.0") (
     val kmeansDAL = new KMeansDALImpl(getK, getMaxIter, getTol,
       DistanceMeasure.EUCLIDEAN, centers, executor_num, executor_cores)
 
+    val startTime = System.nanoTime()
     val parentModel = kmeansDAL.train(inputData)
+    logInfo(f"KMeans training took ${(System.nanoTime() - startTime) / 1e9} seconds.")
+
 
     val model = copyValues(new KMeansModel(uid, parentModel).setParent(this))
 

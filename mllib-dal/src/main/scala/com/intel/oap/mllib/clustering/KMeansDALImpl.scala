@@ -40,23 +40,21 @@ class KMeansDALImpl(var nClusters: Int,
     val sparkContext = data.sparkContext
     val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", "GPU")
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
+    val conversionStartTime = System.nanoTime()
     val coalescedTables = OneDAL.coalesceToHomogenTables(data, executorNum, computeDevice)
+    logInfo(f"KMeansDALImpl data conversion took " +
+      f"${(System.nanoTime() - conversionStartTime) / 1e9} seconds.")
     val kvsIPPort = getOneCCLIPPort(coalescedTables)
+    val oneapiTrainingTime = System.nanoTime()
     val results = coalescedTables.mapPartitionsWithIndex { (rank, table) =>
       var cCentroids = 0L
       val result = new KMeansResult()
       val gpuIndices = if (useDevice == "GPU") {
         val resources = TaskContext.get().resources()
-
-        println(resources("gpu").toString())
-        println(resources("gpu").addresses.toList.toString)
         resources("gpu").addresses.map(_.toInt)
       } else {
         null
       }
-//      val list = List(0, 1, 2, 3, 4, 5)
-//      val gpuIndices = Array[Int](list: _*)
-      println(s"gpuIndices length : " + gpuIndices.toList.toString())
       val tableArr = table.next()
       OneCCL.init(executorNum, rank, kvsIPPort)
       val initCentroids = OneDAL.makeHomogenTable(centers, computeDevice)
@@ -70,7 +68,8 @@ class KMeansDALImpl(var nClusters: Int,
         gpuIndices,
         result
       )
-
+      logInfo(f"KMeansDALImpl oneapi training took " +
+        f"${(System.nanoTime() - oneapiTrainingTime) / 1e9} seconds.")
       val ret = if (rank == 0) {
           assert(cCentroids != 0)
           val centerVectors = OneDAL.homogenTableToVectors(OneDAL.makeHomogenTable(cCentroids),
