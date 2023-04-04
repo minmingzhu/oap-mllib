@@ -29,6 +29,7 @@
 #include <oneapi/ccl.hpp>
 
 #include "OneCCL.h"
+#include "mpi.h"
 #include "com_intel_oap_mllib_OneCCL__.h"
 
 extern const int ccl_root = 0;
@@ -50,17 +51,22 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     auto t1 = std::chrono::high_resolution_clock::now();
 
     ccl::init();
+    std::cerr << "OneCCL (native): init 1" << std::endl;
 
     const char *str = env->GetStringUTFChars(ip_port, 0);
     ccl::string ccl_ip_port(str);
+    std::cerr << "OneCCL (native): init 2" << std::endl;
 
     auto kvs_attr = ccl::create_kvs_attr();
     kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
+    std::cerr << "OneCCL (native): init 3" << std::endl;
 
     ccl::shared_ptr_class<ccl::kvs> kvs;
     kvs = ccl::create_main_kvs(kvs_attr);
+    std::cerr << "OneCCL (native): init 4" << std::endl;
 
     g_comms.push_back(ccl::create_communicator(size, rank, kvs));
+    std::cerr << "OneCCL (native): init 5" << std::endl;
 
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
