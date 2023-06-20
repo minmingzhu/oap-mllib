@@ -309,6 +309,7 @@ object OneDAL {
 
   def makeHomogenTable(arrayVectors: Array[Vector],
                        device: Common.ComputeDevice): HomogenTable = {
+    var start = System.nanoTime()
     val numCols = arrayVectors.head.size
     val numRows: Int = arrayVectors.size
     val arrayDouble = new Array[Double](numRows * numCols)
@@ -321,8 +322,11 @@ object OneDAL {
         }
       }
     }
+    println(s"Data conversion copy data took time: ${(System.nanoTime() - start ) / 1e9}")
+    start = System.nanoTime()
     val table = new HomogenTable(numRows.toLong, numCols.toLong, arrayDouble,
       device)
+    println(s"Data conversion create table took time: ${(System.nanoTime() - start ) / 1e9}")
 
     table
   }
@@ -685,7 +689,9 @@ object OneDAL {
     // convert RDD to HomogenTable
     println(s"partitionsToHomogenTables Partition Size: ${coalescedRdd.getNumPartitions} ")
     val coalescedTables = coalescedRdd.mapPartitionsWithIndex { (index: Int, it: Iterator[Vector]) =>
+      val start = System.nanoTime()
       val table = makeHomogenTable(it.toArray, device)
+      println(s"Data conversion took time: ${(System.nanoTime() - start) / 1e9}")
       Iterator(table.getcObejct())
     }.cache()
     coalescedTables.count()
