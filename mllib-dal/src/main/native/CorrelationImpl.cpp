@@ -156,13 +156,39 @@ static void doCorrelationOneAPICompute(
     const bool isRoot = (comm.get_rank() == ccl_root);
     homogen_table htable =
         *reinterpret_cast<const homogen_table *>(pNumTabData);
-
-    const auto cor_desc =
-        covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
-            covariance_gpu::result_options::cor_matrix |
-            covariance_gpu::result_options::means);
+    const auto &dtype = htable.get_metadata().get_data_type(0);
+    covariance_gpu::compute_result result_train;
     auto t1 = std::chrono::high_resolution_clock::now();
-    const auto result_train = preview::compute(comm, cor_desc, htable);
+    switch (dtype) {
+    case data_type::float32: {
+        const auto cor_desc =
+            covariance_gpu::descriptor<float>{}.set_result_options(
+                covariance_gpu::result_options::cor_matrix |
+                covariance_gpu::result_options::means);
+        t1 = std::chrono::high_resolution_clock::now();
+        result_train = preview::compute(comm, cor_desc, htable);
+        break;
+    }
+    case data_type::float64: {
+        const auto cor_desc =
+            covariance_gpu::descriptor<double>{}.set_result_options(
+                covariance_gpu::result_options::cor_matrix |
+                covariance_gpu::result_options::means);
+        t1 = std::chrono::high_resolution_clock::now();
+        result_train = preview::compute(comm, cor_desc, htable);
+        break;
+    }
+    default: {
+        std::cout << "no supported data type :" << &dtype << std::endl;
+        exit(-1);
+    }
+    }
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration =
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+            .count();
+    std::cout << "Correlation batch(native): computing step took "
+              << duration / 1000 << " secs." << std::endl;
     if (isRoot) {
         logger::println(logger::INFO, "Mean:");
         printHomegenTable(result_train.get_means());

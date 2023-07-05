@@ -239,6 +239,13 @@ static jlong doLROneAPICompute(JNIEnv *env, size_t rankId,
     linear_regression_gpu::train_result result_train =
         preview::train(comm, linear_regression_desc, xtrain, ytrain);
     if (isRoot) {
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto duration =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
+                                                                         t1)
+                .count();
+        std::cout << "LinerRegression(native): training step took "
+                  << duration / 1000 << " secs." << std::endl;
         HomogenTablePtr result_matrix = std::make_shared<homogen_table>(
             result_train.get_model().get_betas());
         saveHomogenTablePtrToVector(result_matrix);

@@ -259,8 +259,42 @@ static jlong doKMeansOneAPICompute(
                                  .set_accuracy_threshold(tolerance);
     kmeans_gpu::train_input local_input{htable, centroids};
     auto t1 = std::chrono::high_resolution_clock::now();
-    kmeans_gpu::train_result result_train =
-        preview::train(comm, kmeans_desc, local_input);
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration =
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+            .count();
+    kmeans_gpu::train_input local_input{htable, centroids};
+
+    switch (dtype) {
+    case data_type::float32: {
+        const auto kmeans_desc = kmeans_gpu::descriptor<float>()
+                                     .set_cluster_count(clusterNum)
+                                     .set_max_iteration_count(iterationNum)
+                                     .set_accuracy_threshold(tolerance);
+        t1 = std::chrono::high_resolution_clock::now();
+        result_train = preview::train(comm, kmeans_desc, local_input);
+        break;
+    }
+    case data_type::float64: {
+        const auto kmeans_desc = kmeans_gpu::descriptor<double>()
+                                     .set_cluster_count(clusterNum)
+                                     .set_max_iteration_count(iterationNum)
+                                     .set_accuracy_threshold(tolerance);
+        t1 = std::chrono::high_resolution_clock::now();
+        result_train = preview::train(comm, kmeans_desc, local_input);
+        break;
+    }
+    default: {
+        std::cout << "no supported data type :" << &dtype << std::endl;
+        exit(-1);
+    }
+    }
+    duration =
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+            .count();
+    t2 = std::chrono::high_resolution_clock::now();
+    std::cout << "KMeans (native): training step took " << duration / 1000
+              << " secs." << std::endl;
     if (isRoot) {
         logger::println(logger::INFO, "Iteration count: %d",
                         result_train.get_iteration_count());
