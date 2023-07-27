@@ -40,6 +40,7 @@ import java.nio.IntBuffer;
  * @brief Class for the data management component responsible for the representation of the data in
  *        a numerical format.
  */
+<<<<<<< HEAD
 public abstract class NumericTableImpl extends SerializableBase {
   /** @private */
   static {
