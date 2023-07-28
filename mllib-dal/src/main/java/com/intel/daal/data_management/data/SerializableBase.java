@@ -23,13 +23,11 @@ package com.intel.daal.data_management.data;
 import com.intel.daal.services.ContextClient;
 import com.intel.daal.services.DaalContext;
 import com.intel.oap.mllib.LibLoader;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
-
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__DATA__SERIALIZABLEBASE"></a>
  * @brief Class that provides methods for serialization and deserialization
