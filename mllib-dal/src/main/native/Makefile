@@ -112,7 +112,9 @@ CPP_SRCS += \
   ./daal/homogen_numeric_table_byte_buffer_impl.cpp \
   ./daal/merged_numeric_table_impl.cpp \
   ./daal/numeric_table_impl.cpp \
-  ./daal/row_merged_numeric_table_impl.cpp
+  ./daal/row_merged_numeric_table_impl.cpp \
+  ./daal/data_dictionary.cpp \
+  ./daal/data_feature.cpp
 
 OBJS += \
   ./service.o ./error_handling.o \
@@ -145,7 +147,9 @@ OBJS += \
   ./daal/homogen_numeric_table_byte_buffer_impl.o \
   ./daal/merged_numeric_table_impl.o \
   ./daal/numeric_table_impl.o \
-  ./daal/row_merged_numeric_table_impl.o
+  ./daal/row_merged_numeric_table_impl.o \
+  ./daal/data_dictionary.o \
+  ./daal/data_feature.o
 
 DEFINES=-D$(PLATFORM_PROFILE)
 
