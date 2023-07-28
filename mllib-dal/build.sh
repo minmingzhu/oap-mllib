@@ -75,7 +75,6 @@ source $OAP_MLLIB_ROOT/RELEASE
 # Set default PLATFORM_PROFILE from RELEASE envs
 export PLATFORM_PROFILE=${PLATFORM_OPT:-$PLATFORM_PROFILE}
 
-
 echo
 echo === Building Environments ===
 echo Platform Profile: $PLATFORM_PROFILE

@@ -19,10 +19,6 @@
 package com.intel.daal.data_management.data;
 
 import com.intel.daal.services.DaalContext;
-<<<<<<< HEAD
-=======
-import com.intel.daal.utils.LibUtils;
->>>>>>> Replace LibLoader.loadLibraries()
 import com.intel.oap.mllib.LibLoader;
 
 import java.io.IOException;
