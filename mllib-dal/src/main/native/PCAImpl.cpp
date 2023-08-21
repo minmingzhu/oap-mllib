@@ -194,6 +194,7 @@ static void doPCAOneAPICompute(
             covariance_gpu::result_options::cov_matrix);
 
     auto t1 = std::chrono::high_resolution_clock::now();
+    const auto result = preview::compute(comm, cov_desc, htable);
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
         std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
@@ -207,7 +208,8 @@ static void doPCAOneAPICompute(
         const auto pca_desc = descriptor_t().set_deterministic(true);
 
         t1 = std::chrono::high_resolution_clock::now();
-        result = preview::compute(comm, cov_desc, htable);
+        const auto result_train =
+            preview::train(comm, pca_desc, result.get_cov_matrix());
         t2 = std::chrono::high_resolution_clock::now();
         duration =
             std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)

@@ -211,32 +211,7 @@ static void doSummarizerOneAPICompute(
         *reinterpret_cast<const homogen_table *>(pNumTabData);
     const auto bs_desc = basic_statistics::descriptor<GpuAlgorithmFPType>{};
     auto t1 = std::chrono::high_resolution_clock::now();
-    switch (dtype) {
-    case data_type::float32: {
-        const auto bs_desc = basic_statistics::descriptor<float>{};
-
-        t1 = std::chrono::high_resolution_clock::now();
-        result_train = preview::compute(comm, bs_desc, htable);
-        break;
-    }
-    case data_type::float64: {
-        const auto bs_desc = basic_statistics::descriptor<double>{};
-
-        t1 = std::chrono::high_resolution_clock::now();
-        result_train = preview::compute(comm, bs_desc, htable);
-        break;
-    }
-    default: {
-        std::cout << "no supported data type :" << &dtype << std::endl;
-        exit(-1);
-    }
-    }
-    auto t2 = std::chrono::high_resolution_clock::now();
-    auto duration =
-        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
-            .count();
-    std::cout << "Summarizer (native): computing step took " << duration / 1000
-              << " secs." << std::endl;
+    const auto result_train = preview::compute(comm, bs_desc, htable);
     if (isRoot) {
         logger::println(logger::INFO, "Minimum");
         printHomegenTable(result_train.get_min());
