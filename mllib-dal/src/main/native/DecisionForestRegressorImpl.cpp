@@ -255,9 +255,8 @@ static jobject doRFRegressorOneAPICompute(
                                                                          t1)
                 .count();
         logger::println(logger::INFO,
-                        "DF Regression (native): training step took " %f secs.",
-                            duration /
-                            1000);
+                        "DF Regression (native): training step took %f secs.",
+                        duration / 1000);
         // convert c++ map to java hashmap
         jint statsSize = 3; // spark create VarianceCalculator needs array of
                             // sufficient statistics

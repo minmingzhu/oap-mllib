@@ -268,9 +268,8 @@ static jobject doRFClassifierOneAPICompute(
                                                                          t1)
                 .count();
         logger::println(logger::INFO,
-                        "DF Classifier (native): training step took %f secs.",
-                            duration /
-                            1000);
+                        "DF Classifier (native): training step took  %f secs.",
+                        duration / 1000);
 
         // convert to java hashmap
         trees = collect_model(env, result_train.get_model(), classCount);
