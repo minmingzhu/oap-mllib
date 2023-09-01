@@ -248,6 +248,16 @@ static jobject doRFRegressorOneAPICompute(
         printHomegenTable(result_train.get_oob_err());
         logger::println(logger::INFO, "Prediction results:");
         printHomegenTable(result_infer.get_responses());
+
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto duration =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
+                                                                         t1)
+                .count();
+        logger::println(logger::INFO,
+                        "DF Regression (native): training step took " %f secs.",
+                            duration /
+                            1000);
         // convert c++ map to java hashmap
         jint statsSize = 3; // spark create VarianceCalculator needs array of
                             // sufficient statistics
