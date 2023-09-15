@@ -28,14 +28,23 @@ extern bool daal_check_is_intel_cpu();
 
 // Define a global native array
 typedef std::shared_ptr<double[]> NativeDoubleArrayPtr;
+typedef std::shared_ptr<float[]> NativeFloatArrayPtr;
 
-std::mutex g_amtx;
+std::mutex g_double_amtx;
+std::mutex g_float_amtx;
 std::vector<NativeDoubleArrayPtr> g_NativeDoubleArrayPtrVector;
+std::vector<NativeFloatArrayPtr> g_NativeFloatArrayPtrVector;
 
 void saveDoubleArrayPtrToVector(const NativeDoubleArrayPtr &ptr) {
-    g_amtx.lock();
+    g_double_amtx.lock();
     g_NativeDoubleArrayPtrVector.push_back(ptr);
-    g_amtx.unlock();
+    g_double_amtx.unlock();
+}
+
+void saveFloatArrayPtrToVector(const NativeFloatArrayPtr &ptr) {
+    g_float_amtx.lock();
+    g_NativeFloatArrayPtrVector.push_back(ptr);
+    g_float_amtx.unlock();
 }
 
 JNIEXPORT void JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cAddNumericTable(
@@ -194,6 +203,37 @@ Java_com_intel_oap_mllib_OneDAL_00024_cCopyDoubleArrayToNative(
     double *nativeArray = reinterpret_cast<double *>(nativeArrayPtr);
     jsize sourceLength = env->GetArrayLength(sourceArray);
     jdouble *source = static_cast<jdouble *>(
+        env->GetPrimitiveArrayCritical(sourceArray, NULL));
+    std::copy(source, source + sourceLength, nativeArray + index);
+    env->ReleasePrimitiveArrayCritical(sourceArray, source, 0);
+}
+
+/*
+ * Class:     com_intel_oap_mllib_OneDAL__
+ * Method:    cNewFloatArray
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cNewFloatArray(
+    JNIEnv *env, jobject, jlong size) {
+    std::cout << "create new native array size : " << size << std::endl;
+    NativeFloatArrayPtr arrayPtr(new float[size],
+                                  [](float *ptr) { delete[] ptr; });
+    saveFloatArrayPtrToVector(arrayPtr);
+    return (jlong)arrayPtr.get();
+}
+
+/*
+ * Class:     com_intel_oap_mllib_OneDAL__
+ * Method:    cCopyFloatArrayToNative
+ * Signature: (J[DJ)V
+ */
+JNIEXPORT void JNICALL
+Java_com_intel_oap_mllib_OneDAL_00024_cCopyFloatArrayToNative(
+    JNIEnv *env, jobject, jlong nativeArrayPtr, jfloatArray sourceArray,
+    jlong index) {
+    float *nativeArray = reinterpret_cast<float *>(nativeArrayPtr);
+    jsize sourceLength = env->GetArrayLength(sourceArray);
+    jfloat *source = static_cast<jfloat *>(
         env->GetPrimitiveArrayCritical(sourceArray, NULL));
     std::copy(source, source + sourceLength, nativeArray + index);
     env->ReleasePrimitiveArrayCritical(sourceArray, source, 0);

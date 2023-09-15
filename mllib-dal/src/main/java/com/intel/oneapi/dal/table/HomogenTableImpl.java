@@ -77,6 +77,10 @@ public class HomogenTableImpl implements HomogenTableIface {
                 this.cObject = dPtrInit(rowCount, colCount, dataPtr, dataLayout.ordinal(),
                         this.device.ordinal());
                 break;
+            case FLOAT32:
+                this.cObject = fPtrInit(rowCount, colCount, dataPtr, dataLayout.ordinal(),
+                        this.device.ordinal());
+                break;
             default:
                 System.err.println("spark algorithm only support double");
                 System.exit(-1);
@@ -185,6 +189,12 @@ public class HomogenTableImpl implements HomogenTableIface {
                               int computeDeviceIndex);
 
     private native long dPtrInit(long rowCount,
+                                 long colCount,
+                                 long dataPtr,
+                                 int dataLayoutIndex,
+                                 int computeDeviceIndex);
+
+    private native long fPtrInit(long rowCount,
                                  long colCount,
                                  long dataPtr,
                                  int dataLayoutIndex,

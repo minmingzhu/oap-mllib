@@ -44,7 +44,7 @@ class KMeansDALImpl(var nClusters: Int,
     kmeansTimer.record("Preprocessing")
 
     val coalescedTables = if (useDevice == "GPU") {
-      OneDAL.coalesceVectorsToHomogenTables(data, executorNum, computeDevice)
+      OneDAL.coalesceVectorsToFloatHomogenTables(data, executorNum, computeDevice)
     } else {
       OneDAL.coalesceVectorsToNumericTables(data, executorNum)
     }
