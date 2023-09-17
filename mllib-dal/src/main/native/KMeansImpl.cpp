@@ -251,6 +251,19 @@ static jlong doKMeansOneAPICompute(
     const bool isRoot = (comm.get_rank() == ccl_root);
     homogen_table htable =
         *reinterpret_cast<const homogen_table *>(pNumTabData);
+    const auto type = htable.get_metadata().get_data_type(0);
+    switch (type)
+    {
+    case dal::data_type::float64:
+       cout << "htable data type double " << endl;
+       break;
+    case dal::data_type::float32:
+       cout << "htable data type float " << endl;
+       break;
+    default:
+       cout << "htable data type null " << endl;
+       break;
+    }
     homogen_table centroids =
         *reinterpret_cast<const homogen_table *>(pNumTabCenters);
     const auto kmeans_desc = kmeans_gpu::descriptor<GpuAlgorithmFPType>()
