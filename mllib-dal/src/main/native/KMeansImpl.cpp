@@ -254,10 +254,10 @@ static jlong doKMeansOneAPICompute(
     const auto type = htable.get_metadata().get_data_type(0);
     switch (type)
     {
-    case dal::data_type::float64:
+    case data_type::float64:
        cout << "htable data type double " << endl;
        break;
-    case dal::data_type::float32:
+    case data_type::float32:
        cout << "htable data type float " << endl;
        break;
     default:
