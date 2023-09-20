@@ -198,6 +198,19 @@ static void doCorrelationOneAPICompute(
             "Correlation batch(native): computing step took %f secs.",
             duration / 1000);
 
+        const auto eigetype = result_train.get_cor_matrix().get_metadata().get_data_type(0);
+        switch (eigetype)
+        {
+        case data_type::float64:
+            logger::println(logger::INFO ,"eigenvectors data type double ");
+            break;
+        case data_type::float32:
+            logger::println(logger::INFO, "eigenvectors data type float ");
+            break;
+        default:
+            logger::println(logger::INFO, "eigenvectors data type null ");
+            break;
+        }
         // Return all covariance & mean
         jclass clazz = env->GetObjectClass(resultObj);
 

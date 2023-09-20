@@ -242,6 +242,19 @@ static void doSummarizerOneAPICompute(
         logger::println(logger::INFO,
                         "Summarizer (native): computing step took %f secs",
                         duration / 1000);
+       const auto eigetype = result_train.get_min().get_metadata().get_data_type(0);
+       switch (eigetype)
+       {
+       case data_type::float64:
+           logger::println(logger::INFO ,"eigenvectors data type double ");
+           break;
+       case data_type::float32:
+           logger::println(logger::INFO, "eigenvectors data type float ");
+           break;
+       default:
+           logger::println(logger::INFO, "eigenvectors data type null ");
+           break;
+       }
         logger::println(logger::INFO, "Minimum");
         printHomegenTable(result_train.get_min());
         logger::println(logger::INFO, "Maximum");
