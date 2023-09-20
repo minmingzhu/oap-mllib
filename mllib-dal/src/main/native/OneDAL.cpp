@@ -200,7 +200,6 @@ JNIEXPORT void JNICALL
 Java_com_intel_oap_mllib_OneDAL_00024_cCopyDoubleArrayToNative(
     JNIEnv *env, jobject, jlong nativeArrayPtr, jdoubleArray sourceArray,
     jlong index) {
-    std::cout << "copy double data to Native " << std::endl;
     double *nativeArray = reinterpret_cast<double *>(nativeArrayPtr);
     jsize sourceLength = env->GetArrayLength(sourceArray);
     jdouble *source = static_cast<jdouble *>(
@@ -232,7 +231,6 @@ JNIEXPORT void JNICALL
 Java_com_intel_oap_mllib_OneDAL_00024_cCopyFloatArrayToNative(
     JNIEnv *env, jobject, jlong nativeArrayPtr, jfloatArray sourceArray,
     jlong index) {
-    std::cout << "copy float data to Native " << std::endl;
     float *nativeArray = reinterpret_cast<float *>(nativeArrayPtr);
     jsize sourceLength = env->GetArrayLength(sourceArray);
     jfloat *source = static_cast<jfloat *>(
