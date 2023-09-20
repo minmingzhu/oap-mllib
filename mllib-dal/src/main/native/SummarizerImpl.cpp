@@ -212,7 +212,23 @@ static void doSummarizerOneAPICompute(
     const auto bs_desc = basic_statistics::descriptor<GpuAlgorithmFPType>{};
     auto t1 = std::chrono::high_resolution_clock::now();
     const auto result_train = preview::compute(comm, bs_desc, htable);
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration =
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
+                                                                     t1)
+            .count();
+    logger::println(logger::INFO,
+                    "Summarizer (native): computing step took %f secs",
+                    duration / 1000);
     if (isRoot) {
+        t2 = std::chrono::high_resolution_clock::now();
+        duration =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
+                                                                         t1)
+                .count();
+        logger::println(logger::INFO,
+                        "Summarizer (native): computing step took %f secs",
+                        duration / 1000);
         logger::println(logger::INFO, "Minimum");
         printHomegenTable(result_train.get_min());
         logger::println(logger::INFO, "Maximum");
@@ -221,14 +237,15 @@ static void doSummarizerOneAPICompute(
         printHomegenTable(result_train.get_mean());
         logger::println(logger::INFO, "Variation");
         printHomegenTable(result_train.get_variance());
-        auto t2 = std::chrono::high_resolution_clock::now();
-        auto duration =
+        t2 = std::chrono::high_resolution_clock::now();
+        duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
                                                                          t1)
                 .count();
         logger::println(logger::INFO,
                         "Summarizer (native): computing step took %d secs",
                         duration / 1000);
+
         // Return all covariance & mean
         jclass clazz = env->GetObjectClass(resultObj);
 

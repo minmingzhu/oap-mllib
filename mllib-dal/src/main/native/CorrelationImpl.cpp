@@ -163,13 +163,22 @@ static void doCorrelationOneAPICompute(
             covariance_gpu::result_options::means);
     auto t1 = std::chrono::high_resolution_clock::now();
     const auto result_train = preview::compute(comm, cor_desc, htable);
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration =
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
+                                                                     t1)
+            .count();
+    logger::println(
+        logger::INFO,
+        "Correlation batch(native): computing step took %f secs.",
+        duration / 1000);
     if (isRoot) {
         logger::println(logger::INFO, "Mean:");
         printHomegenTable(result_train.get_means());
         logger::println(logger::INFO, "Correlation:");
         printHomegenTable(result_train.get_cor_matrix());
-        auto t2 = std::chrono::high_resolution_clock::now();
-        auto duration =
+        t2 = std::chrono::high_resolution_clock::now();
+        duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
         logger::println(

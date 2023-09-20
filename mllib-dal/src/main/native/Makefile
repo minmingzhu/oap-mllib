@@ -41,6 +41,7 @@ ifeq ($(PLATFORM_PROFILE),CPU_ONLY_PROFILE)
 else ifeq ($(PLATFORM_PROFILE),CPU_GPU_PROFILE)
   CFLAGS := $(CFLAGS_COMMON) -fsycl \
             -fsycl-device-code-split=per_kernel \
+            -fno-sycl-id-queries-fit-in-int \
             -I $(CCL_ROOT)/include/cpu_gpu_dpcpp/oneapi/
 else
   $(error Unknow building profile, should be CPU_ONLY_PROFILE or CPU_GPU_PROFILE)
