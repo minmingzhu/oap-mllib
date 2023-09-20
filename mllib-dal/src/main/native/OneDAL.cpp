@@ -184,7 +184,7 @@ Java_com_intel_oap_mllib_OneDAL_00024_cNewCSRNumericTableDouble(
  */
 JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cNewDoubleArray(
     JNIEnv *env, jobject, jlong size) {
-    std::cout << "create new native array size : " << size << std::endl;
+    std::cout << "create double new native array size : " << size << std::endl;
     NativeDoubleArrayPtr arrayPtr(new double[size],
                                   [](double *ptr) { delete[] ptr; });
     saveDoubleArrayPtrToVector(arrayPtr);
@@ -200,6 +200,7 @@ JNIEXPORT void JNICALL
 Java_com_intel_oap_mllib_OneDAL_00024_cCopyDoubleArrayToNative(
     JNIEnv *env, jobject, jlong nativeArrayPtr, jdoubleArray sourceArray,
     jlong index) {
+    std::cout << "copy double data to Native " << std::endl;
     double *nativeArray = reinterpret_cast<double *>(nativeArrayPtr);
     jsize sourceLength = env->GetArrayLength(sourceArray);
     jdouble *source = static_cast<jdouble *>(
@@ -215,7 +216,7 @@ Java_com_intel_oap_mllib_OneDAL_00024_cCopyDoubleArrayToNative(
  */
 JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cNewFloatArray(
     JNIEnv *env, jobject, jlong size) {
-    std::cout << "create new native array size : " << size << std::endl;
+    std::cout << "create float new native array size : " << size << std::endl;
     NativeFloatArrayPtr arrayPtr(new float[size],
                                   [](float *ptr) { delete[] ptr; });
     saveFloatArrayPtrToVector(arrayPtr);
@@ -231,6 +232,7 @@ JNIEXPORT void JNICALL
 Java_com_intel_oap_mllib_OneDAL_00024_cCopyFloatArrayToNative(
     JNIEnv *env, jobject, jlong nativeArrayPtr, jfloatArray sourceArray,
     jlong index) {
+    std::cout << "copy float data to Native " << std::endl;
     float *nativeArray = reinterpret_cast<float *>(nativeArrayPtr);
     jsize sourceLength = env->GetArrayLength(sourceArray);
     jfloat *source = static_cast<jfloat *>(
