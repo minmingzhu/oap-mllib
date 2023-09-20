@@ -209,8 +209,8 @@ static void doPCAOneAPICompute(
     const auto result = preview::compute(comm, cov_desc, htable);
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
-        std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-    logger::println(logger::INFO, "PCA (native): Covariance step took %d secs",
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+    logger::println(logger::INFO, "PCA (native): Covariance step took %f secs",
                     duration / 1000);
     if (isRoot) {
         using float_t = GpuAlgorithmFPType;
@@ -219,14 +219,13 @@ static void doPCAOneAPICompute(
         using descriptor_t = pca_gpu::descriptor<float_t, method_t, task_t>;
         const auto pca_desc = descriptor_t().set_deterministic(true);
 
-        t1 = std::chrono::high_resolution_clock::now();
         const auto result_train =
             preview::train(comm, pca_desc, result.get_cov_matrix());
         t2 = std::chrono::high_resolution_clock::now();
         duration =
-            std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
-        logger::println(logger::INFO, "PCA (native): Eigen step took %d secs",
+        logger::println(logger::INFO, "PCA (native): Eigen step took %f secs",
                         duration / 1000);
         const auto eigetype = result_train.get_eigenvectors().get_metadata().get_data_type(0);
         switch (eigetype)
