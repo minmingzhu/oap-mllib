@@ -228,6 +228,19 @@ static void doPCAOneAPICompute(
                 .count();
         logger::println(logger::INFO, "PCA (native): Eigen step took %d secs",
                         duration / 1000);
+        const auto eigetype = result_train.get_eigenvectors().get_metadata().get_data_type(0);
+        switch (eigetype)
+        {
+        case data_type::float64:
+            logger::println(logger::INFO ,"eigenvectors data type double ");
+            break;
+        case data_type::float32:
+            logger::println(logger::INFO, "eigenvectors data type float ");
+            break;
+        default:
+            logger::println(logger::INFO, "eigenvectors data type null ");
+            break;
+        }
         // Return all eigenvalues & eigenvectors
         // Get the class of the input object
         jclass clazz = env->GetObjectClass(resultObj);
