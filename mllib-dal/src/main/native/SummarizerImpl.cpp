@@ -210,6 +210,19 @@ static void doSummarizerOneAPICompute(
     homogen_table htable =
         *reinterpret_cast<const homogen_table *>(pNumTabData);
     const auto bs_desc = basic_statistics::descriptor<GpuAlgorithmFPType>{};
+    const auto type = htable.get_metadata().get_data_type(0);
+    switch (type)
+    {
+    case data_type::float64:
+        logger::println(logger::INFO ,"x_train data type double ");
+        break;
+    case data_type::float32:
+        logger::println(logger::INFO, "x_train data type float ");
+        break;
+    default:
+        logger::println(logger::INFO, "x_train data type null ");
+        break;
+    }
     auto t1 = std::chrono::high_resolution_clock::now();
     const auto result_train = preview::compute(comm, bs_desc, htable);
     auto t2 = std::chrono::high_resolution_clock::now();

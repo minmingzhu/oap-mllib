@@ -691,6 +691,7 @@ object OneDAL {
 
   def coalesceVectorsToFloatHomogenTables(data: RDD[Vector], executorNum: Int,
                                 device: Common.ComputeDevice): RDD[Long] = {
+    logger.info(s"coalesceVectorsToFloatHomogenTables")
     logger.info(s"Processing partitions with $executorNum executors")
     val numberCores: Int  = data.sparkContext.getConf.getInt("spark.executor.cores", 1)
 
@@ -765,6 +766,7 @@ object OneDAL {
 
   def coalesceVectorsToHomogenTables(data: RDD[Vector], executorNum: Int,
                                      device: Common.ComputeDevice): RDD[Long] = {
+    logger.info(s"coalesceVectorsToHomogenTables")
     logger.info(s"Processing partitions with $executorNum executors")
     val numberCores: Int  = data.sparkContext.getConf.getInt("spark.executor.cores", 1)
 

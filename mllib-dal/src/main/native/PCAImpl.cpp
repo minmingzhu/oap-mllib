@@ -192,7 +192,19 @@ static void doPCAOneAPICompute(
     const auto cov_desc =
         covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
             covariance_gpu::result_options::cov_matrix);
-
+    const auto type = htable.get_metadata().get_data_type(0);
+    switch (type)
+    {
+    case data_type::float64:
+        logger::println(logger::INFO ,"x_train data type double ");
+        break;
+    case data_type::float32:
+        logger::println(logger::INFO, "x_train data type float ");
+        break;
+    default:
+        logger::println(logger::INFO, "x_train data type null ");
+        break;
+    }
     auto t1 = std::chrono::high_resolution_clock::now();
     const auto result = preview::compute(comm, cov_desc, htable);
     auto t2 = std::chrono::high_resolution_clock::now();

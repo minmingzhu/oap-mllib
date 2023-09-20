@@ -156,9 +156,21 @@ static void doCorrelationOneAPICompute(
     const bool isRoot = (comm.get_rank() == ccl_root);
     homogen_table htable =
         *reinterpret_cast<const homogen_table *>(pNumTabData);
-
+    const auto type = htable.get_metadata().get_data_type(0);
+    switch (type)
+    {
+    case data_type::float64:
+        logger::println(logger::INFO ,"x_train data type double ");
+        break;
+    case data_type::float32:
+        logger::println(logger::INFO, "x_train data type float ");
+        break;
+    default:
+        logger::println(logger::INFO, "x_train data type null ");
+        break;
+    }
     const auto cor_desc =
-        covariance_gpu::descriptor<algorithmFPType>{}.set_result_options(
+        covariance_gpu::descriptor{}.set_result_options(
             covariance_gpu::result_options::cor_matrix |
             covariance_gpu::result_options::means);
     auto t1 = std::chrono::high_resolution_clock::now();
