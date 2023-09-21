@@ -742,6 +742,7 @@ object OneDAL {
           }
           slice.toArray.zipWithIndex.map { case (vector, index) =>
             val length = vector.toArray.length
+            println(vector.toArray.map(_.toFloat).toList.toString())
             OneDAL.cCopyFloatArrayToNative(targetArrayAddress, vector.toArray.map(_.toFloat), subRowCount.toLong * numCols * i + length * index)
           }
           targetArrayAddress
@@ -817,6 +818,7 @@ object OneDAL {
           }
           slice.toArray.zipWithIndex.map { case (vector, index) =>
             val length = vector.toArray.length
+            println(vector.toArray.toList.toString())
             OneDAL.cCopyDoubleArrayToNative(targetArrayAddress, vector.toArray, subRowCount.toLong * numCols * i + length * index)
           }
           targetArrayAddress
