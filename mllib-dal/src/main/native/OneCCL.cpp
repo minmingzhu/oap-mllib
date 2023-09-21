@@ -28,8 +28,8 @@
 
 #include <oneapi/ccl.hpp>
 
-#include "Logger.h"
 #include "CCLInitSingleton.hpp"
+#include "Logger.h"
 #include "OneCCL.h"
 #include "com_intel_oap_mllib_OneCCL__.h"
 
@@ -50,6 +50,7 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     jobject param) {
 
     logger::printerrln(logger::INFO, "OneCCL (native): init");
+    auto t1 = std::chrono::high_resolution_clock::now();
 
     const char *str = env->GetStringUTFChars(ip_port, 0);
     ccl::string ccl_ip_port(str);

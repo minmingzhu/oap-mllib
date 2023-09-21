@@ -119,8 +119,10 @@ void generateLeafLearningNode(
     // Do something with the array elements
     for (int i = 0; i < classCount; i++) {
         if (info.get_probability(i) < 0) {
-            logger::println(logger::ERROR, "probability value: %f", info.get_probability(i));
-            logger::println(logger::ERROR, "probability value: %f", info.get_probability(i));
+            logger::println(logger::ERROR, "probability value: %f",
+                            info.get_probability(i));
+            logger::println(logger::ERROR, "probability value: %f",
+                            info.get_probability(i));
         }
         elements[i] = info.get_probability(i);
     }

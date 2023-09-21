@@ -252,17 +252,16 @@ static jlong doKMeansOneAPICompute(
     homogen_table htable =
         *reinterpret_cast<const homogen_table *>(pNumTabData);
     const auto type = htable.get_metadata().get_data_type(0);
-    switch (type)
-    {
+    switch (type) {
     case data_type::float64:
-       cout << "htable data type double " << endl;
-       break;
+        cout << "htable data type double " << endl;
+        break;
     case data_type::float32:
-       cout << "htable data type float " << endl;
-       break;
+        cout << "htable data type float " << endl;
+        break;
     default:
-       cout << "htable data type null " << endl;
-       break;
+        cout << "htable data type null " << endl;
+        break;
     }
     homogen_table centroids =
         *reinterpret_cast<const homogen_table *>(pNumTabCenters);
@@ -270,12 +269,6 @@ static jlong doKMeansOneAPICompute(
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
                                  .set_accuracy_threshold(tolerance);
-    kmeans_gpu::train_input local_input{htable, centroids};
-    auto t1 = std::chrono::high_resolution_clock::now();
-    auto t2 = std::chrono::high_resolution_clock::now();
-    auto duration =
-        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
-            .count();
     kmeans_gpu::train_input local_input{htable, centroids};
     auto t1 = std::chrono::high_resolution_clock::now();
     kmeans_gpu::train_result result_train =

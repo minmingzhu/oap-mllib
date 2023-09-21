@@ -157,10 +157,9 @@ static void doCorrelationOneAPICompute(
     homogen_table htable =
         *reinterpret_cast<const homogen_table *>(pNumTabData);
     const auto type = htable.get_metadata().get_data_type(0);
-    switch (type)
-    {
+    switch (type) {
     case data_type::float64:
-        logger::println(logger::INFO ,"x_train data type double ");
+        logger::println(logger::INFO, "x_train data type double ");
         break;
     case data_type::float32:
         logger::println(logger::INFO, "x_train data type float ");
@@ -169,40 +168,37 @@ static void doCorrelationOneAPICompute(
         logger::println(logger::INFO, "x_train data type null ");
         break;
     }
-    const auto cor_desc =
-        covariance_gpu::descriptor{}.set_result_options(
-            covariance_gpu::result_options::cor_matrix |
-            covariance_gpu::result_options::means);
+    const auto cor_desc = covariance_gpu::descriptor{}.set_result_options(
+        covariance_gpu::result_options::cor_matrix |
+        covariance_gpu::result_options::means);
     auto t1 = std::chrono::high_resolution_clock::now();
     const auto result_train = preview::compute(comm, cor_desc, htable);
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
-        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
-                                                                     t1)
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
             .count();
-    logger::println(
-        logger::INFO,
-        "Correlation batch(native): computing step took %f secs.",
-        duration / 1000);
+    logger::println(logger::INFO,
+                    "Correlation batch(native): computing step took %f secs.",
+                    duration / 1000);
     if (isRoot) {
         logger::println(logger::INFO, "Mean:");
         printHomegenTable(result_train.get_means());
         logger::println(logger::INFO, "Correlation:");
         printHomegenTable(result_train.get_cor_matrix());
         t2 = std::chrono::high_resolution_clock::now();
-        duration =
-            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
-                .count();
+        duration = (float)std::chrono::duration_cast<std::chrono::milliseconds>(
+                       t2 - t1)
+                       .count();
         logger::println(
             logger::INFO,
             "Correlation batch(native): computing step took %f secs.",
             duration / 1000);
 
-        const auto eigetype = result_train.get_cor_matrix().get_metadata().get_data_type(0);
-        switch (eigetype)
-        {
+        const auto eigetype =
+            result_train.get_cor_matrix().get_metadata().get_data_type(0);
+        switch (eigetype) {
         case data_type::float64:
-            logger::println(logger::INFO ,"eigenvectors data type double ");
+            logger::println(logger::INFO, "eigenvectors data type double ");
             break;
         case data_type::float32:
             logger::println(logger::INFO, "eigenvectors data type float ");

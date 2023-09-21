@@ -193,10 +193,9 @@ static void doPCAOneAPICompute(
         covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
             covariance_gpu::result_options::cov_matrix);
     const auto type = htable.get_metadata().get_data_type(0);
-    switch (type)
-    {
+    switch (type) {
     case data_type::float64:
-        logger::println(logger::INFO ,"x_train data type double ");
+        logger::println(logger::INFO, "x_train data type double ");
         break;
     case data_type::float32:
         logger::println(logger::INFO, "x_train data type float ");
@@ -209,7 +208,8 @@ static void doPCAOneAPICompute(
     const auto result = preview::compute(comm, cov_desc, htable);
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
-        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+            .count();
     logger::println(logger::INFO, "PCA (native): Covariance step took %f secs",
                     duration / 1000);
     if (isRoot) {
@@ -222,16 +222,16 @@ static void doPCAOneAPICompute(
         const auto result_train =
             preview::train(comm, pca_desc, result.get_cov_matrix());
         t2 = std::chrono::high_resolution_clock::now();
-        duration =
-            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
-                .count();
+        duration = (float)std::chrono::duration_cast<std::chrono::milliseconds>(
+                       t2 - t1)
+                       .count();
         logger::println(logger::INFO, "PCA (native): Eigen step took %f secs",
                         duration / 1000);
-        const auto eigetype = result_train.get_eigenvectors().get_metadata().get_data_type(0);
-        switch (eigetype)
-        {
+        const auto eigetype =
+            result_train.get_eigenvectors().get_metadata().get_data_type(0);
+        switch (eigetype) {
         case data_type::float64:
-            logger::println(logger::INFO ,"eigenvectors data type double ");
+            logger::println(logger::INFO, "eigenvectors data type double ");
             break;
         case data_type::float32:
             logger::println(logger::INFO, "eigenvectors data type float ");

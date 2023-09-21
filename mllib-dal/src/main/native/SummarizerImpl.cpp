@@ -211,10 +211,9 @@ static void doSummarizerOneAPICompute(
         *reinterpret_cast<const homogen_table *>(pNumTabData);
     const auto bs_desc = basic_statistics::descriptor<GpuAlgorithmFPType>{};
     const auto type = htable.get_metadata().get_data_type(0);
-    switch (type)
-    {
+    switch (type) {
     case data_type::float64:
-        logger::println(logger::INFO ,"x_train data type double ");
+        logger::println(logger::INFO, "x_train data type double ");
         break;
     case data_type::float32:
         logger::println(logger::INFO, "x_train data type float ");
@@ -227,34 +226,32 @@ static void doSummarizerOneAPICompute(
     const auto result_train = preview::compute(comm, bs_desc, htable);
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
-        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
-                                                                     t1)
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
             .count();
     logger::println(logger::INFO,
                     "Summarizer (native): computing step took %f secs",
                     duration / 1000);
     if (isRoot) {
         t2 = std::chrono::high_resolution_clock::now();
-        duration =
-            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
-                                                                         t1)
-                .count();
+        duration = (float)std::chrono::duration_cast<std::chrono::milliseconds>(
+                       t2 - t1)
+                       .count();
         logger::println(logger::INFO,
                         "Summarizer (native): computing step took %f secs",
                         duration / 1000);
-       const auto eigetype = result_train.get_min().get_metadata().get_data_type(0);
-       switch (eigetype)
-       {
-       case data_type::float64:
-           logger::println(logger::INFO ,"eigenvectors data type double ");
-           break;
-       case data_type::float32:
-           logger::println(logger::INFO, "eigenvectors data type float ");
-           break;
-       default:
-           logger::println(logger::INFO, "eigenvectors data type null ");
-           break;
-       }
+        const auto eigetype =
+            result_train.get_min().get_metadata().get_data_type(0);
+        switch (eigetype) {
+        case data_type::float64:
+            logger::println(logger::INFO, "eigenvectors data type double ");
+            break;
+        case data_type::float32:
+            logger::println(logger::INFO, "eigenvectors data type float ");
+            break;
+        default:
+            logger::println(logger::INFO, "eigenvectors data type null ");
+            break;
+        }
         logger::println(logger::INFO, "Minimum");
         printHomegenTable(result_train.get_min());
         logger::println(logger::INFO, "Maximum");
@@ -264,10 +261,9 @@ static void doSummarizerOneAPICompute(
         logger::println(logger::INFO, "Variation");
         printHomegenTable(result_train.get_variance());
         t2 = std::chrono::high_resolution_clock::now();
-        duration =
-            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
-                                                                         t1)
-                .count();
+        duration = (float)std::chrono::duration_cast<std::chrono::milliseconds>(
+                       t2 - t1)
+                       .count();
         logger::println(logger::INFO,
                         "Summarizer (native): computing step took %d secs",
                         duration / 1000);

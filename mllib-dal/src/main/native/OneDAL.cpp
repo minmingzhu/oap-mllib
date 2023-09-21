@@ -217,7 +217,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cNewFloatArray(
     JNIEnv *env, jobject, jlong size) {
     std::cout << "create float new native array size : " << size << std::endl;
     NativeFloatArrayPtr arrayPtr(new float[size],
-                                  [](float *ptr) { delete[] ptr; });
+                                 [](float *ptr) { delete[] ptr; });
     saveFloatArrayPtrToVector(arrayPtr);
     return (jlong)arrayPtr.get();
 }
