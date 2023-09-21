@@ -35,15 +35,14 @@ import java.nio.LongBuffer;
  *        Row(CSR) data layout
  */
 public class CSRNumericTableImpl extends NumericTableImpl {
-    private Class<?> type;
+  private Class<?> type;
 
-    /** @private */
-    static {
-        try {
-            LibLoader.loadLibraries();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+  /** @private */
+  static {
+    try {
+      LibLoader.loadLibraries();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
