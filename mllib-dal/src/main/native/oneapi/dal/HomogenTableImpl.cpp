@@ -30,7 +30,7 @@
 #include "Logger.h"
 
 using namespace std;
-using namespace oneapi::dal;
+namespace dal = oneapi::dal;
 
 typedef std::shared_ptr<table_metadata> TableMetadataPtr;
 
@@ -319,11 +319,17 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_dPtrIni
        case ComputeDevice::cpu:
        case ComputeDevice::gpu:{
            auto queue = getQueue(device);
-           auto data = sycl::malloc_shared<double>(cRowCount * cColCount, queue);
-           queue.memcpy(data, fData, sizeof(double) * cRowCount * cColCount).wait();
-           tablePtr = std::make_shared<homogen_table>(queue, data, cRowCount, cColCount,
-                                                      detail::make_default_delete<const double>(queue),
-                                                      dependencies, getDataLayout(cLayout));
+           auto data =
+               dal::array<double>::empty(queue, cRowCount * cColCount, sycl::usm::alloc::device);
+           detail::memcpy_host2usm(queue,
+                                        data.get_mutable_data(),
+                                        fData,
+                                        sizeof(double) * cRowCount * cColCount);
+           auto table = detail::homogen_table_builder{}.reset(data, cRowCount, cColCount).build();
+           tablePtr = std::make_shared<homogen_table>(table);
+//           tablePtr = std::make_shared<homogen_table>(queue, data, cRowCount, cColCount,
+//                                                      detail::make_default_delete<const double>(queue),
+//                                                      dependencies, getDataLayout(cLayout));
            break;
        }
        default: {
@@ -360,11 +366,17 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_fPtrIni
        case ComputeDevice::cpu:
        case ComputeDevice::gpu:{
            auto queue = getQueue(device);
-           auto data = sycl::malloc_shared<float>(cRowCount * cColCount, queue);
-           queue.memcpy(data, fData, sizeof(float) * cRowCount * cColCount).wait();
-           tablePtr = std::make_shared<homogen_table>(queue, data, cRowCount, cColCount,
-                                                      detail::make_default_delete<const float>(queue),
-                                                      dependencies, getDataLayout(cLayout));
+           auto data =
+               dal::array<float>::empty(queue, cRowCount * cColCount, sycl::usm::alloc::device);
+           detail::memcpy_host2usm(queue,
+                                        data.get_mutable_data(),
+                                        fData,
+                                        sizeof(float) * cRowCount * cColCount);
+           auto table = detail::homogen_table_builder{}.reset(data, cRowCount, cColCount).build();
+           tablePtr = std::make_shared<homogen_table>(table);
+//           tablePtr = std::make_shared<homogen_table>(queue, data, cRowCount, cColCount,
+//                                                      detail::make_default_delete<const float>(queue),
+//                                                      dependencies, getDataLayout(cLayout));
            break;
        }
        default: {

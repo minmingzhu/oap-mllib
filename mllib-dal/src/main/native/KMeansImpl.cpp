@@ -251,8 +251,6 @@ static jlong doKMeansOneAPICompute(
     const bool isRoot = (comm.get_rank() == ccl_root);
     homogen_table htable =
         *reinterpret_cast<const homogen_table *>(pNumTabData);
-   logger::println(logger::INFO, "htable:");
-    printHomegenTable(htable);
     const auto type = htable.get_metadata().get_data_type(0);
     switch (type) {
     case data_type::float64:
@@ -267,8 +265,6 @@ static jlong doKMeansOneAPICompute(
     }
     homogen_table centroids =
         *reinterpret_cast<const homogen_table *>(pNumTabCenters);
-    logger::println(logger::INFO, "Centroids:");
-    printHomegenTable(centroids);
     const auto kmeans_desc = kmeans_gpu::descriptor<GpuAlgorithmFPType>()
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
