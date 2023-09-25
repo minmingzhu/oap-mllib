@@ -31,6 +31,7 @@
 using namespace std;
 #ifdef CPU_GPU_PROFILE
 namespace kmeans_gpu = oneapi::dal::kmeans;
+namespace dal = oneapi::dal;
 #endif
 using namespace daal;
 using namespace daal::services;
@@ -278,7 +279,7 @@ static jlong doKMeansOneAPICompute(
     kmeans_gpu::train_input local_input{htable, centroids};
     auto t1 = std::chrono::high_resolution_clock::now();
     kmeans_gpu::train_result result_train =
-        preview::train(comm, kmeans_desc, local_input);
+        dal::preview::train(comm, kmeans_desc, local_input);
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
