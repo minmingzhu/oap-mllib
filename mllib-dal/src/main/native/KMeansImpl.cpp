@@ -270,7 +270,7 @@ static jlong doKMeansOneAPICompute(
         *reinterpret_cast<const homogen_table *>(pNumTabCenters);
     logger::println(logger::INFO, "centroids rows %d", centroids.get_row_count());
     logger::println(logger::INFO, "centroids columns %d", centroids.get_column_count());
-    const auto kmeans_desc = kmeans_gpu::descriptor<GpuAlgorithmFPType>()
+    const auto kmeans_desc = kmeans_gpu::descriptor<>()
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
                                  .set_accuracy_threshold(tolerance);
@@ -278,17 +278,36 @@ static jlong doKMeansOneAPICompute(
     auto t1 = std::chrono::high_resolution_clock::now();
     kmeans_gpu::train_result result_train =
         preview::train(comm, kmeans_desc, local_input);
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration =
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+            .count();
+    logger::println(logger::INFO,
+                    "KMeans (native): training step took %f secs",
+                    duration / 1000);
     if (isRoot) {
         logger::println(logger::INFO, "Iteration count: %d",
                         result_train.get_iteration_count());
 //        logger::println(logger::INFO, "Centroids:");
 //        printHomegenTable(result_train.get_model().get_centroids());
-        auto t2 = std::chrono::high_resolution_clock::now();
-        auto duration =
-            std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+        const auto centroids_type = result_train.get_model().get_centroids().get_metadata().get_data_type(0);
+        switch (centroids_type) {
+        case data_type::float64:
+            cout << "centroids_type data type double " << endl;
+            break;
+        case data_type::float32:
+            cout << "centroids_type data type float " << endl;
+            break;
+        default:
+            cout << "centroids_type data type null " << endl;
+            break;
+        }
+        t2 = std::chrono::high_resolution_clock::now();
+        duration =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
         logger::println(logger::INFO,
-                        "KMeans (native): training step took %d secs",
+                        "KMeans (native): training step took %f secs",
                         duration / 1000);
         // Get the class of the input object
         jclass clazz = env->GetObjectClass(resultObj);
