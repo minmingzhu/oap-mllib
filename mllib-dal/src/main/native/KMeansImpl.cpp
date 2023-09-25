@@ -253,8 +253,6 @@ static jlong doKMeansOneAPICompute(
         *reinterpret_cast<const homogen_table *>(pNumTabData);
     logger::println(logger::INFO, "htable rows %d", htable.get_row_count());
     logger::println(logger::INFO, "htable columns %d", htable.get_column_count());
-    logger::println(logger::INFO, "htable:");
-    printHomegenTable(htable);
     const auto type = htable.get_metadata().get_data_type(0);
     switch (type) {
     case data_type::float64:
