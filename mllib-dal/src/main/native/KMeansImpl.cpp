@@ -248,6 +248,8 @@ static jlong doKMeansOneAPICompute(
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
     jobject resultObj) {
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
+    logger::println(logger::INFO, "clusterNum %d", clusterNum);
+    logger::println(logger::INFO, "tolerance %d", tolerance);
     const bool isRoot = (comm.get_rank() == ccl_root);
     homogen_table htable =
         *reinterpret_cast<const homogen_table *>(pNumTabData);
@@ -269,7 +271,7 @@ static jlong doKMeansOneAPICompute(
         *reinterpret_cast<const homogen_table *>(pNumTabCenters);
     logger::println(logger::INFO, "centroids rows %d", centroids.get_row_count());
     logger::println(logger::INFO, "centroids columns %d", centroids.get_column_count());
-    const auto kmeans_desc = kmeans_gpu::descriptor<float>()
+    const auto kmeans_desc = kmeans_gpu::descriptor<>()
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
                                  .set_accuracy_threshold(tolerance);
