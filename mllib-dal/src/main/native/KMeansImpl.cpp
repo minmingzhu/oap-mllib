@@ -253,7 +253,8 @@ static jlong doKMeansOneAPICompute(
         *reinterpret_cast<const homogen_table *>(pNumTabData);
     logger::println(logger::INFO, "htable rows %d", htable.get_row_count());
     logger::println(logger::INFO, "htable columns %d", htable.get_column_count());
-
+    logger::println(logger::INFO, "htable:");
+    printHomegenTable(htable);
     const auto type = htable.get_metadata().get_data_type(0);
     switch (type) {
     case data_type::float64:
@@ -270,7 +271,7 @@ static jlong doKMeansOneAPICompute(
         *reinterpret_cast<const homogen_table *>(pNumTabCenters);
     logger::println(logger::INFO, "centroids rows %d", centroids.get_row_count());
     logger::println(logger::INFO, "centroids columns %d", centroids.get_column_count());
-    const auto kmeans_desc = kmeans_gpu::descriptor<double>()
+    const auto kmeans_desc = kmeans_gpu::descriptor<float>()
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
                                  .set_accuracy_threshold(tolerance);

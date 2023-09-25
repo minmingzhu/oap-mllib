@@ -27,24 +27,17 @@ using namespace daal::data_management;
 extern bool daal_check_is_intel_cpu();
 
 // Define a global native array
-typedef std::shared_ptr<double[]> NativeDoubleArrayPtr;
-typedef std::shared_ptr<float[]> NativeFloatArrayPtr;
+typedef std::shared_ptr<double> NativeDoubleArrayPtr;
+typedef std::shared_ptr<float> NativeFloatArrayPtr;
 
-std::mutex g_double_amtx;
-std::mutex g_float_amtx;
-std::vector<NativeDoubleArrayPtr> g_NativeDoubleArrayPtrVector;
-std::vector<NativeFloatArrayPtr> g_NativeFloatArrayPtrVector;
+std::mutex g_amtx;
+template <typename T> std::vector<std::shared_ptr<T>> g_NativeArrayPtrVector;
 
-void saveDoubleArrayPtrToVector(const NativeDoubleArrayPtr &ptr) {
-    g_double_amtx.lock();
-    g_NativeDoubleArrayPtrVector.push_back(ptr);
-    g_double_amtx.unlock();
-}
-
-void saveFloatArrayPtrToVector(const NativeFloatArrayPtr &ptr) {
-    g_float_amtx.lock();
-    g_NativeFloatArrayPtrVector.push_back(ptr);
-    g_float_amtx.unlock();
+template <typename T>
+static void saveArrayPtrToVector(const std::shared_ptr<T> &ptr) {
+       g_amtx.lock();
+       g_NativeArrayPtrVector<T>.push_back(ptr);
+       g_amtx.unlock();
 }
 
 JNIEXPORT void JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cAddNumericTable(
@@ -187,7 +180,21 @@ JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cNewDoubleArray(
     std::cout << "create double new native array size : " << size << std::endl;
     NativeDoubleArrayPtr arrayPtr(new double[size],
                                   [](double *ptr) { delete[] ptr; });
-    saveDoubleArrayPtrToVector(arrayPtr);
+    saveArrayPtrToVector<double>(arrayPtr);
+    return (jlong)arrayPtr.get();
+}
+
+/*
+ * Class:     com_intel_oap_mllib_OneDAL__
+ * Method:    cNewFloatArray
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cNewFloatArray(
+    JNIEnv *env, jobject, jlong size) {
+    std::cout << "create float new native array size : " << size << std::endl;
+    NativeFloatArrayPtr arrayPtr(new float[size],
+                                 [](float *ptr) { delete[] ptr; });
+    saveArrayPtrToVector<float>(arrayPtr);
     return (jlong)arrayPtr.get();
 }
 
@@ -206,20 +213,6 @@ Java_com_intel_oap_mllib_OneDAL_00024_cCopyDoubleArrayToNative(
         env->GetPrimitiveArrayCritical(sourceArray, NULL));
     std::copy(source, source + sourceLength, nativeArray + index);
     env->ReleasePrimitiveArrayCritical(sourceArray, source, 0);
-}
-
-/*
- * Class:     com_intel_oap_mllib_OneDAL__
- * Method:    cNewFloatArray
- * Signature: (J)J
- */
-JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cNewFloatArray(
-    JNIEnv *env, jobject, jlong size) {
-    std::cout << "create float new native array size : " << size << std::endl;
-    NativeFloatArrayPtr arrayPtr(new float[size],
-                                 [](float *ptr) { delete[] ptr; });
-    saveFloatArrayPtrToVector(arrayPtr);
-    return (jlong)arrayPtr.get();
 }
 
 /*

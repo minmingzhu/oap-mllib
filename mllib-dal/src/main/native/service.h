@@ -76,44 +76,44 @@ NumericTablePtr homegenToSyclHomogen(NumericTablePtr ntHomogen);
 inline void printHomegenTable(const oneapi::dal::table &table) {
     auto arr = oneapi::dal::row_accessor<const float>(table).pull();
     const auto x = arr.get_data();
-//    for (std::int64_t i = 0; i < table.get_row_count(); i++) {
-//        logger::print(logger::NONE, "");
-//        for (std::int64_t j = 0; j < table.get_column_count(); j++) {
-//            logger::print(logger::NONE, "%20f",
-//                          x[i * table.get_column_count() + j]);
-//        }
-//        logger::println(logger::NONE, "");
-//    }
-    if (table.get_row_count() <= 10) {
-        for (std::int64_t i = 0; i < table.get_row_count(); i++) {
-            logger::print(logger::NONE, "");
-            for (std::int64_t j = 0; j < table.get_column_count(); j++) {
-                logger::print(logger::NONE, "%10f",
-                              x[i * table.get_column_count() + j]);
-            }
-            logger::println(logger::NONE, "");
+    for (std::int64_t i = 0; i < table.get_row_count(); i++) {
+        logger::print(logger::NONE, "");
+        for (std::int64_t j = 0; j < table.get_column_count(); j++) {
+            logger::print(logger::NONE, "%20f",
+                          x[i * table.get_column_count() + j]);
         }
-    } else {
-        for (std::int64_t i = 0; i < 5; i++) {
-            logger::print(logger::NONE, "");
-            for (std::int64_t j = 0; j < table.get_column_count(); j++) {
-                logger::print(logger::NONE, "%10f",
-                              x[i * table.get_column_count() + j]);
-            }
-            logger::println(logger::NONE, "");
-        }
-        logger::println(logger::NONE, "...%ld lines skipped...",
-                        (table.get_row_count() - 10));
-        for (std::int64_t i = table.get_row_count() - 5;
-             i < table.get_row_count(); i++) {
-            logger::print(logger::NONE, "");
-            for (std::int64_t j = 0; j < table.get_column_count(); j++) {
-                logger::print(logger::NONE, "%10f",
-                              x[i * table.get_column_count() + j]);
-            }
-            logger::println(logger::NONE, "");
-        }
+        logger::println(logger::NONE, "");
     }
-    return;
+//    if (table.get_row_count() <= 10) {
+//        for (std::int64_t i = 0; i < table.get_row_count(); i++) {
+//            logger::print(logger::NONE, "");
+//            for (std::int64_t j = 0; j < table.get_column_count(); j++) {
+//                logger::print(logger::NONE, "%10f",
+//                              x[i * table.get_column_count() + j]);
+//            }
+//            logger::println(logger::NONE, "");
+//        }
+//    } else {
+//        for (std::int64_t i = 0; i < 5; i++) {
+//            logger::print(logger::NONE, "");
+//            for (std::int64_t j = 0; j < table.get_column_count(); j++) {
+//                logger::print(logger::NONE, "%10f",
+//                              x[i * table.get_column_count() + j]);
+//            }
+//            logger::println(logger::NONE, "");
+//        }
+//        logger::println(logger::NONE, "...%ld lines skipped...",
+//                        (table.get_row_count() - 10));
+//        for (std::int64_t i = table.get_row_count() - 5;
+//             i < table.get_row_count(); i++) {
+//            logger::print(logger::NONE, "");
+//            for (std::int64_t j = 0; j < table.get_column_count(); j++) {
+//                logger::print(logger::NONE, "%10f",
+//                              x[i * table.get_column_count() + j]);
+//            }
+//            logger::println(logger::NONE, "");
+//        }
+//    }
+//    return;
 }
 #endif
