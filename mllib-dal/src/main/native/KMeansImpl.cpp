@@ -270,7 +270,7 @@ static jlong doKMeansOneAPICompute(
         *reinterpret_cast<const homogen_table *>(pNumTabCenters);
     logger::println(logger::INFO, "centroids rows %d", centroids.get_row_count());
     logger::println(logger::INFO, "centroids columns %d", centroids.get_column_count());
-    const auto kmeans_desc = kmeans_gpu::descriptor<>()
+    const auto kmeans_desc = kmeans_gpu::descriptor<double>()
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
                                  .set_accuracy_threshold(tolerance);
