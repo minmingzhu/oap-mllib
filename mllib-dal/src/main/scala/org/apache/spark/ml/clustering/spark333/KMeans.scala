@@ -141,7 +141,6 @@ class KMeans @Since("1.5.0") (
     dataWithNorm.unpersist()
 
     val centers = centersWithNorm.map(_.vector)
-    logInfo(f"centers ${centers.toArray.toList.toString()}")
 
     val initTimeInSeconds = (System.nanoTime() - initStartTime) / 1e9
 
