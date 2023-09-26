@@ -275,7 +275,7 @@ static jlong doKMeansOneAPICompute(
     logger::println(logger::INFO, "centroids rows %d", centroids.get_row_count());
     logger::println(logger::INFO, "centroids columns %d", centroids.get_column_count());
     logger::println(logger::INFO, "centroids:");
-    printHomegenTable(htable);
+    printHomegenTable(centroids);
     const auto kmeans_desc = kmeans_gpu::descriptor<>()
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
