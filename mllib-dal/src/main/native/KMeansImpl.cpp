@@ -250,7 +250,7 @@ static jlong doKMeansOneAPICompute(
     jobject resultObj) {
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     logger::println(logger::INFO, "clusterNum %d", clusterNum);
-    logger::println(logger::INFO, "tolerance %d", tolerance);
+    logger::println(logger::INFO, "tolerance %f", tolerance);
     const bool isRoot = (comm.get_rank() == ccl_root);
     homogen_table htable =
         *reinterpret_cast<const homogen_table *>(pNumTabData);
