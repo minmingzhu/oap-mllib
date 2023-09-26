@@ -93,7 +93,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cNewFloatArray
  * Signature: (J[FJ)V
  */
 JNIEXPORT void JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cCopyFloatArrayToNative
-  (JNIEnv *, jobject, jlong, jfloatArray, jlong);
+  (JNIEnv *, jobject, jlong, jdoubleArray, jlong);
 
 #ifdef __cplusplus
 }

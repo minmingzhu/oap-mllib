@@ -222,7 +222,7 @@ Java_com_intel_oap_mllib_OneDAL_00024_cCopyDoubleArrayToNative(
  */
 JNIEXPORT void JNICALL
 Java_com_intel_oap_mllib_OneDAL_00024_cCopyFloatArrayToNative(
-    JNIEnv *env, jobject, jlong nativeArrayPtr, jfloatArray sourceArray,
+    JNIEnv *env, jobject, jlong nativeArrayPtr, jdoubleArray sourceArray,
     jlong index) {
     float *nativeArray = reinterpret_cast<float *>(nativeArrayPtr);
     jsize sourceLength = env->GetArrayLength(sourceArray);
