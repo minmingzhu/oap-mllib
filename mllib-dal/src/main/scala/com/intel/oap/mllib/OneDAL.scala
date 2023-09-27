@@ -827,7 +827,7 @@ object OneDAL {
         Await.result(result, Duration.Inf)
       }
       val table = new HomogenTable(numRows.toLong, numCols.toLong, targetArrayAddress,
-        Common.DataType.FLOAT32, device)
+        Common.DataType.FLOAT64, device)
 
       Iterator(table.getcObejct())
     }.setName("coalescedTables").cache()
