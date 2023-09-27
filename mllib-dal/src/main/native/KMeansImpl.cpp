@@ -315,15 +315,21 @@ static jlong doKMeansOneAPICompute(
     const auto double_array = row_accessor<const double>(htable).pull(queue, { 0, -1 });
     logger::println(logger::INFO, "double_array 2");
 
-    float float_array[total_size]; // Create a float array with the same size
+    std::shared_ptr<float> arrayPtr(new float[size],
+                                 [](float *ptr) { delete[] ptr; });
+//    float float_array[total_size]; // Create a float array with the same size
     logger::println(logger::INFO, "double_array 3");
     // Convert and copy elements from the double array to the float array
     for (int i = 0; i < total_size; i++)
     {
-        float_array[i] = static_cast<float>(double_array[i]);
+        arrayPtr.get()[i] = static_cast<float>(double_array[i]);
     }
     logger::println(logger::INFO, "double_array 4");
-    homogen_table new_htable{queue, float_array, rows, columns, detail::make_default_delete<const float>(queue)};
+    auto data = sycl::malloc_shared<float>(rows * columns, queue);
+    logger::println(logger::INFO, "double_array 5");
+    queue.memcpy(data, arrayPtr.get(), sizeof(float) * rows * columns).wait();
+    logger::println(logger::INFO, "double_array 6");
+    homogen_table new_htable{queue, data, rows, columns, detail::make_default_delete<const float>(queue)};
     logger::println(logger::INFO, "new_htable rows %d", new_htable.get_row_count());
     logger::println(logger::INFO, "new_htable columns %d", new_htable.get_column_count());
     logger::println(logger::INFO, "new_htable:");
