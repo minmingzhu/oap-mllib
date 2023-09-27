@@ -302,6 +302,7 @@ static jlong doKMeansOneAPICompute(
 //    cout << "rank id = " << comm.get_rank()  << " File name: " << train_data_file_name << endl;
     homogen_table htable =
         *reinterpret_cast<const homogen_table *>(pNumTabData);
+
 //    const auto htable = read<table>(csv::data_source{ train_data_file_name });
     logger::println(logger::INFO, "htable rows %d", htable.get_row_count());
     logger::println(logger::INFO, "htable columns %d", htable.get_column_count());
@@ -312,7 +313,7 @@ static jlong doKMeansOneAPICompute(
     auto total_size = rows * columns;
 
     logger::println(logger::INFO, "double_array %d", total_size);
-    const auto double_array = row_accessor<const double>(htable).pull(queue, { 0, -1 });
+    const auto double_array = row_accessor<const double>(htable).pull({ 0, -1 });
     logger::println(logger::INFO, "double_array 2");
 
     std::shared_ptr<float> arrayPtr(new float[total_size],
