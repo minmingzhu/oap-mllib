@@ -313,7 +313,7 @@ static jlong doKMeansOneAPICompute(
     auto total_size = rows * columns;
 
     logger::println(logger::INFO, "double_array %d", total_size);
-    const auto double_array = row_accessor<const double>(htable).pull({ 0, -1 });
+    const auto double_array = row_accessor<const double>(htable).pull(queue, { 0, -1 });
     logger::println(logger::INFO, "double_array 2");
 
     std::shared_ptr<float> arrayPtr(new float[total_size],
