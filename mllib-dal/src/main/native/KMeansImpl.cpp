@@ -296,12 +296,12 @@ static jlong doKMeansOneAPICompute(
     logger::println(logger::INFO, "clusterNum %d", clusterNum);
     logger::println(logger::INFO, "tolerance %f", tolerance);
     const bool isRoot = (comm.get_rank() == ccl_root);
-    auto input_vec = get_file_path("/home/damon/storage/DataRoot/HiBench/Kmeans/Input/18000000");
-    const auto train_data_file_name = get_data_path(input_vec[comm.get_rank()]);
-    cout << "rank id = " << comm.get_rank()  << " File name: " << train_data_file_name << endl;
-//    homogen_table htable =
-//        *reinterpret_cast<const homogen_table *>(pNumTabData);
-    const auto htable = read<table>(csv::data_source{ train_data_file_name });
+//    auto input_vec = get_file_path("/home/damon/storage/DataRoot/HiBench/Kmeans/Input/18000000");
+//    const auto train_data_file_name = get_data_path(input_vec[comm.get_rank()]);
+//    cout << "rank id = " << comm.get_rank()  << " File name: " << train_data_file_name << endl;
+    homogen_table htable =
+        *reinterpret_cast<const homogen_table *>(pNumTabData);
+//    const auto htable = read<table>(csv::data_source{ train_data_file_name });
     logger::println(logger::INFO, "htable rows %d", htable.get_row_count());
     logger::println(logger::INFO, "htable columns %d", htable.get_column_count());
     logger::println(logger::INFO, "htable:");
