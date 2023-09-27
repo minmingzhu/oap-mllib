@@ -212,7 +212,7 @@ Java_com_intel_oap_mllib_OneDAL_00024_cCopyDoubleArrayToNative(
     jdouble *source = static_cast<jdouble *>(
         env->GetPrimitiveArrayCritical(sourceArray, NULL));
     std::copy(source, source + sourceLength, nativeArray + index);
-    env->ReleasePrimitiveArrayCritical(sourceArray, source, 0);
+    env->ReleasePrimitiveArrayCritical(sourceArray, source, JNI_ABORT);
 }
 
 /*
@@ -229,5 +229,5 @@ Java_com_intel_oap_mllib_OneDAL_00024_cCopyFloatArrayToNative(
     jdouble *source = static_cast<jdouble *>(
         env->GetPrimitiveArrayCritical(sourceArray, NULL));
     std::transform(source, source + sourceLength, nativeArray + index, [](double d) { return static_cast<float>(d); });
-    env->ReleasePrimitiveArrayCritical(sourceArray, source, 0);
+    env->ReleasePrimitiveArrayCritical(sourceArray, source, JNI_ABORT);
 }

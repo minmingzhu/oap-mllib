@@ -347,6 +347,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_fPtrIni
        std::cout << "Error: unable to obtain critical array" << std::endl;
        exit(-1);
     }
+    size_t sizeOfArray = 0;
+    while (fData[sizeOfArray] != '\0') {
+        ++sizeOfArray;
+    }
+    logger::println(logger::INFO, "fPtrInit %d", sizeOfArray);
     const std::vector<sycl::event> dependencies = {};
     HomogenTablePtr tablePtr;
     ComputeDevice device = getComputeDeviceByOrdinal(computeDeviceOrdinal);

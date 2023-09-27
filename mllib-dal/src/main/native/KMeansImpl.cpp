@@ -17,25 +17,37 @@
 #include <chrono>
 #include <iomanip>
 #include <iostream>
+#include <filesystem>
 
 #ifdef CPU_GPU_PROFILE
 #include "Common.hpp"
 #include "oneapi/dal/algo/kmeans.hpp"
 #endif
 
+#ifndef ONEDAL_DATA_CONVERSION
+#define ONEDAL_DATA_CONVERSION
+#include "data_management/data_source/csv_feature_manager.h"
+#include "data_management/data_source/file_data_source.h"
+#undef ONEDAL_DATA_CONVERSION
+#endif
+
 #include "Logger.h"
 #include "OneCCL.h"
 #include "com_intel_oap_mllib_clustering_KMeansDALImpl.h"
 #include "service.h"
+#include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/io/csv.hpp"
+
+
 
 using namespace std;
 #ifdef CPU_GPU_PROFILE
 namespace kmeans_gpu = oneapi::dal::kmeans;
-namespace dal = oneapi::dal;
 #endif
 using namespace daal;
 using namespace daal::services;
 namespace kmeans_cpu = daal::algorithms::kmeans;
+namespace fs = std::filesystem;
 
 static NumericTablePtr kmeans_compute(size_t rankId, ccl::communicator &comm,
                                       const NumericTablePtr &pData,
@@ -242,6 +254,38 @@ static jlong doKMeansDaalCompute(JNIEnv *env, jobject obj, size_t rankId,
     }
 }
 
+
+std::vector<std::string> get_file_path(const std::string& path) {
+    std::vector<std::string> result;
+    for (auto& file : fs::directory_iterator(path)){
+         if(fs::is_empty(file.path())){
+             continue;
+         }else if(file.path().extension()==".crc" || file.path().extension()==""){
+             continue;
+         }else{
+            result.push_back(file.path());
+         }
+    }
+    return result;
+}
+
+inline bool check_file(const std::string& name) {
+    return std::ifstream{ name }.good();
+}
+
+inline std::string get_data_path(const std::string& name) {
+    const std::vector<std::string> paths = { "./data", "samples/oneapi/dpc/mpi/data" };
+
+    for (const auto& path : paths) {
+        const std::string try_path = path + "/" + name;
+        if (check_file(try_path)) {
+            return try_path;
+        }
+    }
+
+    return name;
+}
+
 #ifdef CPU_GPU_PROFILE
 static jlong doKMeansOneAPICompute(
     JNIEnv *env, jlong pNumTabData, jlong pNumTabCenters, jint clusterNum,
@@ -252,8 +296,12 @@ static jlong doKMeansOneAPICompute(
     logger::println(logger::INFO, "clusterNum %d", clusterNum);
     logger::println(logger::INFO, "tolerance %f", tolerance);
     const bool isRoot = (comm.get_rank() == ccl_root);
-    homogen_table htable =
-        *reinterpret_cast<const homogen_table *>(pNumTabData);
+    auto input_vec = get_file_path("/home/damon/storage/DataRoot/HiBench/Kmeans/Input/18000000");
+    const auto train_data_file_name = get_data_path(input_vec[comm.get_rank()]);
+    cout << "rank id = " << comm.get_rank()  << " File name: " << train_data_file_name << endl;
+//    homogen_table htable =
+//        *reinterpret_cast<const homogen_table *>(pNumTabData);
+    const auto htable = read<table>(csv::data_source{ train_data_file_name });
     logger::println(logger::INFO, "htable rows %d", htable.get_row_count());
     logger::println(logger::INFO, "htable columns %d", htable.get_column_count());
     logger::println(logger::INFO, "htable:");
@@ -283,7 +331,7 @@ static jlong doKMeansOneAPICompute(
     kmeans_gpu::train_input local_input{htable, centroids};
     auto t1 = std::chrono::high_resolution_clock::now();
     kmeans_gpu::train_result result_train =
-        dal::preview::train(comm, kmeans_desc, local_input);
+        preview::train(comm, kmeans_desc, local_input);
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
