@@ -310,7 +310,10 @@ static jlong doKMeansOneAPICompute(
     auto rows = htable.get_row_count();
     auto columns = htable.get_column_count();
     auto total_size = rows * columns;
+
+    logger::println(logger::INFO, "double_array 1");
     const auto double_array = row_accessor<const double>(htable).pull(queue, { 0, -1 });
+    logger::println(logger::INFO, "double_array 2");
 
     float float_array[total_size]; // Create a float array with the same size
 
