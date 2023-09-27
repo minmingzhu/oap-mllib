@@ -37,8 +37,7 @@
 #include "service.h"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/io/csv.hpp"
-
-
+#include "oneapi/dal/table/row_accessor.hpp"
 
 using namespace std;
 #ifdef CPU_GPU_PROFILE
@@ -48,6 +47,7 @@ using namespace daal;
 using namespace daal::services;
 namespace kmeans_cpu = daal::algorithms::kmeans;
 namespace fs = std::filesystem;
+using oneapi::dal::detail::empty_delete;
 
 static NumericTablePtr kmeans_compute(size_t rankId, ccl::communicator &comm,
                                       const NumericTablePtr &pData,
@@ -291,7 +291,8 @@ static jlong doKMeansOneAPICompute(
     JNIEnv *env, jlong pNumTabData, jlong pNumTabCenters, jint clusterNum,
     jdouble tolerance, jint iterationNum,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
-    jobject resultObj) {
+    jobject resultObj,
+    sycl::queue& queue) {
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     logger::println(logger::INFO, "clusterNum %d", clusterNum);
     logger::println(logger::INFO, "tolerance %f", tolerance);
@@ -306,7 +307,25 @@ static jlong doKMeansOneAPICompute(
     logger::println(logger::INFO, "htable columns %d", htable.get_column_count());
     logger::println(logger::INFO, "htable:");
     printHomegenTable(htable);
-    const auto type = htable.get_metadata().get_data_type(0);
+    auto rows = htable.get_row_count();
+    auto columns = htable.get_column_count();
+    auto total_size = rows * columns;
+    const auto double_array = row_accessor<const double>(htable).pull(queue, { 0, -1 });
+
+    float float_array[total_size]; // Create a float array with the same size
+
+    // Convert and copy elements from the double array to the float array
+    for (int i = 0; i < total_size; i++)
+    {
+        float_array[i] = static_cast<float>(double_array[i]);
+    }
+
+    homogen_table new_htable{queue, float_array, rows, columns, detail::make_default_delete<const float>(queue)};
+    logger::println(logger::INFO, "new_htable rows %d", new_htable.get_row_count());
+    logger::println(logger::INFO, "new_htable columns %d", new_htable.get_column_count());
+    logger::println(logger::INFO, "new_htable:");
+    printHomegenTable(new_htable);
+    const auto type = new_htable.get_metadata().get_data_type(0);
     switch (type) {
     case data_type::float64:
         cout << "htable data type double " << endl;
@@ -328,7 +347,7 @@ static jlong doKMeansOneAPICompute(
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
                                  .set_accuracy_threshold(tolerance);
-    kmeans_gpu::train_input local_input{htable, centroids};
+    kmeans_gpu::train_input local_input{new_htable, centroids};
     auto t1 = std::chrono::high_resolution_clock::now();
     kmeans_gpu::train_result result_train =
         preview::train(comm, kmeans_desc, local_input);
@@ -444,7 +463,7 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
                 queue, size, rankId, kvs);
         ret =
             doKMeansOneAPICompute(env, pNumTabData, pNumTabCenters, clusterNum,
-                                  tolerance, iterationNum, comm, resultObj);
+                                  tolerance, iterationNum, comm, resultObj, queue);
 
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
         break;
