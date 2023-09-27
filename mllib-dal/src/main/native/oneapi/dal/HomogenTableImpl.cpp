@@ -368,8 +368,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_oneapi_dal_table_HomogenTableImpl_fPtrIni
            auto data = sycl::malloc_shared<float>(cRowCount * cColCount, queue);
            queue.memcpy(data, fData, sizeof(float) * cRowCount * cColCount).wait();
            tablePtr = std::make_shared<homogen_table>(queue, data, cRowCount, cColCount,
-                                                      detail::make_default_delete<const float>(queue),
-                                                      dependencies, getDataLayout(cLayout));
+                                                      detail::make_default_delete<const float>(queue));
            break;
        }
        default: {
