@@ -315,7 +315,7 @@ static jlong doKMeansOneAPICompute(
     const auto double_array = row_accessor<const double>(htable).pull(queue, { 0, -1 });
     logger::println(logger::INFO, "double_array 2");
 
-    std::shared_ptr<float> arrayPtr(new float[size],
+    std::shared_ptr<float> arrayPtr(new float[total_size],
                                  [](float *ptr) { delete[] ptr; });
 //    float float_array[total_size]; // Create a float array with the same size
     logger::println(logger::INFO, "double_array 3");
