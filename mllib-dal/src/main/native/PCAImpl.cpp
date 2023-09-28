@@ -182,32 +182,39 @@ static void doPCADAALCompute(JNIEnv *env, jobject obj, size_t rankId,
 
 #ifdef CPU_GPU_PROFILE
 static void doPCAOneAPICompute(
-    JNIEnv *env, jlong pNumTabData,
+    JNIEnv *env, jlong pNumTabData, jlong numRows, jlong numClos,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
-    jobject resultObj) {
+    jobject resultObj, sycl::queue& queue) {
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
-    homogen_table htable =
-        *reinterpret_cast<const homogen_table *>(pNumTabData);
+    auto t1 = std::chrono::high_resolution_clock::now();
+    float *htableArray = reinterpret_cast<float *>(pNumTabData);
+    logger::println(logger::INFO, "htable array rows %d", numRows);
+    logger::println(logger::INFO, "htable array columns %d", numClos);
+    auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
+    queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
+    homogen_table new_htable{queue, data, numRows, numClos, detail::make_default_delete<const float>(queue)};
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration =
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+            .count();
+    logger::println(logger::INFO,
+                    "PCA (native): create homogen table took %f secs",
+                    duration / 1000);
+    logger::println(logger::INFO, "new_htable rows %d", new_htable.get_row_count());
+    logger::println(logger::INFO, "new_htable columns %d", new_htable.get_column_count());
+    logger::println(logger::INFO, "new_htable:");
+    printHomegenTable(new_htable);
+
+//    homogen_table htable =
+//        *reinterpret_cast<const homogen_table *>(pNumTabData);
     const auto cov_desc =
         covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
             covariance_gpu::result_options::cov_matrix);
-    const auto type = htable.get_metadata().get_data_type(0);
-    switch (type) {
-    case data_type::float64:
-        logger::println(logger::INFO, "x_train data type double ");
-        break;
-    case data_type::float32:
-        logger::println(logger::INFO, "x_train data type float ");
-        break;
-    default:
-        logger::println(logger::INFO, "x_train data type null ");
-        break;
-    }
-    auto t1 = std::chrono::high_resolution_clock::now();
-    const auto result = preview::compute(comm, cov_desc, htable);
-    auto t2 = std::chrono::high_resolution_clock::now();
-    auto duration =
+    t1 = std::chrono::high_resolution_clock::now();
+    const auto result = preview::compute(comm, cov_desc, new_htable);
+    t2 = std::chrono::high_resolution_clock::now();
+    duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
             .count();
     logger::println(logger::INFO, "PCA (native): Covariance step took %f secs",
@@ -227,19 +234,6 @@ static void doPCAOneAPICompute(
                        .count();
         logger::println(logger::INFO, "PCA (native): Eigen step took %f secs",
                         duration / 1000);
-        const auto eigetype =
-            result_train.get_eigenvectors().get_metadata().get_data_type(0);
-        switch (eigetype) {
-        case data_type::float64:
-            logger::println(logger::INFO, "eigenvectors data type double ");
-            break;
-        case data_type::float32:
-            logger::println(logger::INFO, "eigenvectors data type float ");
-            break;
-        default:
-            logger::println(logger::INFO, "eigenvectors data type null ");
-            break;
-        }
         // Return all eigenvalues & eigenvectors
         // Get the class of the input object
         jclass clazz = env->GetObjectClass(resultObj);
@@ -271,7 +265,7 @@ static void doPCAOneAPICompute(
 
 JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_feature_PCADALImpl_cPCATrainDAL(
-    JNIEnv *env, jobject obj, jlong pNumTabData, jint executorNum,
+    JNIEnv *env, jobject obj, jlong pNumTabData, jlong numRows, jlong numClos, jint executorNum,
     jint executorCores, jint computeDeviceOrdinal, jintArray gpuIdxArray,
     jobject resultObj) {
     logger::println(logger::INFO,
@@ -316,7 +310,7 @@ Java_com_intel_oap_mllib_feature_PCADALImpl_cPCATrainDAL(
         auto comm =
             preview::spmd::make_communicator<preview::spmd::backend::ccl>(
                 queue, size, rankId, kvs);
-        doPCAOneAPICompute(env, pNumTabData, comm, resultObj);
+        doPCAOneAPICompute(env, pNumTabData, numRows, numClos, comm, resultObj, queue);
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
         break;
     }

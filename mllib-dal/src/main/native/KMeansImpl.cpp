@@ -303,7 +303,7 @@ static jlong doKMeansOneAPICompute(
 //    cout << "rank id = " << comm.get_rank()  << " File name: " << train_data_file_name << endl;
 //    homogen_table htable =
 //        *reinterpret_cast<const homogen_table *>(pNumTabData);
-
+    auto t1 = std::chrono::high_resolution_clock::now();
     float *htableArray = reinterpret_cast<float *>(pNumTabData);
 
 //    const auto htable = read<table>(csv::data_source{ train_data_file_name });
@@ -313,7 +313,7 @@ static jlong doKMeansOneAPICompute(
 //    printHomegenTable(htable);
 //    auto rows = htable.get_row_count();
 //    auto columns = htable.get_column_count();
-    auto total_size = numRows * numClos;
+//    auto total_size = numRows * numClos;
 
 //    logger::println(logger::INFO, "double_array %d", total_size);
 //    const auto double_array = row_accessor<const double>(htable).pull(queue, { 0, -1 });
@@ -328,44 +328,37 @@ static jlong doKMeansOneAPICompute(
 //    {
 //        arrayPtr.get()[i] = static_cast<float>(double_array[i]);
 //    }
-    logger::println(logger::INFO, "double_array 4");
     auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
-    logger::println(logger::INFO, "double_array 5");
     queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
-    logger::println(logger::INFO, "double_array 6");
     homogen_table new_htable{queue, data, numRows, numClos, detail::make_default_delete<const float>(queue)};
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration =
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+            .count();
+    logger::println(logger::INFO,
+                    "KMeans (native): create homogen table took %f secs",
+                    duration / 1000);
     logger::println(logger::INFO, "new_htable rows %d", new_htable.get_row_count());
     logger::println(logger::INFO, "new_htable columns %d", new_htable.get_column_count());
     logger::println(logger::INFO, "new_htable:");
     printHomegenTable(new_htable);
-    const auto type = new_htable.get_metadata().get_data_type(0);
-    switch (type) {
-    case data_type::float64:
-        cout << "htable data type double " << endl;
-        break;
-    case data_type::float32:
-        cout << "htable data type float " << endl;
-        break;
-    default:
-        cout << "htable data type null " << endl;
-        break;
-    }
+
     homogen_table centroids =
         *reinterpret_cast<const homogen_table *>(pNumTabCenters);
     logger::println(logger::INFO, "centroids rows %d", centroids.get_row_count());
     logger::println(logger::INFO, "centroids columns %d", centroids.get_column_count());
     logger::println(logger::INFO, "centroids:");
     printHomegenTable(centroids);
-    const auto kmeans_desc = kmeans_gpu::descriptor<>()
+    const auto kmeans_desc = kmeans_gpu::descriptor<GpuAlgorithmFPType>()
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
                                  .set_accuracy_threshold(tolerance);
     kmeans_gpu::train_input local_input{new_htable, centroids};
-    auto t1 = std::chrono::high_resolution_clock::now();
+    t1 = std::chrono::high_resolution_clock::now();
     kmeans_gpu::train_result result_train =
         preview::train(comm, kmeans_desc, local_input);
-    auto t2 = std::chrono::high_resolution_clock::now();
-    auto duration =
+    t2 = std::chrono::high_resolution_clock::now();
+    duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
             .count();
     logger::println(logger::INFO,

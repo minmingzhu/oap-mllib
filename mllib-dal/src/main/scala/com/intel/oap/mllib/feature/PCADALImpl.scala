@@ -51,7 +51,7 @@ class PCADALImpl(val k: Int,
     pcaTimer.record("Preprocessing")
 
     val coalescedTables = if (useDevice == "GPU") {
-      OneDAL.coalesceVectorsToHomogenTables(normalizedData, executorNum,
+      OneDAL.coalesceVectorsToFloatHomogenTables(normalizedData, executorNum,
         computeDevice)
     } else {
       OneDAL.coalesceVectorsToNumericTables(normalizedData, executorNum)
@@ -65,8 +65,7 @@ class PCADALImpl(val k: Int,
     }.count()
     pcaTimer.record("OneCCL Init")
 
-    val results = coalescedTables.mapPartitionsWithIndex { (rank, table) =>
-      val tableArr = table.next()
+    val results = coalescedTables.mapPartitionsWithIndex { (rank, iter) =>
       val result = new PCAResult()
       val gpuIndices = if (useDevice == "GPU") {
         val resources = TaskContext.get().resources()
@@ -74,8 +73,11 @@ class PCADALImpl(val k: Int,
       } else {
         null
       }
+      val parts = iter.next().toString.split("_")
       cPCATrainDAL(
-        tableArr,
+        parts(0).toLong,
+        parts(1).toLong,
+        parts(2).toLong,
         executorNum,
         executorCores,
         computeDevice.ordinal(),
@@ -209,6 +211,8 @@ class PCADALImpl(val k: Int,
 
   // Single entry to call Correlation PCA DAL backend with parameter K
   @native private[mllib] def cPCATrainDAL(data: Long,
+                                   numRows: Long,
+                                   numCols: Long,
                                    executorNum: Int,
                                    executorCores: Int,
                                    computeDeviceOrdinal: Int,
