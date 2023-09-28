@@ -288,7 +288,8 @@ inline std::string get_data_path(const std::string& name) {
 
 #ifdef CPU_GPU_PROFILE
 static jlong doKMeansOneAPICompute(
-    JNIEnv *env, jlong pNumTabData, jlong pNumTabCenters, jint clusterNum,
+    JNIEnv *env, jlong pNumTabData, jlong numRows, jlong numClos,
+    jlong pNumTabCenters, jint clusterNum,
     jdouble tolerance, jint iterationNum,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
     jobject resultObj,
@@ -300,37 +301,39 @@ static jlong doKMeansOneAPICompute(
 //    auto input_vec = get_file_path("/home/damon/storage/DataRoot/HiBench/Kmeans/Input/18000000");
 //    const auto train_data_file_name = get_data_path(input_vec[comm.get_rank()]);
 //    cout << "rank id = " << comm.get_rank()  << " File name: " << train_data_file_name << endl;
-    homogen_table htable =
-        *reinterpret_cast<const homogen_table *>(pNumTabData);
+//    homogen_table htable =
+//        *reinterpret_cast<const homogen_table *>(pNumTabData);
+
+    float *htableArray = reinterpret_cast<float *>(pNumTabData);
 
 //    const auto htable = read<table>(csv::data_source{ train_data_file_name });
-    logger::println(logger::INFO, "htable rows %d", htable.get_row_count());
-    logger::println(logger::INFO, "htable columns %d", htable.get_column_count());
-    logger::println(logger::INFO, "htable:");
-    printHomegenTable(htable);
-    auto rows = htable.get_row_count();
-    auto columns = htable.get_column_count();
-    auto total_size = rows * columns;
+    logger::println(logger::INFO, "htable array rows %d", numRows);
+    logger::println(logger::INFO, "htable array columns %d", numClos);
+//    logger::println(logger::INFO, "htable:");
+//    printHomegenTable(htable);
+//    auto rows = htable.get_row_count();
+//    auto columns = htable.get_column_count();
+    auto total_size = numRows * numClos;
 
-    logger::println(logger::INFO, "double_array %d", total_size);
-    const auto double_array = row_accessor<const double>(htable).pull(queue, { 0, -1 });
-    logger::println(logger::INFO, "double_array 2");
+//    logger::println(logger::INFO, "double_array %d", total_size);
+//    const auto double_array = row_accessor<const double>(htable).pull(queue, { 0, -1 });
+//    logger::println(logger::INFO, "double_array 2");
 
-    std::shared_ptr<float> arrayPtr(new float[total_size],
-                                 [](float *ptr) { delete[] ptr; });
+//    std::shared_ptr<float> arrayPtr(new float[total_size],
+//                                 [](float *ptr) { delete[] ptr; });
 //    float float_array[total_size]; // Create a float array with the same size
-    logger::println(logger::INFO, "double_array 3");
-    // Convert and copy elements from the double array to the float array
-    for (int i = 0; i < total_size; i++)
-    {
-        arrayPtr.get()[i] = static_cast<float>(double_array[i]);
-    }
+//    logger::println(logger::INFO, "double_array 3");
+//    // Convert and copy elements from the double array to the float array
+//    for (int i = 0; i < total_size; i++)
+//    {
+//        arrayPtr.get()[i] = static_cast<float>(double_array[i]);
+//    }
     logger::println(logger::INFO, "double_array 4");
-    auto data = sycl::malloc_shared<float>(rows * columns, queue);
+    auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
     logger::println(logger::INFO, "double_array 5");
-    queue.memcpy(data, arrayPtr.get(), sizeof(float) * rows * columns).wait();
+    queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
     logger::println(logger::INFO, "double_array 6");
-    homogen_table new_htable{queue, data, rows, columns, detail::make_default_delete<const float>(queue)};
+    homogen_table new_htable{queue, data, numRows, numClos, detail::make_default_delete<const float>(queue)};
     logger::println(logger::INFO, "new_htable rows %d", new_htable.get_row_count());
     logger::println(logger::INFO, "new_htable columns %d", new_htable.get_column_count());
     logger::println(logger::INFO, "new_htable:");
@@ -422,7 +425,7 @@ static jlong doKMeansOneAPICompute(
  */
 JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCenters(
-    JNIEnv *env, jobject obj, jlong pNumTabData, jlong pNumTabCenters,
+    JNIEnv *env, jobject obj, jlong pNumTabData, jlong numRows, jlong numClos, jlong pNumTabCenters,
     jint clusterNum, jdouble tolerance, jint iterationNum, jint executorNum,
     jint executorCores, jint computeDeviceOrdinal, jintArray gpuIdxArray,
     jobject resultObj) {
@@ -472,7 +475,7 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
             preview::spmd::make_communicator<preview::spmd::backend::ccl>(
                 queue, size, rankId, kvs);
         ret =
-            doKMeansOneAPICompute(env, pNumTabData, pNumTabCenters, clusterNum,
+            doKMeansOneAPICompute(env, pNumTabData, numRows, numClos, pNumTabCenters, clusterNum,
                                   tolerance, iterationNum, comm, resultObj, queue);
 
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
