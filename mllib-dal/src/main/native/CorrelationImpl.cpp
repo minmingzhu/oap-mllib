@@ -173,7 +173,7 @@ static void doCorrelationOneAPICompute(
             covariance_gpu::result_options::means);
 
     t1 = std::chrono::high_resolution_clock::now();
-    const auto result_train = preview::compute(comm, cor_desc, new_htable);
+    const auto result_train = preview::compute(comm, cor_desc, htable);
     t2 = std::chrono::high_resolution_clock::now();
     duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)

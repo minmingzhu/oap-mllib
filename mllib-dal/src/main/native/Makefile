@@ -83,7 +83,6 @@ else ifeq ($(PLATFORM_PROFILE),CPU_GPU_PROFILE)
 endif
 
 CPP_SRCS += \
-  ./Logger.cpp \
   ./service.cpp ./error_handling.cpp \
   ./daal/csr_numeric_table_impl.cpp \
   ./daal/homogen_numeric_table_byte_buffer_impl.cpp \
@@ -111,7 +110,6 @@ CPP_SRCS += \
 
 
 OBJS += \
-  ./Logger.o \
   ./service.o ./error_handling.o \
   ./daal/csr_numeric_table_impl.o \
   ./daal/homogen_numeric_table_byte_buffer_impl.o \

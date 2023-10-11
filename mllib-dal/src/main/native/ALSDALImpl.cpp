@@ -212,11 +212,7 @@ void initializeStep2Local(
 
 void initializeModel(size_t rankId, ccl::communicator &comm, size_t partitionId,
                      size_t nBlocks, size_t nUsers, size_t nFactors) {
-<<<<<<< HEAD
     logger::println(logger::INFO, "ALS (native): initializeModel ");
-=======
-    logger::println(logger::INFO, "ALS (native): initializeModel");
->>>>>>> assign_gpu_to_homogentable
 
     auto t1 = std::chrono::high_resolution_clock::now();
 

@@ -24,16 +24,6 @@
 #include "oneapi/dal/algo/kmeans.hpp"
 #endif
 
-<<<<<<< HEAD
-#ifndef ONEDAL_DATA_CONVERSION
-#define ONEDAL_DATA_CONVERSION
-#include "data_management/data_source/csv_feature_manager.h"
-#include "data_management/data_source/file_data_source.h"
-#undef ONEDAL_DATA_CONVERSION
-#endif
-
-=======
->>>>>>> assign_gpu_to_homogentable
 #include "Logger.h"
 #include "OneCCL.h"
 #include "com_intel_oap_mllib_clustering_KMeansDALImpl.h"
@@ -297,7 +287,7 @@ static jlong doKMeansOneAPICompute(
     jobject resultObj, sycl::queue &queue) {
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
-    double *htableArray = reinterpret_cast<float *>(pNumTabData);
+    float *htableArray = reinterpret_cast<float *>(pNumTabData);
     auto t1 = std::chrono::high_resolution_clock::now();
     auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
     queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
@@ -310,13 +300,14 @@ static jlong doKMeansOneAPICompute(
     logger::println(logger::INFO,
                     "KMeans (native): create homogen table took %f secs",
                     duration / 1000);
+    logger::printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
     homogen_table centroids =
         *reinterpret_cast<const homogen_table *>(pNumTabCenters);
     const auto kmeans_desc = kmeans_gpu::descriptor<GpuAlgorithmFPType>()
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
                                  .set_accuracy_threshold(tolerance);
-    kmeans_gpu::train_input local_input{new_htable, centroids};
+    kmeans_gpu::train_input local_input{htable, centroids};
     t1 = std::chrono::high_resolution_clock::now();
     kmeans_gpu::train_result result_train =
         preview::train(comm, kmeans_desc, local_input);
@@ -332,13 +323,14 @@ static jlong doKMeansOneAPICompute(
                         result_train.get_iteration_count());
         logger::println(logger::INFO, "Centroids:");
         printHomegenTable(result_train.get_model().get_centroids());
-        auto t2 = std::chrono::high_resolution_clock::now();
-        auto duration =
+        t2 = std::chrono::high_resolution_clock::now();
+        duration =
             std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
         logger::println(logger::INFO,
                         "KMeans (native): training step took %d secs",
                         duration / 1000);
+        logger::printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
         // Get the class of the input object
         jclass clazz = env->GetObjectClass(resultObj);
         // Get Field references
@@ -415,13 +407,18 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
             getAssignedGPU(device, cclComm, size, rankId, gpuIndices, nGpu);
 
         ccl::shared_ptr_class<ccl::kvs> &kvs = getKvs();
+        auto t1 = std::chrono::high_resolution_clock::now();
         auto comm =
             preview::spmd::make_communicator<preview::spmd::backend::ccl>(
                 queue, size, rankId, kvs);
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto duration =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+                .count();
+        logger::printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
         ret = doKMeansOneAPICompute(env, pNumTabData, numRows, numClos,
                                     pNumTabCenters, clusterNum, tolerance,
                                     iterationNum, comm, resultObj, queue);
-
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
         break;
     }

@@ -223,7 +223,7 @@ static void doSummarizerOneAPICompute(
 
     const auto bs_desc = basic_statistics::descriptor<GpuAlgorithmFPType>{};
     t1 = std::chrono::high_resolution_clock::now();
-    const auto result_train = preview::compute(comm, bs_desc, new_htable);
+    const auto result_train = preview::compute(comm, bs_desc, htable);
     t2 = std::chrono::high_resolution_clock::now();
     duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)

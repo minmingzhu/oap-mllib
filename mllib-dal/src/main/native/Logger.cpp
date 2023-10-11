@@ -5,7 +5,9 @@
 #include "Logger.h"
 
 namespace logger {
-
+std::mutex logMutex;
+auto filePath = fs::path(path) / fs::path("training_breakdown");
+std::ofstream logFile(filePath);
 class LoggerLevel {
   public:
     int level;
@@ -154,6 +156,30 @@ int printerrln(MessageType message_type, const char *format, ...) {
     int ret = print2streamFromArgsln(message_type, stderr, format, args);
     va_end(args);
     return ret;
+}
+
+
+void printLogToFile(const char *format, ...) {
+     std::lock_guard<std::mutex> lock(logMutex);
+     va_list args;
+     va_start(args, format);
+     std::ostringstream formattedMessage;
+     while (*format != '\0') {
+         if (*format == '%' && *(format + 1) == 'd') {
+             int intValue = va_arg(args, int);
+             formattedMessage << intValue;
+             format += 2;
+         } else if (*format == '%' && *(format + 1) == 'f') {
+             double floatValue = va_arg(args, double);
+             formattedMessage << floatValue;
+             format += 2;
+         } else {
+             formattedMessage << *format++;
+         }
+     }
+     va_end(args);
+     logFile << formattedMessage.str() << std::endl;
+     logFile.close();
 }
 
 }; // namespace logger
