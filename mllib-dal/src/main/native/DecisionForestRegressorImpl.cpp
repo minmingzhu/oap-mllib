@@ -207,18 +207,52 @@ jobject collect_model(JNIEnv *env, const df::model<Task> &m,
 }
 
 static jobject doRFRegressorOneAPICompute(
-    JNIEnv *env, jlong pNumTabFeature, jlong pNumTabLabel, jint executorNum,
+    JNIEnv *env, jlong pNumTabFeature, jlong featureRows, jlong featureCols,
+    jlong pNumTabLabel, jlong labelCols, jint executorNum,
     jint computeDeviceOrdinal, jint treeCount, jint numFeaturesPerNode,
     jint minObservationsLeafNode, jint maxTreeDepth, jlong seed, jint maxbins,
     jboolean bootstrap,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
-    jobject resultObj) {
+    jobject resultObj, sycl::queue &queue) {
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
-    homogen_table hFeaturetable =
-        *reinterpret_cast<const homogen_table *>(pNumTabFeature);
-    homogen_table hLabeltable =
-        *reinterpret_cast<const homogen_table *>(pNumTabLabel);
+    double *htableFeatureArray = reinterpret_cast<double *>(pNumTabFeature);
+    double *htableLabelArray = reinterpret_cast<double *>(pNumTabLabel);
+
+    auto t1 = std::chrono::high_resolution_clock::now();
+    auto featureData =
+        sycl::malloc_shared<double>(featureRows * featureCols, queue);
+    queue
+        .memcpy(featureData, htableFeatureArray,
+                sizeof(double) * featureRows * featureCols)
+        .wait();
+    homogen_table hFeaturetable{
+        queue, featureData, featureRows, featureCols,
+        detail::make_default_delete<const double>(queue)};
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration =
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+            .count();
+    logger::println(logger::INFO,
+                   "DF Regression (native): create feature homogen table took %f secs",
+                   duration / 1000);
+
+    t1 = std::chrono::high_resolution_clock::now();
+    auto labelData =
+        sycl::malloc_shared<double>(featureRows * labelCols, queue);
+    queue
+        .memcpy(labelData, htableLabelArray,
+                sizeof(double) * featureRows * labelCols)
+        .wait();
+    t2 = std::chrono::high_resolution_clock::now();
+    duration =
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+            .count();
+    logger::println(logger::INFO,
+                   "DF Regression (native): create label homogen table took %f secs",
+                   duration / 1000);
+    homogen_table hLabeltable{queue, labelData, featureRows, labelCols,
+                              detail::make_default_delete<const double>(queue)};
     logger::println(logger::INFO,
                     "doRFRegressorOneAPICompute get_column_count = %d",
                     hFeaturetable.get_column_count());
@@ -235,7 +269,7 @@ static jobject doRFRegressorOneAPICompute(
                 df::error_metric_mode::out_of_bag_error_per_observation)
             .set_variable_importance_mode(df::variable_importance_mode::mdi);
 
-    auto t1 = std::chrono::high_resolution_clock::now();
+    t1 = std::chrono::high_resolution_clock::now();
     const auto result_train =
         preview::train(comm, df_desc, hFeaturetable, hLabeltable);
     const auto result_infer =
@@ -249,8 +283,8 @@ static jobject doRFRegressorOneAPICompute(
         logger::println(logger::INFO, "Prediction results:");
         printHomegenTable(result_infer.get_responses());
 
-        auto t2 = std::chrono::high_resolution_clock::now();
-        auto duration =
+        t2 = std::chrono::high_resolution_clock::now();
+        duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
                                                                          t1)
                 .count();
@@ -299,11 +333,11 @@ static jobject doRFRegressorOneAPICompute(
 
 JNIEXPORT jobject JNICALL
 Java_com_intel_oap_mllib_regression_RandomForestRegressorDALImpl_cRFRegressorTrainDAL(
-    JNIEnv *env, jobject obj, jlong pNumTabFeature, jlong pNumTabLabel,
-    jint executorNum, jint computeDeviceOrdinal, jint treeCount,
-    jint numFeaturesPerNode, jint minObservationsLeafNode, jint maxTreeDepth,
-    jlong seed, jint maxbins, jboolean bootstrap, jintArray gpuIdxArray,
-    jobject resultObj) {
+    JNIEnv *env, jobject obj, jlong pNumTabFeature, jlong featureRows,
+    jlong featureCols, jlong pNumTabLabel, jlong labelCols, jint executorNum,
+    jint computeDeviceOrdinal, jint treeCount, jint numFeaturesPerNode,
+    jint minObservationsLeafNode, jint maxTreeDepth, jlong seed, jint maxbins,
+    jboolean bootstrap, jintArray gpuIdxArray, jobject resultObj) {
     logger::println(logger::INFO,
                     "OneDAL (native): use DPC++ kernels; device %s",
                     ComputeDeviceString[computeDeviceOrdinal].c_str());
@@ -331,14 +365,15 @@ Java_com_intel_oap_mllib_regression_RandomForestRegressorDALImpl_cRFRegressorTra
             preview::spmd::make_communicator<preview::spmd::backend::ccl>(
                 queue, size, rankId, kvs);
         jobject hashmapObj = doRFRegressorOneAPICompute(
-            env, pNumTabFeature, pNumTabLabel, executorNum,
-            computeDeviceOrdinal, treeCount, numFeaturesPerNode,
-            minObservationsLeafNode, maxTreeDepth, seed, maxbins, bootstrap,
-            comm, resultObj);
+            env, pNumTabFeature, featureRows, featureCols, pNumTabLabel,
+            labelCols, executorNum, computeDeviceOrdinal, treeCount,
+            numFeaturesPerNode, minObservationsLeafNode, maxTreeDepth, seed,
+            maxbins, bootstrap, comm, resultObj, queue);
         return hashmapObj;
     }
     default: {
-        deviceError();
+        deviceError("RFRegressor",
+                    ComputeDeviceString[computeDeviceOrdinal].c_str());
     }
     }
     return nullptr;

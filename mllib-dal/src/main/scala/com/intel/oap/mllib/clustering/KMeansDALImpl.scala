@@ -58,8 +58,7 @@ class KMeansDALImpl(var nClusters: Int,
     }.count()
     kmeansTimer.record("OneCCL Init")
 
-    val results = coalescedTables.mapPartitionsWithIndex {
-      (rank, iter) =>
+    val results = coalescedTables.mapPartitionsWithIndex { (rank, iter) =>
       var cCentroids = 0L
       val result = new KMeansResult()
       val gpuIndices = if (useDevice == "GPU") {
@@ -69,18 +68,23 @@ class KMeansDALImpl(var nClusters: Int,
         null
       }
 
-      val parts = iter.next().toString.split("_")
-      parts.foreach(println)
+      val (tableArr : Long, rows : Long, columns : Long) = if (useDevice == "GPU") {
+        val parts = iter.next().toString.split("_")
+        (parts(0).toLong, parts(1).toLong, parts(2).toLong)
+      } else {
+        (iter.next().toString.toLong, 0L, 0L)
+      }
 
       val initCentroids = if (useDevice == "GPU") {
         OneDAL.makeFloatHomogenTable(centers, computeDevice).getcObejct()
       } else {
         OneDAL.makeNumericTable(centers).getCNumericTable
       }
+
       cCentroids = cKMeansOneapiComputeWithInitCenters(
-        parts(0).toLong,
-        parts(1).toLong,
-        parts(2).toLong,
+        tableArr,
+        rows,
+        columns,
         initCentroids,
         nClusters,
         tolerance,

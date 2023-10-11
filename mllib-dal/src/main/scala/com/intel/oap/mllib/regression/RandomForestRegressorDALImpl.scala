@@ -75,10 +75,16 @@ class RandomForestRegressorDALImpl(val uid: String,
     }.count()
     rfrTimer.record("OneCCL Init")
 
-    val results = labeledPointsTables.mapPartitionsWithIndex {
-      (rank: Int, tables: Iterator[(Long, Long)]) =>
-      val (featureTabAddr, lableTabAddr) = tables.next()
-
+    val results = labeledPointsTables.mapPartitionsWithIndex { (rank, tables) =>
+      val (feature, label) = tables.next()
+      val (featureTabAddr : Long, featureRows : Long, featureColumns : Long) = {
+          val parts = feature.toString.split("_")
+          (parts(0).toLong, parts(1).toLong, parts(2).toLong)
+        }
+      val (labelTabAddr : Long, labelRows : Long, labelColumns : Long) = {
+          val parts = label.toString.split("_")
+          (parts(0).toLong, parts(1).toLong, parts(2).toLong)
+        }
       val gpuIndices = if (useDevice == "GPU") {
         if (isTest) {
           Array(0)
@@ -94,7 +100,10 @@ class RandomForestRegressorDALImpl(val uid: String,
       val result = new RandomForestResult
       val hashmap = cRFRegressorTrainDAL(
         featureTabAddr,
-        lableTabAddr,
+        featureRows,
+        featureColumns,
+        labelTabAddr,
+        labelColumns,
         executorNum,
         computeDevice.ordinal(),
         treeCount,
@@ -141,7 +150,10 @@ class RandomForestRegressorDALImpl(val uid: String,
   }
 
   @native private[mllib] def cRFRegressorTrainDAL(featureTabAddr: Long,
+                                             numRows: Long,
+                                             numCols: Long,
                                              lableTabAddr: Long,
+                                             labelNumCols: Long,
                                              executorNum: Int,
                                              computeDeviceOrdinal: Int,
                                              treeCount: Int,

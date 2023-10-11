@@ -74,8 +74,6 @@ Rating *shuffle_all2all(ccl::communicator &comm,
     // Calculate send buffer size
     for (size_t i = 0; i < nBlocks; i++) {
         perNodeSendLens[i] = partitions[i].size() * RATING_SIZE;
-        // logger::println(logger::INFO, "rank %d Send partition %d size %d",
-        // rankId, i, perNodeSendLens[i]);
         sendBufSize += perNodeSendLens[i];
     }
     logger::println(logger::INFO, "sendData size %d", sendBufSize);
@@ -96,8 +94,6 @@ Rating *shuffle_all2all(ccl::communicator &comm,
 
     // Calculate recv buffer size
     for (size_t i = 0; i < nBlocks; i++) {
-        // logger::println(logger::INFO, "rank %d Reciv partition %d size %d",
-        // rankId, i, perNodeSendLens[i]);
         recvBufSize += perNodeRecvLens[i];
     }
 
@@ -112,9 +108,6 @@ Rating *shuffle_all2all(ccl::communicator &comm,
     sort(recvData.begin(), recvData.end(), compareRatingByUser);
 
     newRatingsNum = recvData.size();
-    // RatingPartition::iterator iter = std::unique(recvData.begin(),
-    // recvData.end(), compareRatingUserEquality); newCsrRowNum =
-    // std::distance(recvData.begin(), iter);
     newCsrRowNum = distinct_count(recvData);
 
     logger::println(logger::INFO, "newRatingsNum: %d, newCsrRowNum: %d",

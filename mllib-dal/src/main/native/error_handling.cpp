@@ -53,9 +53,9 @@ void sparceFileReadError() {
     exit(fileError);
 }
 
-void deviceError() {
-    logger::printerrln(
-        logger::ERROR,
-        "Error: no supported device, please select HOST/CPU/GPU");
+void deviceError(const std::string &msg, const char *description) {
+    logger::printerrln(logger::ERROR,
+                       "Error: %s (native): is not supported device : %s",
+                       msg.c_str(), description);
     exit(-1);
 }

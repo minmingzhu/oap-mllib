@@ -24,6 +24,7 @@
 #include "oneapi/dal/algo/kmeans.hpp"
 #endif
 
+<<<<<<< HEAD
 #ifndef ONEDAL_DATA_CONVERSION
 #define ONEDAL_DATA_CONVERSION
 #include "data_management/data_source/csv_feature_manager.h"
@@ -31,6 +32,8 @@
 #undef ONEDAL_DATA_CONVERSION
 #endif
 
+=======
+>>>>>>> assign_gpu_to_homogentable
 #include "Logger.h"
 #include "OneCCL.h"
 #include "com_intel_oap_mllib_clustering_KMeansDALImpl.h"
@@ -192,7 +195,7 @@ static jlong doKMeansDaalCompute(JNIEnv *env, jobject obj, size_t rankId,
                                  NumericTablePtr &centroids, jint cluster_num,
                                  jdouble tolerance, jint iteration_num,
                                  jint executor_num, jobject resultObj) {
-    logger::println(logger::INFO, "OneDAL (native): CPU compute start");
+    logger::println(logger::INFO, "oneDAL (native): CPU compute start");
     CpuAlgorithmFPType totalCost;
 
     NumericTablePtr newCentroids;
@@ -289,48 +292,17 @@ inline std::string get_data_path(const std::string& name) {
 #ifdef CPU_GPU_PROFILE
 static jlong doKMeansOneAPICompute(
     JNIEnv *env, jlong pNumTabData, jlong numRows, jlong numClos,
-    jlong pNumTabCenters, jint clusterNum,
-    jdouble tolerance, jint iterationNum,
+    jlong pNumTabCenters, jint clusterNum, jdouble tolerance, jint iterationNum,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
-    jobject resultObj,
-    sycl::queue& queue) {
+    jobject resultObj, sycl::queue &queue) {
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
-    logger::println(logger::INFO, "clusterNum %d", clusterNum);
-    logger::println(logger::INFO, "tolerance %f", tolerance);
     const bool isRoot = (comm.get_rank() == ccl_root);
-//    auto input_vec = get_file_path("/home/damon/storage/DataRoot/HiBench/Kmeans/Input/18000000");
-//    const auto train_data_file_name = get_data_path(input_vec[comm.get_rank()]);
-//    cout << "rank id = " << comm.get_rank()  << " File name: " << train_data_file_name << endl;
-//    homogen_table htable =
-//        *reinterpret_cast<const homogen_table *>(pNumTabData);
+    double *htableArray = reinterpret_cast<double *>(pNumTabData);
     auto t1 = std::chrono::high_resolution_clock::now();
-    float *htableArray = reinterpret_cast<float *>(pNumTabData);
-
-//    const auto htable = read<table>(csv::data_source{ train_data_file_name });
-    logger::println(logger::INFO, "htable array rows %d", numRows);
-    logger::println(logger::INFO, "htable array columns %d", numClos);
-//    logger::println(logger::INFO, "htable:");
-//    printHomegenTable(htable);
-//    auto rows = htable.get_row_count();
-//    auto columns = htable.get_column_count();
-//    auto total_size = numRows * numClos;
-
-//    logger::println(logger::INFO, "double_array %d", total_size);
-//    const auto double_array = row_accessor<const double>(htable).pull(queue, { 0, -1 });
-//    logger::println(logger::INFO, "double_array 2");
-
-//    std::shared_ptr<float> arrayPtr(new float[total_size],
-//                                 [](float *ptr) { delete[] ptr; });
-//    float float_array[total_size]; // Create a float array with the same size
-//    logger::println(logger::INFO, "double_array 3");
-//    // Convert and copy elements from the double array to the float array
-//    for (int i = 0; i < total_size; i++)
-//    {
-//        arrayPtr.get()[i] = static_cast<float>(double_array[i]);
-//    }
-    auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
-    queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
-    homogen_table new_htable{queue, data, numRows, numClos, detail::make_default_delete<const float>(queue)};
+    auto data = sycl::malloc_shared<double>(numRows * numClos, queue);
+    queue.memcpy(data, htableArray, sizeof(double) * numRows * numClos).wait();
+    homogen_table htable{queue, data, numRows, numClos,
+                         detail::make_default_delete<const double>(queue)};
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
@@ -338,17 +310,8 @@ static jlong doKMeansOneAPICompute(
     logger::println(logger::INFO,
                     "KMeans (native): create homogen table took %f secs",
                     duration / 1000);
-    logger::println(logger::INFO, "new_htable rows %d", new_htable.get_row_count());
-    logger::println(logger::INFO, "new_htable columns %d", new_htable.get_column_count());
-    logger::println(logger::INFO, "new_htable:");
-    printHomegenTable(new_htable);
-
     homogen_table centroids =
         *reinterpret_cast<const homogen_table *>(pNumTabCenters);
-    logger::println(logger::INFO, "centroids rows %d", centroids.get_row_count());
-    logger::println(logger::INFO, "centroids columns %d", centroids.get_column_count());
-    logger::println(logger::INFO, "centroids:");
-    printHomegenTable(centroids);
     const auto kmeans_desc = kmeans_gpu::descriptor<GpuAlgorithmFPType>()
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
@@ -367,26 +330,14 @@ static jlong doKMeansOneAPICompute(
     if (isRoot) {
         logger::println(logger::INFO, "Iteration count: %d",
                         result_train.get_iteration_count());
-//        logger::println(logger::INFO, "Centroids:");
-//        printHomegenTable(result_train.get_model().get_centroids());
-        const auto centroids_type = result_train.get_model().get_centroids().get_metadata().get_data_type(0);
-        switch (centroids_type) {
-        case data_type::float64:
-            cout << "centroids_type data type double " << endl;
-            break;
-        case data_type::float32:
-            cout << "centroids_type data type float " << endl;
-            break;
-        default:
-            cout << "centroids_type data type null " << endl;
-            break;
-        }
-        t2 = std::chrono::high_resolution_clock::now();
-        duration =
-            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+        logger::println(logger::INFO, "Centroids:");
+        printHomegenTable(result_train.get_model().get_centroids());
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto duration =
+            std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
         logger::println(logger::INFO,
-                        "KMeans (native): training step took %f secs",
+                        "KMeans (native): training step took %d secs",
                         duration / 1000);
         // Get the class of the input object
         jclass clazz = env->GetObjectClass(resultObj);
@@ -418,10 +369,10 @@ static jlong doKMeansOneAPICompute(
  */
 JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCenters(
-    JNIEnv *env, jobject obj, jlong pNumTabData, jlong numRows, jlong numClos, jlong pNumTabCenters,
-    jint clusterNum, jdouble tolerance, jint iterationNum, jint executorNum,
-    jint executorCores, jint computeDeviceOrdinal, jintArray gpuIdxArray,
-    jobject resultObj) {
+    JNIEnv *env, jobject obj, jlong pNumTabData, jlong numRows, jlong numClos,
+    jlong pNumTabCenters, jint clusterNum, jdouble tolerance, jint iterationNum,
+    jint executorNum, jint executorCores, jint computeDeviceOrdinal,
+    jintArray gpuIdxArray, jobject resultObj) {
     logger::println(logger::INFO,
                     "OneDAL (native): use DPC++ kernels; device %s",
                     ComputeDeviceString[computeDeviceOrdinal].c_str());
@@ -467,16 +418,17 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
         auto comm =
             preview::spmd::make_communicator<preview::spmd::backend::ccl>(
                 queue, size, rankId, kvs);
-        ret =
-            doKMeansOneAPICompute(env, pNumTabData, numRows, numClos, pNumTabCenters, clusterNum,
-                                  tolerance, iterationNum, comm, resultObj, queue);
+        ret = doKMeansOneAPICompute(env, pNumTabData, numRows, numClos,
+                                    pNumTabCenters, clusterNum, tolerance,
+                                    iterationNum, comm, resultObj, queue);
 
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
         break;
     }
 #endif
     default: {
-        deviceError();
+        deviceError("KMeans",
+                    ComputeDeviceString[computeDeviceOrdinal].c_str());
     }
     }
     return ret;

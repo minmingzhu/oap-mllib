@@ -212,7 +212,11 @@ void initializeStep2Local(
 
 void initializeModel(size_t rankId, ccl::communicator &comm, size_t partitionId,
                      size_t nBlocks, size_t nUsers, size_t nFactors) {
+<<<<<<< HEAD
     logger::println(logger::INFO, "ALS (native): initializeModel ");
+=======
+    logger::println(logger::INFO, "ALS (native): initializeModel");
+>>>>>>> assign_gpu_to_homogentable
 
     auto t1 = std::chrono::high_resolution_clock::now();
 
@@ -340,7 +344,7 @@ void trainModel(size_t rankId, ccl::communicator &comm, size_t partitionId,
 
         serializeDAALObject(step1LocalResult.get(), nodeResults);
 
-        /* Gathering step1LocalResult on the master */
+        // Gathering step1LocalResult on the master
         gather(rankId, comm, nBlocks, nodeResults, step1LocalResultsOnMaster);
 
         if (rankId == ccl_root) {
@@ -383,7 +387,7 @@ void trainModel(size_t rankId, ccl::communicator &comm, size_t partitionId,
 
         serializeDAALObject(step1LocalResult.get(), nodeResults);
 
-        /* Gathering step1LocalResult on the master */
+        // Gathering step1LocalResult on the master
         gather(rankId, comm, nBlocks, nodeResults, step1LocalResultsOnMaster);
 
         if (rankId == ccl_root) {
@@ -411,7 +415,7 @@ void trainModel(size_t rankId, ccl::communicator &comm, size_t partitionId,
         step3LocalResult = computeStep3Local(
             userOffset, usersPartialResultLocal, userStep3LocalInput, nFactors);
 
-        /* MPI_Alltoallv to populate step4LocalInput */
+        // all2all to populate step4LocalInput
         for (size_t i = 0; i < nBlocks; i++) {
             serializeDAALObject((*step3LocalResult)[i].get(), nodeCPs[i]);
         }
@@ -448,7 +452,6 @@ JNIEXPORT jobject JNICALL
 Java_com_intel_oap_mllib_recommendation_ALSDALImpl_cShuffleData(
     JNIEnv *env, jobject obj, jobject dataBuffer, jint nTotalKeys, jint nBlocks,
     jobject infoObj) {
-    // logger::println(logger::DEBUG, "cShuffleData: rank %d", rankId);
     logger::println(logger::INFO, "RATING_SIZE: %d", RATING_SIZE);
 
     ccl::communicator &comm = getComm();

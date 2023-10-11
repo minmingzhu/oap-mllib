@@ -82,7 +82,8 @@ public class HomogenTableImpl implements HomogenTableIface {
                         this.device.ordinal());
                 break;
             default:
-                System.err.println("spark algorithm only support double");
+                System.err.println("OAP MLlib currently only support input data of " +
+                        "double type!");
                 System.exit(-1);
         }
     }

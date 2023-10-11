@@ -204,16 +204,15 @@ static void doSummarizerDAALCompute(JNIEnv *env, jobject obj, size_t rankId,
 static void doSummarizerOneAPICompute(
     JNIEnv *env, jlong pNumTabData, jlong numRows, jlong numClos,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
-    jobject resultObj, sycl::queue& queue) {
+    jobject resultObj, sycl::queue &queue) {
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
+    double *htableArray = reinterpret_cast<double *>(pNumTabData);
     auto t1 = std::chrono::high_resolution_clock::now();
-    float *htableArray = reinterpret_cast<float *>(pNumTabData);
-    logger::println(logger::INFO, "htable array rows %d", numRows);
-    logger::println(logger::INFO, "htable array columns %d", numClos);
-    auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
-    queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
-    homogen_table new_htable{queue, data, numRows, numClos, detail::make_default_delete<const float>(queue)};
+    auto data = sycl::malloc_shared<double>(numRows * numClos, queue);
+    queue.memcpy(data, htableArray, sizeof(double) * numRows * numClos).wait();
+    homogen_table htable{queue, data, numRows, numClos,
+                         detail::make_default_delete<const double>(queue)};
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
@@ -221,12 +220,7 @@ static void doSummarizerOneAPICompute(
     logger::println(logger::INFO,
                     "Summarizer (native): create homogen table took %f secs",
                     duration / 1000);
-    logger::println(logger::INFO, "new_htable rows %d", new_htable.get_row_count());
-    logger::println(logger::INFO, "new_htable columns %d", new_htable.get_column_count());
-    logger::println(logger::INFO, "new_htable:");
-    printHomegenTable(new_htable);
-//    homogen_table htable =
-//        *reinterpret_cast<const homogen_table *>(pNumTabData);
+
     const auto bs_desc = basic_statistics::descriptor<GpuAlgorithmFPType>{};
     t1 = std::chrono::high_resolution_clock::now();
     const auto result_train = preview::compute(comm, bs_desc, new_htable);
@@ -253,7 +247,6 @@ static void doSummarizerOneAPICompute(
         printHomegenTable(result_train.get_mean());
         logger::println(logger::INFO, "Variation");
         printHomegenTable(result_train.get_variance());
-
         // Return all covariance & mean
         jclass clazz = env->GetObjectClass(resultObj);
 
@@ -290,9 +283,9 @@ static void doSummarizerOneAPICompute(
 
 JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_stat_SummarizerDALImpl_cSummarizerTrainDAL(
-    JNIEnv *env, jobject obj, jlong pNumTabData, jlong numRows, jlong numClos, jint executorNum,
-    jint executorCores, jint computeDeviceOrdinal, jintArray gpuIdxArray,
-    jobject resultObj) {
+    JNIEnv *env, jobject obj, jlong pNumTabData, jlong numRows, jlong numClos,
+    jint executorNum, jint executorCores, jint computeDeviceOrdinal,
+    jintArray gpuIdxArray, jobject resultObj) {
     logger::println(logger::INFO,
                     "oneDAL (native): use DPC++ kernels; device %s",
                     ComputeDeviceString[computeDeviceOrdinal].c_str());
@@ -335,13 +328,14 @@ Java_com_intel_oap_mllib_stat_SummarizerDALImpl_cSummarizerTrainDAL(
         auto comm =
             preview::spmd::make_communicator<preview::spmd::backend::ccl>(
                 queue, size, rankId, kvs);
-        doSummarizerOneAPICompute(env, pNumTabData, numRows, numClos, comm, resultObj, queue);
+        doSummarizerOneAPICompute(env, pNumTabData, numRows, numClos, comm,
+                                  resultObj, queue);
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
         break;
     }
 #endif
     default: {
-        deviceError();
+        deviceError("PCA", ComputeDeviceString[computeDeviceOrdinal].c_str());
     }
     }
     return 0;

@@ -49,7 +49,8 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     JNIEnv *env, jobject obj, jint size, jint rank, jstring ip_port,
     jobject param) {
 
-    logger::printerrln(logger::INFO, "OneCCL (native): init");
+    logger::println(logger::INFO, "OneCCL (native): init");
+
     auto t1 = std::chrono::high_resolution_clock::now();
 
     const char *str = env->GetStringUTFChars(ip_port, 0);
@@ -63,9 +64,11 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
 
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
-        std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
-    logger::printerrln(logger::INFO, "OneCCL (native): init took %d secs",
-                       duration);
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+            .count();
+    logger::println(logger::INFO, "OneCCL (native): init took %f secs",
+                    duration / 1000);
+
     rank_id = getComm().rank();
     comm_size = getComm().size();
 

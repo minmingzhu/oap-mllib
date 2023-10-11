@@ -214,26 +214,53 @@ jobject collect_model(JNIEnv *env, const df::model<Task> &m,
 }
 
 static jobject doRFClassifierOneAPICompute(
-    JNIEnv *env, jlong pNumTabFeature, jlong pNumTabLabel, jint executorNum,
+    JNIEnv *env, jlong pNumTabFeature, jlong featureRows, jlong featureCols,
+    jlong pNumTabLabel, jlong labelCols, jint executorNum,
     jint computeDeviceOrdinal, jint classCount, jint treeCount,
     jint numFeaturesPerNode, jint minObservationsLeafNode,
     jint minObservationsSplitNode, jdouble minWeightFractionLeafNode,
     jdouble minImpurityDecreaseSplitNode, jint maxTreeDepth, jlong seed,
     jint maxBins, jboolean bootstrap,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
-    jobject resultObj) {
+    jobject resultObj, sycl::queue &queue) {
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
-    homogen_table hFeaturetable =
-        *reinterpret_cast<const homogen_table *>(pNumTabFeature);
-    homogen_table hLabeltable =
-        *reinterpret_cast<const homogen_table *>(pNumTabLabel);
-    logger::println(logger::INFO,
-                    "doRFClassifierOneAPICompute get_column_count = %d",
-                    hFeaturetable.get_column_count());
-    logger::println(logger::INFO, "doRFClassifierOneAPICompute classCount = %d",
-                    classCount);
+    double *htableFeatureArray = reinterpret_cast<double *>(pNumTabFeature);
+    double *htableLabelArray = reinterpret_cast<double *>(pNumTabLabel);
 
+    auto t1 = std::chrono::high_resolution_clock::now();
+    auto featureData =
+        sycl::malloc_shared<double>(featureRows * featureCols, queue);
+    queue
+        .memcpy(featureData, htableFeatureArray,
+                sizeof(double) * featureRows * featureCols)
+        .wait();
+    homogen_table hFeaturetable{
+        queue, featureData, featureRows, featureCols,
+        detail::make_default_delete<const double>(queue)};
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration =
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+            .count();
+    logger::println(logger::INFO,
+                   "DF Classifier (native): create feature homogen table took %f secs",
+                   duration / 1000);
+    t1 = std::chrono::high_resolution_clock::now();
+    auto labelData =
+        sycl::malloc_shared<double>(featureRows * labelCols, queue);
+    queue
+        .memcpy(labelData, htableLabelArray,
+                sizeof(double) * featureRows * labelCols)
+        .wait();
+    homogen_table hLabeltable{queue, labelData, featureRows, labelCols,
+                              detail::make_default_delete<const double>(queue)};
+    t2 = std::chrono::high_resolution_clock::now();
+    duration =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+                .count();
+    logger::println(logger::INFO,
+                   "DF Classifier (native): create label homogen table took %f secs",
+                   duration / 1000);
     const auto df_desc =
         df::descriptor<GpuAlgorithmFPType, df::method::hist,
                        df::task::classification>{}
@@ -253,7 +280,7 @@ static jobject doRFClassifierOneAPICompute(
             .set_max_tree_depth(maxTreeDepth)
             .set_max_bins(maxBins);
 
-    auto t1 = std::chrono::high_resolution_clock::now();
+    t1 = std::chrono::high_resolution_clock::now();
     const auto result_train =
         preview::train(comm, df_desc, hFeaturetable, hLabeltable);
     const auto result_infer =
@@ -268,8 +295,8 @@ static jobject doRFClassifierOneAPICompute(
         printHomegenTable(result_infer.get_responses());
         logger::println(logger::INFO, "Probabilities results:\n");
         printHomegenTable(result_infer.get_probabilities());
-        auto t2 = std::chrono::high_resolution_clock::now();
-        auto duration =
+        t2 = std::chrono::high_resolution_clock::now();
+        duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
                                                                          t1)
                 .count();
@@ -315,9 +342,10 @@ static jobject doRFClassifierOneAPICompute(
  */
 JNIEXPORT jobject JNICALL
 Java_com_intel_oap_mllib_classification_RandomForestClassifierDALImpl_cRFClassifierTrainDAL(
-    JNIEnv *env, jobject obj, jlong pNumTabFeature, jlong pNumTabLabel,
-    jint executorNum, jint computeDeviceOrdinal, jint classCount,
-    jint treeCount, jint numFeaturesPerNode, jint minObservationsLeafNode,
+    JNIEnv *env, jobject obj, jlong pNumTabFeature, jlong featureRows,
+    jlong featureCols, jlong pNumTabLabel, jlong labelCols, jint executorNum,
+    jint computeDeviceOrdinal, jint classCount, jint treeCount,
+    jint numFeaturesPerNode, jint minObservationsLeafNode,
     jint minObservationsSplitNode, jdouble minWeightFractionLeafNode,
     jdouble minImpurityDecreaseSplitNode, jint maxTreeDepth, jlong seed,
     jint maxBins, jboolean bootstrap, jintArray gpuIdxArray,
@@ -348,15 +376,17 @@ Java_com_intel_oap_mllib_classification_RandomForestClassifierDALImpl_cRFClassif
             preview::spmd::make_communicator<preview::spmd::backend::ccl>(
                 queue, size, rankId, kvs);
         jobject hashmapObj = doRFClassifierOneAPICompute(
-            env, pNumTabFeature, pNumTabLabel, executorNum,
-            computeDeviceOrdinal, classCount, treeCount, numFeaturesPerNode,
-            minObservationsLeafNode, minObservationsSplitNode,
-            minWeightFractionLeafNode, minImpurityDecreaseSplitNode,
-            maxTreeDepth, seed, maxBins, bootstrap, comm, resultObj);
+            env, pNumTabFeature, featureRows, featureCols, pNumTabLabel,
+            labelCols, executorNum, computeDeviceOrdinal, classCount, treeCount,
+            numFeaturesPerNode, minObservationsLeafNode,
+            minObservationsSplitNode, minWeightFractionLeafNode,
+            minImpurityDecreaseSplitNode, maxTreeDepth, seed, maxBins,
+            bootstrap, comm, resultObj, queue);
         return hashmapObj;
     }
     default: {
-        deviceError();
+        deviceError("RFClassifier",
+                    ComputeDeviceString[computeDeviceOrdinal].c_str());
     }
     }
     return nullptr;
