@@ -216,19 +216,19 @@ static jobject doRFRegressorOneAPICompute(
     jobject resultObj, sycl::queue &queue) {
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
-    double *htableFeatureArray = reinterpret_cast<double *>(pNumTabFeature);
-    double *htableLabelArray = reinterpret_cast<double *>(pNumTabLabel);
+    float *htableFeatureArray = reinterpret_cast<float *>(pNumTabFeature);
+    float *htableLabelArray = reinterpret_cast<float *>(pNumTabLabel);
 
     auto t1 = std::chrono::high_resolution_clock::now();
     auto featureData =
-        sycl::malloc_shared<double>(featureRows * featureCols, queue);
+        sycl::malloc_shared<float>(featureRows * featureCols, queue);
     queue
         .memcpy(featureData, htableFeatureArray,
-                sizeof(double) * featureRows * featureCols)
+                sizeof(float) * featureRows * featureCols)
         .wait();
     homogen_table hFeaturetable{
         queue, featureData, featureRows, featureCols,
-        detail::make_default_delete<const double>(queue)};
+        detail::make_default_delete<const float>(queue)};
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
@@ -239,11 +239,13 @@ static jobject doRFRegressorOneAPICompute(
 
     t1 = std::chrono::high_resolution_clock::now();
     auto labelData =
-        sycl::malloc_shared<double>(featureRows * labelCols, queue);
+        sycl::malloc_shared<float>(featureRows * labelCols, queue);
     queue
         .memcpy(labelData, htableLabelArray,
-                sizeof(double) * featureRows * labelCols)
+                sizeof(float) * featureRows * labelCols)
         .wait();
+    homogen_table hLabeltable{queue, labelData, featureRows, labelCols,
+                             detail::make_default_delete<const float>(queue)};
     t2 = std::chrono::high_resolution_clock::now();
     duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
@@ -251,8 +253,7 @@ static jobject doRFRegressorOneAPICompute(
     logger::println(logger::INFO,
                    "DF Regression (native): create label homogen table took %f secs",
                    duration / 1000);
-    homogen_table hLabeltable{queue, labelData, featureRows, labelCols,
-                              detail::make_default_delete<const double>(queue)};
+
     logger::println(logger::INFO,
                     "doRFRegressorOneAPICompute get_column_count = %d",
                     hFeaturetable.get_column_count());

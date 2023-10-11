@@ -187,12 +187,12 @@ static void doPCAOneAPICompute(
     jobject resultObj, sycl::queue &queue) {
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
-    double *htableArray = reinterpret_cast<double *>(pNumTabData);
+    float *htableArray = reinterpret_cast<float *>(pNumTabData);
     auto t1 = std::chrono::high_resolution_clock::now();
-    auto data = sycl::malloc_shared<double>(numRows * numClos, queue);
-    queue.memcpy(data, htableArray, sizeof(double) * numRows * numClos).wait();
+    auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
+    queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
     homogen_table htable{queue, data, numRows, numClos,
-                         detail::make_default_delete<const double>(queue)};
+                         detail::make_default_delete<const float>(queue)};
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
