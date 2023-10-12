@@ -5,7 +5,6 @@
 #include "Logger.h"
 
 namespace logger {
-char* path = std::getenv("spark.oap.mllib.record.output.path");
 std::mutex logMutex;
 
 class LoggerLevel {
@@ -160,7 +159,9 @@ int printerrln(MessageType message_type, const char *format, ...) {
 
 
 void printLogToFile(const char *format, ...) {
+     std::cout << "printLogToFile "<< std::endl;
      auto filePath = fs::path(path) / fs::path("training_breakdown");
+     char* path = std::getenv("spark.oap.mllib.record.output.path");
 
      std::cout << "file path: "
           << filePath << std::endl;
