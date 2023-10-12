@@ -179,7 +179,11 @@ void Logger::printLogToFile(const char *format, ...) {
          }
      }
      va_end(args);
-     logFile << formattedMessage.str() << std::endl;
+     if (logFile.is_open()) {
+        logFile << formattedMessage.str() << std::endl;
+     } else {
+        logger::printerrln(logger::INFO, "Unable to open the file.");
+     }
 }
 
 void Logger::closeFile() {

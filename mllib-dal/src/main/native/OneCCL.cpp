@@ -51,7 +51,6 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
 
     logger::println(logger::INFO, "OneCCL (native): init");
 
-    auto t1 = std::chrono::high_resolution_clock::now();
 
     const char *str = env->GetStringUTFChars(ip_port, 0);
     ccl::string ccl_ip_port(str);
@@ -59,6 +58,7 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     auto &singletonCCLInit = CCLInitSingleton::get(size, rank, ccl_ip_port);
 
     g_kvs.push_back(singletonCCLInit.kvs);
+    auto t1 = std::chrono::high_resolution_clock::now();
     g_comms.push_back(
         ccl::create_communicator(size, rank, singletonCCLInit.kvs));
 
@@ -68,6 +68,7 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
             .count();
     logger::println(logger::INFO, "OneCCL (native): init took %f secs",
                     duration / 1000);
+    logger::Logger::getInstance().printLogToFile("rankID was %d, OneCCL create communicator took %f secs.", rank, duration / 1000 );
 
     rank_id = getComm().rank();
     comm_size = getComm().size();

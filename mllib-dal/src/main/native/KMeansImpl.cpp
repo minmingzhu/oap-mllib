@@ -419,7 +419,6 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
         ret = doKMeansOneAPICompute(env, pNumTabData, numRows, numClos,
                                     pNumTabCenters, clusterNum, tolerance,
                                     iterationNum, comm, resultObj, queue);
-        logger::Logger::getInstance().closeFile();
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
         break;
     }
