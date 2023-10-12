@@ -300,7 +300,7 @@ static jlong doKMeansOneAPICompute(
     logger::println(logger::INFO,
                     "KMeans (native): create homogen table took %f secs",
                     duration / 1000);
-    logger::printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
+    logger::Logger::getInstance().printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
     homogen_table centroids =
         *reinterpret_cast<const homogen_table *>(pNumTabCenters);
     const auto kmeans_desc = kmeans_gpu::descriptor<GpuAlgorithmFPType>()
@@ -330,7 +330,7 @@ static jlong doKMeansOneAPICompute(
         logger::println(logger::INFO,
                         "KMeans (native): training step took %d secs",
                         duration / 1000);
-        logger::printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
+        logger::Logger::getInstance().printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
         // Get the class of the input object
         jclass clazz = env->GetObjectClass(resultObj);
         // Get Field references
@@ -415,10 +415,11 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
         auto duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
-        logger::printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
+        logger::Logger::getInstance().printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
         ret = doKMeansOneAPICompute(env, pNumTabData, numRows, numClos,
                                     pNumTabCenters, clusterNum, tolerance,
                                     iterationNum, comm, resultObj, queue);
+        logger::Logger::getInstance().closeFile();
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
         break;
     }
