@@ -12,9 +12,9 @@
 
 namespace fs = std::filesystem;
 namespace logger {
-static char* path = std::getenv("spark.oap.mllib.record.output.path");
-extern  std::mutex logMutex;
-extern  std::ofstream logFile;
+//char* path = std::getenv("spark.oap.mllib.record.output.path");
+//extern  std::mutex logMutex;
+//extern  std::ofstream logFile;
 // message type for print functions
 enum MessageType {
     DEBUG = 0,

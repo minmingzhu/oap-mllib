@@ -1,13 +1,13 @@
-#include <cstdlib>
 #include <iomanip>
 #include <tuple>
+#include <iostream>
 
 #include "Logger.h"
 
 namespace logger {
+char* path = std::getenv("spark.oap.mllib.record.output.path");
 std::mutex logMutex;
-auto filePath = fs::path(path) / fs::path("training_breakdown");
-std::ofstream logFile(filePath);
+
 class LoggerLevel {
   public:
     int level;
@@ -160,6 +160,11 @@ int printerrln(MessageType message_type, const char *format, ...) {
 
 
 void printLogToFile(const char *format, ...) {
+     auto filePath = fs::path(path) / fs::path("training_breakdown");
+
+     std::cout << "file path: "
+          << filePath << std::endl;
+     std::ofstream logFile(filePath);
      std::lock_guard<std::mutex> lock(logMutex);
      va_list args;
      va_start(args, format);
