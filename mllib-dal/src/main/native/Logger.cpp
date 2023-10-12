@@ -161,6 +161,11 @@ int printerrln(MessageType message_type, const char *format, ...) {
 void printLogToFile(const char *format, ...) {
      std::cout << "printLogToFile "<< std::endl;
      char* path = std::getenv("spark.oap.mllib.record.output.path");
+     if (path != nullptr) {
+         std::cout << "Home Directory: " << path << std::endl;
+     } else {
+         std::cout << "HOME environment variable not found." << std::endl;
+     }
      auto filePath = fs::path(path) / fs::path("training_breakdown");
 
      std::cout << "file path: "
