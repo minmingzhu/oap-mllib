@@ -157,7 +157,6 @@ int printerrln(MessageType message_type, const char *format, ...) {
     return ret;
 }
 
-
 void Logger::printLogToFile(const char *format, ...) {
     std::cout << "printLogToFile"<< std::endl;
     std::lock_guard<std::mutex> lock(logMutex);
@@ -181,8 +180,13 @@ void Logger::printLogToFile(const char *format, ...) {
      va_end(args);
      if (logFile.is_open()) {
         logFile << formattedMessage.str() << std::endl;
+        logger::println(logger::INFO, "Appending content at the end of the file.");
      } else {
         logger::printerrln(logger::INFO, "Unable to open the file.");
+     }
+    if (logFile.fail()) {
+         logger::printerrln(logger::INFO, "File operation failed.");
+         logFile.clear();
      }
 }
 
