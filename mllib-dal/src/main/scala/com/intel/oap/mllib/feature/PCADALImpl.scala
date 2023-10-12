@@ -79,7 +79,6 @@ class PCADALImpl(val k: Int,
       } else {
         null
       }
-      val parts = iter.next().toString.split("_")
       cPCATrainDAL(
         tableArr,
         rows,

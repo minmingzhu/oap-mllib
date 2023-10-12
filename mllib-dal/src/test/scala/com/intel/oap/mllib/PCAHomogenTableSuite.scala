@@ -79,11 +79,7 @@ class PCAHomogenTableSuite extends FunctionsSuite with Logging {
         val pcaDAL = new PCADALImpl(5, 1, 1)
         val gpuIndices = Array(0)
         val result = new PCAResult()
-<<<<<<< HEAD
         pcaDAL.cPCATrainDAL(dataTable.getcObejct(), sourceData.length, sourceData(0).length,1, 1, TestCommon.getComputeDevice.ordinal(), gpuIndices, result);
-=======
-        pcaDAL.cPCATrainDAL(dataTable.getcObejct(), 1000, 10, 1, 1, TestCommon.getComputeDevice.ordinal(), gpuIndices, result);
->>>>>>> assign_gpu_to_homogentable
         val pcNumericTable = OneDAL.makeHomogenTable(result.getPcNumericTable)
         val explainedVarianceNumericTable = OneDAL.makeHomogenTable(
             result.getExplainedVarianceNumericTable)
