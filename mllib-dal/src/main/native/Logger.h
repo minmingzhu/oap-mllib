@@ -38,6 +38,10 @@ private:
         auto filePath = fs::path(path) / fs::path("training_breakdown");
         std::cout << "file path: "<< filePath << std::endl;
         logFile.open(filePath, std::ios::out | std::ios::trunc | std::ios::app);
+        if (logFile.fail()) {
+            std::cerr << "Error: File operation failed." << std::endl;
+            logFile.clear();
+        }
     }
 };
 
