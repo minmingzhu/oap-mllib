@@ -6,7 +6,18 @@
 
 namespace logger {
 std::mutex logMutex;
+ std::cout << "logger init "<< std::endl;
+ char* path = std::getenv("SPARKJOB_CONFIG_DIR");
+ if (path != nullptr) {
+     std::cout << "SPARKJOB_CONFIG_DIR Directory: " << path << std::endl;
+ } else {
+     std::cout << "SPARKJOB_CONFIG_DIR environment variable not found." << std::endl;
+ }
+ auto filePath = fs::path(path) / fs::path("training_breakdown");
 
+ std::cout << "file path: "
+      << filePath << std::endl;
+ std::ofstream logFile(filePath, std::ios::app);
 class LoggerLevel {
   public:
     int level;
@@ -159,19 +170,8 @@ int printerrln(MessageType message_type, const char *format, ...) {
 
 
 void printLogToFile(const char *format, ...) {
-     std::cout << "printLogToFile "<< std::endl;
-     char* path = std::getenv("SPARKJOB_CONFIG_DIR");
-     if (path != nullptr) {
-         std::cout << "SPARKJOB_CONFIG_DIR Directory: " << path << std::endl;
-     } else {
-         std::cout << "SPARKJOB_CONFIG_DIR environment variable not found." << std::endl;
-     }
-     auto filePath = fs::path(path) / fs::path("training_breakdown");
-
-     std::cout << "file path: "
-          << filePath << std::endl;
-     std::ofstream logFile(filePath);
      std::lock_guard<std::mutex> lock(logMutex);
+
      va_list args;
      va_start(args, format);
      std::ostringstream formattedMessage;
