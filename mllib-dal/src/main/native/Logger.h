@@ -37,7 +37,7 @@ private:
         }
         auto filePath = fs::path(path) / fs::path("training_breakdown");
         std::cout << "file path: "<< filePath << std::endl;
-        logFile.open(filePath, std::ios::out | std::ios::trunc);
+        logFile.open(filePath, std::ios::app | std::ios::trunc);
     }
 };
 
