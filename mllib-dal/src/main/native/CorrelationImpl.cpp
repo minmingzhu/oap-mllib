@@ -167,6 +167,8 @@ static void doCorrelationOneAPICompute(
     logger::println(logger::INFO,
                    "Correlation batch(native): create homogen table took %f secs",
                    duration / 1000);
+    logger::Logger::getInstance().printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
+
     const auto cor_desc =
         covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
             covariance_gpu::result_options::cor_matrix |
@@ -194,6 +196,8 @@ static void doCorrelationOneAPICompute(
             logger::INFO,
             "Correlation batch(native): computing step took %f secs.",
             duration / 1000);
+        logger::Logger::getInstance().printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
+
         // Return all covariance & mean
         jclass clazz = env->GetObjectClass(resultObj);
 
@@ -255,9 +259,15 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
             getAssignedGPU(device, cclComm, size, rankId, gpuIndices, nGpu);
 
         ccl::shared_ptr_class<ccl::kvs> &kvs = getKvs();
+        auto t1 = std::chrono::high_resolution_clock::now();
         auto comm =
             preview::spmd::make_communicator<preview::spmd::backend::ccl>(
                 queue, size, rankId, kvs);
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto duration =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+                .count();
+        logger::Logger::getInstance().printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
         doCorrelationOneAPICompute(env, pNumTabData, numRows, numClos, comm,
                                    resultObj, queue);
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
