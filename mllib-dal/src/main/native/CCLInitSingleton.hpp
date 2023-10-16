@@ -53,7 +53,7 @@ private:
 
         logger::println(logger::INFO, "OneCCL singleton init took %f secs",
                         duration / 1000);
-        logger::Logger::getInstance().printLogToFile("rankID was %d, OneCCL singleton init %f secs.", rank, duration / 1000 );
+        logger::Logger::getInstance().printLogToFile("rankID was %d, OneCCL singleton init took %f secs.", rank, duration / 1000 );
 
     }
 };

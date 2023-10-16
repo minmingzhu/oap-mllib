@@ -200,6 +200,7 @@ static void doPCAOneAPICompute(
     logger::println(logger::INFO,
                         "PCA (native): create homogen table took %f secs",
                         duration / 1000);
+    logger::Logger::getInstance().printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
 
     const auto cov_desc =
         covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
@@ -227,6 +228,7 @@ static void doPCAOneAPICompute(
                        .count();
         logger::println(logger::INFO, "PCA (native): Eigen step took %f secs",
                         duration / 1000);
+        logger::Logger::getInstance().printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
         // Return all eigenvalues & eigenvectors
         // Get the class of the input object
         jclass clazz = env->GetObjectClass(resultObj);
@@ -300,9 +302,15 @@ Java_com_intel_oap_mllib_feature_PCADALImpl_cPCATrainDAL(
             getAssignedGPU(device, cclComm, size, rankId, gpuIndices, nGpu);
 
         ccl::shared_ptr_class<ccl::kvs> &kvs = getKvs();
+        auto t1 = std::chrono::high_resolution_clock::now();
         auto comm =
             preview::spmd::make_communicator<preview::spmd::backend::ccl>(
                 queue, size, rankId, kvs);
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto duration =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+                .count();
+        logger::Logger::getInstance().printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
         doPCAOneAPICompute(env, pNumTabData, numRows, numClos, comm, resultObj,
                            queue);
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
