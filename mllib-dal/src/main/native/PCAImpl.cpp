@@ -204,7 +204,7 @@ static void doPCAOneAPICompute(
 
     const auto cov_desc =
         covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
-            covariance_gpu::result_options::cov_matrix);
+            covariance_gpu::result_options::cor_matrix);
     t1 = std::chrono::high_resolution_clock::now();
     const auto result = preview::compute(comm, cov_desc, htable);
     t2 = std::chrono::high_resolution_clock::now();
@@ -221,7 +221,7 @@ static void doPCAOneAPICompute(
         const auto pca_desc = descriptor_t().set_deterministic(true);
 
         const auto result_train =
-            preview::train(comm, pca_desc, result.get_cov_matrix());
+            preview::train(queue, pca_desc, result.get_cor_matrix());
         t2 = std::chrono::high_resolution_clock::now();
         duration = (float)std::chrono::duration_cast<std::chrono::milliseconds>(
                        t2 - t1)
