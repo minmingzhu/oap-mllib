@@ -221,7 +221,7 @@ static void doPCAOneAPICompute(
         const auto pca_desc = descriptor_t().set_deterministic(true);
 
         const auto result_train =
-            preview::compute(queue, pca_desc, result.get_cor_matrix());
+            train(queue, pca_desc, result.get_cor_matrix());
         t2 = std::chrono::high_resolution_clock::now();
         duration = (float)std::chrono::duration_cast<std::chrono::milliseconds>(
                        t2 - t1)
