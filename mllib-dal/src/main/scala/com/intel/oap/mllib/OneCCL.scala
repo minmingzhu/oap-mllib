@@ -26,7 +26,7 @@ object OneCCL extends Logging {
 
   def init(executor_num: Int, rank: Int, ip_port: String): Unit = {
 
-    setExecutorEnv()
+//    setExecutorEnv()
 
     logInfo(s"Initializing with IP_PORT: ${ip_port}")
 
