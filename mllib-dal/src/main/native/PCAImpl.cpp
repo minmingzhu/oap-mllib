@@ -23,10 +23,20 @@
 #include "oneapi/dal/algo/pca.hpp"
 #endif
 
+#ifndef ONEDAL_DATA_CONVERSION
+#define ONEDAL_DATA_CONVERSION
+#include "data_management/data_source/csv_feature_manager.h"
+#include "data_management/data_source/file_data_source.h"
+#undef ONEDAL_DATA_CONVERSION
+#endif
+
 #include "Logger.h"
 #include "OneCCL.h"
 #include "com_intel_oap_mllib_feature_PCADALImpl.h"
 #include "service.h"
+#include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/io/csv.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 
 using namespace std;
 #ifdef CPU_GPU_PROFILE
@@ -181,34 +191,86 @@ static void doPCADAALCompute(JNIEnv *env, jobject obj, size_t rankId,
 }
 
 #ifdef CPU_GPU_PROFILE
+std::vector<std::string> get_file_path(const std::string& path) {
+    std::vector<std::string> result;
+    for (auto& file : fs::directory_iterator(path)){
+         if(fs::is_empty(file.path())){
+             continue;
+         }else if(file.path().extension()==".crc" || file.path().extension()==""){
+             continue;
+         }else{
+            result.push_back(file.path());
+         }
+    }
+    return result;
+}
+
+inline bool check_file(const std::string& name) {
+    return std::ifstream{ name }.good();
+}
+
+inline std::string get_data_path(const std::string& name) {
+    const std::vector<std::string> paths = { "./data", "samples/oneapi/dpc/mpi/data" };
+
+    for (const auto& path : paths) {
+        const std::string try_path = path + "/" + name;
+        if (check_file(try_path)) {
+            return try_path;
+        }
+    }
+
+    return name;
+}
+
 static void doPCAOneAPICompute(
     JNIEnv *env, jlong pNumTabData, jlong numRows, jlong numClos,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
     jobject resultObj, sycl::queue &queue) {
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
-    float *htableArray = reinterpret_cast<float *>(pNumTabData);
-    auto t1 = std::chrono::high_resolution_clock::now();
-    auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
-    queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
-    homogen_table htable{queue, data, numRows, numClos,
-                         detail::make_default_delete<const float>(queue)};
-    auto t2 = std::chrono::high_resolution_clock::now();
-    auto duration =
-        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
-            .count();
-    logger::println(logger::INFO,
-                        "PCA (native): create homogen table took %f secs",
-                        duration / 1000);
-    logger::Logger::getInstance().printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
+    auto input_vec = get_file_path("/home/damon/storage/DataRoot/HiBench/PCA/Input/4000000");
+    const auto train_data_file_name = get_data_path(input_vec[comm.get_rank()]);
+    std::cout << "rank id = " << comm.get_rank() << ", File name = " << train_data_file_name << std::endl;
+    const auto htable = read<table>(queue, csv::data_source{ train_data_file_name });
+//    auto rows = htable.get_row_count();
+//    auto columns = htable.get_column_count();
+//    auto total_size = numRows * numClos;
+//
+//    logger::println(logger::INFO, "double_array %d", total_size);
+//    const auto double_array = row_accessor<const double>(htable).pull({ 0, -1 });
+//    logger::println(logger::INFO, "double_array 2");
+//
+//    std::shared_ptr<float> arrayPtr(new float[total_size],
+//                                 [](float *ptr) { delete[] ptr; });
+//    logger::println(logger::INFO, "double_array 3");
+//    // Convert and copy elements from the double array to the float array
+//    for (int i = 0; i < total_size; i++)
+//    {
+//        arrayPtr.get()[i] = static_cast<float>(double_array[i]);
+//    }
+
+//    float *htableArray = reinterpret_cast<float *>(pNumTabData);
+//    auto t1 = std::chrono::high_resolution_clock::now();
+//    auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
+//    queue.memcpy(data, arrayPtr.get(), sizeof(float) * numRows * numClos).wait();
+//    homogen_table htable{queue, data, numRows, numClos,
+//                         detail::make_default_delete<const float>(queue)};
+//    auto t2 = std::chrono::high_resolution_clock::now();
+//    auto duration =
+//        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+//            .count();
+//    logger::println(logger::INFO,
+//                        "PCA (native): create homogen table took %f secs",
+//                        duration / 1000);
+//    logger::Logger::getInstance().printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
 
     const auto cov_desc =
         covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
             covariance_gpu::result_options::cor_matrix);
-    t1 = std::chrono::high_resolution_clock::now();
+    auto t1 = std::chrono::high_resolution_clock::now();
     const auto result = preview::compute(comm, cov_desc, htable);
-    t2 = std::chrono::high_resolution_clock::now();
-    duration =
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
             .count();
     logger::println(logger::INFO, "PCA (native): Correlation step took %f secs",
