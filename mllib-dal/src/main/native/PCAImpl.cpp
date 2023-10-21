@@ -231,10 +231,19 @@ static void doPCAOneAPICompute(
     auto input_vec = get_file_path("/home/damon/storage/DataRoot/HiBench/PCA/Input/4000000");
     const auto train_data_file_name = get_data_path(input_vec[comm.get_rank()]);
     std::cout << "rank id = " << comm.get_rank() << ", File name = " << train_data_file_name << std::endl;
+    auto t1 = std::chrono::high_resolution_clock::now();
     const auto htable = read<table>(queue, csv::data_source{ train_data_file_name });
-//    auto rows = htable.get_row_count();
-//    auto columns = htable.get_column_count();
-//    auto total_size = numRows * numClos;
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration =
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+            .count();
+    logger::println(logger::INFO, "PCA (native): loading csv took %f secs",
+                    duration / 1000);
+    auto rows = htable.get_row_count();
+    auto columns = htable.get_column_count();
+    auto total_size = numRows * numClos;
+    logger::println(logger::INFO, "PCA (native): htable size %d ",
+                    total_size);
 //
 //    logger::println(logger::INFO, "double_array %d", total_size);
 //    const auto double_array = row_accessor<const double>(htable).pull({ 0, -1 });
@@ -267,10 +276,10 @@ static void doPCAOneAPICompute(
     const auto cov_desc =
         covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
             covariance_gpu::result_options::cor_matrix);
-    auto t1 = std::chrono::high_resolution_clock::now();
+    t1 = std::chrono::high_resolution_clock::now();
     const auto result = preview::compute(comm, cov_desc, htable);
-    auto t2 = std::chrono::high_resolution_clock::now();
-    auto duration =
+    t2 = std::chrono::high_resolution_clock::now();
+    duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
             .count();
     logger::println(logger::INFO, "PCA (native): Correlation step took %f secs",
