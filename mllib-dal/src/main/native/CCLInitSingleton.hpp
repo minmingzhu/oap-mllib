@@ -17,13 +17,14 @@
 #pragma once
 #include <iostream>
 #include <mutex>
+#include <vector>
+#include <oneapi/ccl.hpp>
 
 #include "Logger.h"
-
+static std::vector<ccl::communicator> g_ccl_comms;
+static std::vector<ccl::shared_ptr_class<ccl::kvs>> g_ccl_kvs;
 class CCLInitSingleton {
 public:
-    ccl::shared_ptr_class<ccl::kvs> kvs;
-    ccl::shared_ptr_class<ccl::communicator> comm;
     static CCLInitSingleton& get(int size, int rank, ccl::string ccl_ip_port) {
         static std::once_flag flag;
         static CCLInitSingleton instance;
@@ -32,7 +33,13 @@ public:
         });
         return instance;
     }
+    ccl::communicator& getComm() {
+        return g_ccl_comms[0];
+    }
 
+    ccl::shared_ptr_class<ccl::kvs>& getKvs() {
+        return g_ccl_kvs[0];
+    }
 private:
     CCLInitSingleton() {
     }
@@ -55,8 +62,9 @@ private:
         auto kvs_attr = ccl::create_kvs_attr();
         kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
 
-        kvs = ccl::create_main_kvs(kvs_attr);
-        comm = ccl::create_communicator(size, rank, singletonCCLInit.kvs)
+        auto kvs = ccl::create_main_kvs(kvs_attr);
+        g_ccl_kvs.push_back(kvs);
+        g_ccl_comms.push_back(std::move(ccl::create_communicator(size, rank, kvs)));
         t2 = std::chrono::high_resolution_clock::now();
         duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
