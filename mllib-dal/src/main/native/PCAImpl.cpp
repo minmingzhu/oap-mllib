@@ -228,50 +228,20 @@ static void doPCAOneAPICompute(
     jobject resultObj, sycl::queue &queue) {
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
-    auto input_vec = get_file_path("/home/damon/storage/DataRoot/HiBench/PCA/Input/4000000");
-    const auto train_data_file_name = get_data_path(input_vec[comm.get_rank()]);
-    std::cout << "rank id = " << comm.get_rank() << ", File name = " << train_data_file_name << std::endl;
+    float *htableArray = reinterpret_cast<float *>(pNumTabData);
     auto t1 = std::chrono::high_resolution_clock::now();
-    const auto htable = read<table>(queue, csv::data_source{ train_data_file_name });
+    auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
+    queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
+    homogen_table htable{queue, data, numRows, numClos,
+                         detail::make_default_delete<const float>(queue)};
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
             .count();
-    logger::println(logger::INFO, "PCA (native): loading csv took %f secs",
-                    duration / 1000);
-    auto rows = htable.get_row_count();
-    auto columns = htable.get_column_count();
-    auto total_size = numRows * numClos;
-    logger::println(logger::INFO, "PCA (native): htable size %d ",
-                    total_size);
-//
-//    logger::println(logger::INFO, "double_array %d", total_size);
-//    const auto double_array = row_accessor<const double>(htable).pull({ 0, -1 });
-//    logger::println(logger::INFO, "double_array 2");
-//
-//    std::shared_ptr<float> arrayPtr(new float[total_size],
-//                                 [](float *ptr) { delete[] ptr; });
-//    logger::println(logger::INFO, "double_array 3");
-//    // Convert and copy elements from the double array to the float array
-//    for (int i = 0; i < total_size; i++)
-//    {
-//        arrayPtr.get()[i] = static_cast<float>(double_array[i]);
-//    }
-
-//    float *htableArray = reinterpret_cast<float *>(pNumTabData);
-//    auto t1 = std::chrono::high_resolution_clock::now();
-//    auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
-//    queue.memcpy(data, arrayPtr.get(), sizeof(float) * numRows * numClos).wait();
-//    homogen_table htable{queue, data, numRows, numClos,
-//                         detail::make_default_delete<const float>(queue)};
-//    auto t2 = std::chrono::high_resolution_clock::now();
-//    auto duration =
-//        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
-//            .count();
-//    logger::println(logger::INFO,
-//                        "PCA (native): create homogen table took %f secs",
-//                        duration / 1000);
-//    logger::Logger::getInstance().printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
+    logger::println(logger::INFO,
+                        "PCA (native): create homogen table took %f secs",
+                        duration / 1000);
+    logger::Logger::getInstance().printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
 
     const auto cov_desc =
         covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
