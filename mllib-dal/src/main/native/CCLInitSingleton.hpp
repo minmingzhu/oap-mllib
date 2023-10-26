@@ -23,7 +23,7 @@
 class CCLInitSingleton {
 public:
     ccl::shared_ptr_class<ccl::kvs> kvs;
-
+    ccl::shared_ptr_class<ccl::communicator> comm;
     static CCLInitSingleton& get(int size, int rank, ccl::string ccl_ip_port) {
         static std::once_flag flag;
         static CCLInitSingleton instance;
@@ -42,11 +42,6 @@ private:
 
         ccl::init();
 
-        auto kvs_attr = ccl::create_kvs_attr();
-        kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
-
-        kvs = ccl::create_main_kvs(kvs_attr);
-
         auto t2 = std::chrono::high_resolution_clock::now();
         auto duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
@@ -55,5 +50,20 @@ private:
                         duration / 1000);
         logger::Logger::getInstance().printLogToFile("rankID was %d, OneCCL singleton init took %f secs.", rank, duration / 1000 );
 
-    }
+
+        t1 = std::chrono::high_resolution_clock::now();
+        auto kvs_attr = ccl::create_kvs_attr();
+        kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
+
+        kvs = ccl::create_main_kvs(kvs_attr);
+        comm = ccl::create_communicator(size, rank, singletonCCLInit.kvs)
+        t2 = std::chrono::high_resolution_clock::now();
+        duration =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+                .count();
+        logger::println(logger::INFO, "OneCCL (native): init took %f secs",
+                        duration / 1000);
+        logger::Logger::getInstance().printLogToFile("rankID was %d, OneCCL create communicator took %f secs.", rank, duration / 1000 );
+
+}
 };
