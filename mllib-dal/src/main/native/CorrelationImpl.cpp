@@ -157,6 +157,7 @@ static void doCorrelationOneAPICompute(
     auto t1 = std::chrono::high_resolution_clock::now();
     float *htableArray = reinterpret_cast<float *>(pNumTabData);
     auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
+    logger::Logger::getInstance().printLogToFile("rankID was %d, table size %d.", comm.get_rank(), numRows * numClos );
     queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
     homogen_table htable{queue, data, numRows, numClos,
                          detail::make_default_delete<const float>(queue)};
@@ -183,6 +184,7 @@ static void doCorrelationOneAPICompute(
     logger::println(logger::INFO,
                     "Correlation batch(native): computing step took %f secs.",
                     duration / 1000);
+    logger::Logger::getInstance().printLogToFile("rankID was %d, Correlation computing step took %f secs.", comm.get_rank(), duration / 1000 );
     if (isRoot) {
         logger::println(logger::INFO, "Mean:");
         printHomegenTable(result_train.get_means());
