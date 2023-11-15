@@ -70,7 +70,6 @@ object CorrelationSample {
         .required()
         .action((x, c) => c.copy(input = x))
     }
-
     parser.parse(args, defaultParams) match {
       case Some(params) => run(params)
       case _ => sys.exit(1)
@@ -85,14 +84,16 @@ object CorrelationSample {
       .config("spark.sql.files.minPartitionNum", params.minPartitionNum)
       .config("spark.oap.mllib.device", params.device)
       .getOrCreate()
+    logger.info(params.toString)
 
     import spark.implicits._
     logger.info(s"loading data")
-
+    logger.info(params.input)
     var data = spark.read.option("quote", " ").csv(params.input).toDF("features")
     data = data.select(split(col("features"), ",").alias("features"))
     data = data.withColumn("features", col("features").cast("array<double>"))
     data = data.withColumn("features", array_to_vector(col("features")))
+    data.printSchema()
     data.cache()
     data.count()
     data.show()
@@ -105,6 +106,9 @@ object CorrelationSample {
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
     val executorNum = Utils.sparkExecutorNum(data.sparkSession.sparkContext)
     val executorCores = Utils.sparkExecutorCores()
+    logger.info(s"executorNum ${executorNum}")
+    logger.info(s"executorCores ${executorCores}")
+
     logger.info(s"coalesceVectorsToFloatHomogenTables")
 
     val hTables = coalesceVectorsToFloatHomogenTables(rdd, executorNum,
@@ -171,6 +175,8 @@ object CorrelationSample {
 
   def coalesceVectorsToFloatHomogenTables(data: RDD[Vector], executorNum: Int,
                                           device: Common.ComputeDevice): RDD[String] = {
+    logger.info(s"coalesceVectorsToFloatHomogenTables")
+
     val numberCores: Int = data.sparkContext.getConf.getInt("spark.executor.cores", 1)
     // convert RDD to HomogenTable
     val coalescedTables = data.mapPartitionsWithIndex { (index: Int, it: Iterator[Vector]) =>
