@@ -87,24 +87,30 @@ object CorrelationSample {
       .getOrCreate()
 
     import spark.implicits._
+    logger.info(s"loading data")
 
     var data = spark.read.option("quote", " ").csv(params.input).toDF("features")
     data = data.select(split(col("features"), ",").alias("features"))
     data = data.withColumn("features", col("features").cast("array<double>"))
     data = data.withColumn("features", array_to_vector(col("features")))
     data.cache()
+    data.count()
+    data.show()
 
     val rdd = data.select("features").rdd.map {
       case Row(v: Vector) => v
     }
-    rdd.count()
 
     val useDevice = spark.conf.get("spark.oap.mllib.device", Utils.DefaultComputeDevice)
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
     val executorNum = Utils.sparkExecutorNum(data.sparkSession.sparkContext)
     val executorCores = Utils.sparkExecutorCores()
+    logger.info(s"coalesceVectorsToFloatHomogenTables")
+
     val hTables = coalesceVectorsToFloatHomogenTables(rdd, executorNum,
       computeDevice)
+    logger.info(s"hTables")
+
     val result = hTables.mapPartitionsWithIndex { (rank, iter) =>
       val (tableArr : Long, rows : Long, columns : Long) = if (useDevice == "GPU") {
       val parts = iter.next().toString.split("_")
