@@ -197,6 +197,7 @@ static void doCorrelationOneAPICompute(
     const auto train_data_file_name = get_data_path(input_vec[comm.get_rank()]);
     cout << "rank id = " << comm.get_rank()  << " File name: " << train_data_file_name << endl;
     const auto htable = read<table>(csv::data_source{ train_data_file_name });
+    comm.barrier();
 
 //    float *htableArray = reinterpret_cast<float *>(pNumTabData);
 //    auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
