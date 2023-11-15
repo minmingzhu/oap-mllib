@@ -31,7 +31,8 @@
 #include "OneCCL.h"
 #include "com_intel_oap_mllib_stat_CorrelationDALImpl.h"
 #include "service.h"
-
+#include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/io/csv.hpp"
 #include "Logger.h"
 
 using namespace std;
