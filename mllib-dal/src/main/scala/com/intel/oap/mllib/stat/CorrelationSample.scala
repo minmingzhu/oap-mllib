@@ -18,6 +18,7 @@
 package com.intel.oap.mllib.stat
 
 import com.intel.oap.mllib.OneDAL.logger
+import com.intel.oap.mllib.Utils.getOneCCLIPPort
 import com.intel.oap.mllib.{LibLoader, OneCCL, OneDAL, Utils}
 import com.intel.oneapi.dal.table.Common
 import org.apache.spark.TaskContext
@@ -101,6 +102,7 @@ object CorrelationSample {
     val rdd = data.select("features").rdd.map {
       case Row(v: Vector) => v
     }
+    rdd.getNumPartitions
 
     val useDevice = spark.conf.get("spark.oap.mllib.device", Utils.DefaultComputeDevice)
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
@@ -114,24 +116,26 @@ object CorrelationSample {
     val hTables = coalesceVectorsToFloatHomogenTables(rdd, executorNum,
       computeDevice)
     logger.info(s"hTables")
+    val kvsIPPort = getOneCCLIPPort(hTables)
 
     val result = hTables.mapPartitionsWithIndex { (rank, iter) =>
+      OneCCL.init(executorNum, rank, kvsIPPort)
       val (tableArr : Long, rows : Long, columns : Long) = if (useDevice == "GPU") {
       val parts = iter.next().toString.split("_")
-      (parts(0).toLong, parts(1).toLong, parts(2).toLong)
-    } else {
-      (iter.next().toString.toLong, 0L, 0L)
-    }
+        (parts(0).toLong, parts(1).toLong, parts(2).toLong)
+      } else {
+        (iter.next().toString.toLong, 0L, 0L)
+      }
 
-    val computeStartTime = System.nanoTime()
+      val computeStartTime = System.nanoTime()
 
-    val result = new CorrelationResult()
-    val gpuIndices = if (useDevice == "GPU") {
-      val resources = TaskContext.get().resources()
-      resources("gpu").addresses.map(_.toInt)
-    } else {
-      null
-    }
+      val result = new CorrelationResult()
+      val gpuIndices = if (useDevice == "GPU") {
+        val resources = TaskContext.get().resources()
+        resources("gpu").addresses.map(_.toInt)
+      } else {
+        null
+      }
       new CorrelationDALImpl(executorNum, executorCores).cCorrelationTrainDAL(
       tableArr,
       rows,
