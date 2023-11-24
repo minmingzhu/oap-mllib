@@ -188,7 +188,7 @@ inline std::string get_data_path(const std::string& name) {
 
 #ifdef CPU_GPU_PROFILE
 static void doCorrelationOneAPICompute(
-    JNIEnv *env, jlong pNumTabData, jlong numRows, jlong numClos,
+    JNIEnv *env, jlong pNumTabData, long numRows, long numClos,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
     jobject resultObj, sycl::queue &queue) {
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
@@ -201,6 +201,9 @@ static void doCorrelationOneAPICompute(
 //    comm.barrier();
 
     float *htableArray = reinterpret_cast<float *>(pNumTabData);
+    logger::println(logger::INFO, "numRows was %d", numRows);
+    logger::println(logger::INFO, "numClos was %d", numClos);
+
     auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
     logger::Logger::getInstance().printLogToFile("rankID was %d, table size %d.", comm.get_rank(), numRows * numClos );
     queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
