@@ -173,7 +173,11 @@ void Logger::printLogToFile(const char *format, ...) {
              double floatValue = va_arg(args, double);
              formattedMessage << floatValue;
              format += 2;
-         } else {
+         } else if (*format == '%' && *(format + 2) == 'ld') {
+            long longValue = va_arg(args, long);
+            formattedMessage << longValue;
+            format += 2;
+        }else {
              formattedMessage << *format++;
          }
      }
