@@ -219,7 +219,7 @@ static void doCorrelationOneAPICompute(
                    "Correlation batch(native): create homogen table took %f secs",
                    duration / 1000);
     logger::Logger::getInstance().printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
-
+    comm.barrier();
     const auto cor_desc =
         covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
             covariance_gpu::result_options::cor_matrix |
