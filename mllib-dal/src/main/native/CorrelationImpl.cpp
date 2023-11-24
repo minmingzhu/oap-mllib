@@ -205,7 +205,7 @@ static void doCorrelationOneAPICompute(
     logger::println(logger::INFO, "numClos was %d", numClos);
 
     auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
-    logger::Logger::getInstance().printLogToFile("rankID was %d, table size %d.", comm.get_rank(), numRows * numClos );
+    logger::Logger::getInstance().printLogToFile("rankID was %d, table size %ld.", comm.get_rank(), numRows * numClos );
     queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
     homogen_table htable{queue, data, numRows, numClos,
                          detail::make_default_delete<const float>(queue)};
