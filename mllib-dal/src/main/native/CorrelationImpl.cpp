@@ -190,22 +190,22 @@ inline std::string get_data_path(const std::string& name) {
 static void doCorrelationOneAPICompute(
     JNIEnv *env, jlong pNumTabData, jlong numRows, jlong numClos,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
-    jobject resultObj, sycl::queue &queue) {
+    jobject resultObj, sycl::queue &queue, int i) {
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
     auto t1 = std::chrono::high_resolution_clock::now();
-    auto input_vec = get_file_path("/home/damon/storage/DataRoot/HiBench_CSV/Correlation/Input/8000000");
-    const auto train_data_file_name = get_data_path(input_vec[comm.get_rank()]);
-    cout << "rank id = " << comm.get_rank()  << " File name: " << train_data_file_name << endl;
-    const auto htable = read<table>(queue, csv::data_source{ train_data_file_name });
-    comm.barrier();
+//    auto input_vec = get_file_path("/home/damon/storage/DataRoot/HiBench_CSV/Correlation/Input/8000000");
+//    const auto train_data_file_name = get_data_path(input_vec[comm.get_rank()]);
+//    cout << "rank id = " << comm.get_rank()  << " File name: " << train_data_file_name << endl;
+//    const auto htable = read<table>(queue, csv::data_source{ train_data_file_name });
+//    comm.barrier();
 
-//    float *htableArray = reinterpret_cast<float *>(pNumTabData);
-//    auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
-//    logger::Logger::getInstance().printLogToFile("rankID was %d, table size %d.", comm.get_rank(), numRows * numClos );
-//    queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
-//    homogen_table htable{queue, data, numRows, numClos,
-//                         detail::make_default_delete<const float>(queue)};
+    float *htableArray = reinterpret_cast<float *>(pNumTabData);
+    auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
+    logger::Logger::getInstance().printLogToFile("rankID was %d, table size %d.", comm.get_rank(), numRows * numClos );
+    queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
+    homogen_table htable{queue, data, numRows, numClos,
+                         detail::make_default_delete<const float>(queue)};
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
@@ -213,7 +213,7 @@ static void doCorrelationOneAPICompute(
     logger::println(logger::INFO,
                    "Correlation batch(native): create homogen table took %f secs",
                    duration / 1000);
-    logger::Logger::getInstance().printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
+    logger::Logger::getInstance().printLogToFile("rankID was %d, iterator was %d, create homogen table took %f secs.", comm.get_rank(), i, duration / 1000 );
 
     const auto cor_desc =
         covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
@@ -229,7 +229,7 @@ static void doCorrelationOneAPICompute(
     logger::println(logger::INFO,
                     "Correlation batch(native): computing step took %f secs.",
                     duration / 1000);
-    logger::Logger::getInstance().printLogToFile("rankID was %d, Correlation computing step took %f secs.", comm.get_rank(), duration / 1000 );
+    logger::Logger::getInstance().printLogToFile("rankID was %d, iterator was %d, Correlation computing step took %f secs.", comm.get_rank(), i, duration / 1000 );
     if (isRoot) {
         logger::println(logger::INFO, "Mean:");
         printHomegenTable(result_train.get_means());
@@ -315,8 +315,11 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
         logger::Logger::getInstance().printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
-        doCorrelationOneAPICompute(env, pNumTabData, numRows, numClos, comm,
-                                   resultObj, queue);
+        for (int i = 1; i <= 10; ++i) {
+            doCorrelationOneAPICompute(env, pNumTabData, numRows, numClos, comm,
+                                       resultObj, queue, i);
+        }
+
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
         break;
     }
