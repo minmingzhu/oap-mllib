@@ -215,52 +215,50 @@ static void doCorrelationOneAPICompute(
                    duration / 1000);
     logger::Logger::getInstance().printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
 
-    for (int i = 1; i <= 10; ++i) {
-        const auto cor_desc =
-            covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
-                covariance_gpu::result_options::cor_matrix |
-                covariance_gpu::result_options::means);
-        t1 = std::chrono::high_resolution_clock::now();
-        const auto result_train = preview::compute(comm, cor_desc, htable);
+    const auto cor_desc =
+        covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
+            covariance_gpu::result_options::cor_matrix |
+            covariance_gpu::result_options::means);
+
+    t1 = std::chrono::high_resolution_clock::now();
+    const auto result_train = preview::compute(comm, cor_desc, htable);
+    t2 = std::chrono::high_resolution_clock::now();
+    duration =
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+            .count();
+    logger::println(logger::INFO,
+                    "Correlation batch(native): computing step took %f secs.",
+                    duration / 1000);
+    logger::Logger::getInstance().printLogToFile("rankID was %d, Correlation computing step took %f secs.", comm.get_rank(), duration / 1000 );
+    if (isRoot) {
+        logger::println(logger::INFO, "Mean:");
+        printHomegenTable(result_train.get_means());
+        logger::println(logger::INFO, "Correlation:");
+        printHomegenTable(result_train.get_cor_matrix());
         t2 = std::chrono::high_resolution_clock::now();
-        duration =
-            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
-                .count();
-        logger::println(logger::INFO,
-                        "Correlation batch(native): computing step took %f secs.",
-                        duration / 1000);
-        logger::Logger::getInstance().printLogToFile("rankID was %d, iterator was %d, Correlation computing step took %f secs.", comm.get_rank(), i, duration / 1000 );
-        if (isRoot) {
-            logger::println(logger::INFO, "Mean:");
-            printHomegenTable(result_train.get_means());
-            logger::println(logger::INFO, "Correlation:");
-            printHomegenTable(result_train.get_cor_matrix());
-            t2 = std::chrono::high_resolution_clock::now();
-            duration = (float)std::chrono::duration_cast<std::chrono::milliseconds>(
-                           t2 - t1)
-                           .count();
-            logger::println(
-                logger::INFO,
-                "Correlation batch(native): computing step took %f secs.",
-                duration / 1000);
-            logger::Logger::getInstance().printLogToFile("rankID was %d, iterator was %d, training step took %f secs.", comm.get_rank(), i, duration / 1000 );
+        duration = (float)std::chrono::duration_cast<std::chrono::milliseconds>(
+                       t2 - t1)
+                       .count();
+        logger::println(
+            logger::INFO,
+            "Correlation batch(native): computing step took %f secs.",
+            duration / 1000);
+        logger::Logger::getInstance().printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
 
-            // Return all covariance & mean
-            jclass clazz = env->GetObjectClass(resultObj);
+        // Return all covariance & mean
+        jclass clazz = env->GetObjectClass(resultObj);
 
-            // Get Field references
-            jfieldID correlationNumericTableField =
-                env->GetFieldID(clazz, "correlationNumericTable", "J");
+        // Get Field references
+        jfieldID correlationNumericTableField =
+            env->GetFieldID(clazz, "correlationNumericTable", "J");
 
-            HomogenTablePtr correlation =
-                std::make_shared<homogen_table>(result_train.get_cor_matrix());
-            saveHomogenTablePtrToVector(correlation);
+        HomogenTablePtr correlation =
+            std::make_shared<homogen_table>(result_train.get_cor_matrix());
+        saveHomogenTablePtrToVector(correlation);
 
-            env->SetLongField(resultObj, correlationNumericTableField,
-                              (jlong)correlation.get());
-        }
+        env->SetLongField(resultObj, correlationNumericTableField,
+                          (jlong)correlation.get());
     }
-
 }
 #endif
 
