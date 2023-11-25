@@ -176,7 +176,7 @@ void Logger::printLogToFile(const char *format, ...) {
          } else if (*format == '%' && *(format + 2) == 'ld') {
             long longValue = va_arg(args, long);
             formattedMessage << longValue;
-            format += 2;
+            format += 4;
         }else {
              formattedMessage << *format++;
          }
