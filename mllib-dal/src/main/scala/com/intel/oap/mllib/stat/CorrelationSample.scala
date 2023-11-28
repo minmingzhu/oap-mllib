@@ -104,7 +104,9 @@ object CorrelationSample {
 //    }
 //    rdd.getNumPartitions
 //
-    val data = spark.sparkContext.parallelize( 1 to 24 )
+    val data = spark.sparkContext.parallelize( 1 to 24 ).repartition(24)
+    logger.info(s"getNumPartitions ${data.getNumPartitions}")
+
     val useDevice = spark.conf.get("spark.oap.mllib.device", Utils.DefaultComputeDevice)
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
     val executorNum = Utils.sparkExecutorNum(data.sparkContext)
