@@ -57,9 +57,8 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
 
     auto &singletonCCLInit = CCLInitSingleton::get(size, rank, ccl_ip_port);
 
-    g_kvs.push_back(singletonCCLInit.kvs);
-    g_comms.push_back(
-        ccl::create_communicator(singletonCCLInit.comm));
+    g_kvs.push_back(singletonCCLInit.getKvs());
+    g_comms.push_back(std::move(singletonCCLInit.getComm()));
     rank_id = getComm().rank();
     comm_size = getComm().size();
 
