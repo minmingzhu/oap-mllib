@@ -250,7 +250,7 @@ static jlong doKMeansDaalCompute(JNIEnv *env, jobject obj, size_t rankId,
 #ifdef CPU_GPU_PROFILE
 static jlong doKMeansOneAPICompute(
     JNIEnv *env, jlong pNumTabData, jlong numRows, jlong numClos,
-    jlong pNumTabCenters, jlong centersNumClos, jint clusterNum, jdouble tolerance, jint iterationNum,
+    jlong pNumTabCenters, jint clusterNum, jdouble tolerance, jint iterationNum,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
     jobject resultObj, sycl::queue &queue) {
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
@@ -269,19 +269,9 @@ static jlong doKMeansOneAPICompute(
                     "KMeans (native): create homogen table took %f secs",
                     duration / 1000);
     logger::Logger::getInstance().printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
-    t1 = std::chrono::high_resolution_clock::now();
-    float *centroidsArray = reinterpret_cast<float *>(pNumTabCenters);
-    auto centroidsData = sycl::malloc_shared<float>(centersNumClos * centersNumClos, queue);
-    queue.memcpy(centroidsData, centroidsArray, sizeof(float) * centersNumClos * centersNumClos).wait();
-    homogen_table centroids{queue, centroidsData, centersNumClos, centersNumClos,
-                         detail::make_default_delete<const float>(queue)};
-    t2 = std::chrono::high_resolution_clock::now();
-    duration =
-            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
-                .count();
-    logger::println(logger::INFO,
-                    "KMeans (native): create centroids table took %f secs",
-                    duration / 1000);
+    homogen_table centroids =
+            *reinterpret_cast<const homogen_table *>(pNumTabCenters);
+
     const auto kmeans_desc = kmeans_gpu::descriptor<GpuAlgorithmFPType>()
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
@@ -297,6 +287,7 @@ static jlong doKMeansOneAPICompute(
     logger::println(logger::INFO,
                     "KMeans (native): training step took %f secs",
                     duration / 1000);
+    logger::Logger::getInstance().printLogToFile("rankID was %d, K-means training step took %f secs.", comm.get_rank(), duration / 1000 );
     if (isRoot) {
         logger::println(logger::INFO, "Iteration count: %d",
                         result_train.get_iteration_count());
@@ -340,10 +331,10 @@ static jlong doKMeansOneAPICompute(
  */
 JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCenters(
-    JNIEnv *env, jobject obj, jlong pNumTabData, jlong numRows, jlong numClos,
-    jlong pNumTabCenters, jlong centersNumClos, jint clusterNum, jdouble tolerance, jint iterationNum,
-    jint executorNum, jint executorCores, jint computeDeviceOrdinal,
-    jintArray gpuIdxArray, jobject resultObj) {
+    JNIEnv *env, jobject obj, jlong pNumTabData, jlong numRows, jlong numClos, jlong pNumTabCenters,
+    jint clusterNum, jdouble tolerance, jint iterationNum, jint executorNum,
+    jint executorCores, jint computeDeviceOrdinal, jintArray gpuIdxArray,
+    jobject resultObj) {
     logger::println(logger::INFO,
                     "OneDAL (native): use DPC++ kernels; device %s",
                     ComputeDeviceString[computeDeviceOrdinal].c_str());
@@ -396,7 +387,7 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
                 .count();
         logger::Logger::getInstance().printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
         ret = doKMeansOneAPICompute(env, pNumTabData, numRows, numClos,
-                                    pNumTabCenters, centersNumClos, clusterNum, tolerance,
+                                    pNumTabCenters, clusterNum, tolerance,
                                     iterationNum, comm, resultObj, queue);
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
         break;
