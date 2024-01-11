@@ -235,6 +235,7 @@ object Utils {
   // All other functions using native libraries will depend on this function to be called first
   //
   def checkClusterPlatformCompatibility(sc: SparkContext): Boolean = {
+    println("Utils checkClusterPlatformCompatibility")
     // check driver platform compatibility
     if (!OneDAL.cCheckPlatformCompatibility()) {
       return false

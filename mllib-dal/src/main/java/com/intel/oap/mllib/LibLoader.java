@@ -46,6 +46,8 @@ public final class LibLoader {
    * Load all native libs
    */
   public static synchronized void loadLibraries() throws IOException {
+    System.out.println("loadLibraries");
+
     if (isLoaded) {
       return;
     }
@@ -82,19 +84,26 @@ public final class LibLoader {
    */
   private static void loadFromJar(String path, String name) throws IOException {
     log.debug("Loading " + name + " ...");
+    log.info("Loading " + name + " ...");
 
     File fileOut = createTempFile(path, name);
     // File exists already
     if (fileOut == null) {
       log.debug("DONE: Loading library as resource.");
+      log.info("DONE: Loading library as resource.");
       return;
     }
 
+    log.info("LIBRARY_PATH_IN_JAR : " + LIBRARY_PATH_IN_JAR );
+
     InputStream streamIn = LibLoader.class.getResourceAsStream(LIBRARY_PATH_IN_JAR + "/" + name);
+    log.info("loading end");
+
     if (streamIn == null) {
       throw new IOException("Error: No resource found.");
     }
 
+    log.info("streamOut");
     try (OutputStream streamOut = new FileOutputStream(fileOut)) {
       // Writing resource to temp file
       byte[] buffer = new byte[32768];
@@ -113,8 +122,11 @@ public final class LibLoader {
       streamIn.close();
     }
 
+    log.info("streamOut end");
+    log.info("fileOut " + fileOut.toString());
     System.load(fileOut.toString());
     log.debug("DONE: Loading library " + fileOut.toString() +" as resource.");
+    log.info("DONE: Loading library " + fileOut.toString() +" as resource.");
   }
 
   /**
@@ -125,8 +137,12 @@ public final class LibLoader {
    * @return temporary file handler. null if file exist already.
    */
   private static File createTempFile(String tempSubDirName, String name) throws IOException {
+   
+    log.info("INFO: createTempFile start");
     File tempSubDirectory = new File(
             System.getProperty("java.io.tmpdir") + "/" + tempSubDirName + LIBRARY_PATH_IN_JAR);
+    log.info("INFO: createTempFile tempSubDirectory " + tempSubDirectory.getAbsolutePath());
+
 
     if (!tempSubDirectory.exists()) {
       boolean created = tempSubDirectory.mkdirs();
@@ -137,6 +153,8 @@ public final class LibLoader {
     }
 
     String tempFileName = tempSubDirectory + "/" + name;
+    log.info("INFO: createTempFile : " + tempFileName);
+
     File tempFile = new File(tempFileName);
 
     if (tempFile == null) {

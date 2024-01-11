@@ -92,6 +92,7 @@ Java_com_intel_oap_mllib_OneDAL_00024_cCheckPlatformCompatibility(JNIEnv *,
                                                                   jobject) {
     // Only guarantee compatibility and performance on Intel platforms, use
     // OneDAL lib function
+    std::cout << "OneDAL CheckPlatformCompatibility" << std::endl;
     return daal_check_is_intel_cpu();
 }
 

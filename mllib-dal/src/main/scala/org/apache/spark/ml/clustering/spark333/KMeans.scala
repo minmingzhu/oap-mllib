@@ -54,6 +54,7 @@ class KMeans @Since("1.5.0") (
 
   @Since("2.0.0")
   override def fit(dataset: Dataset[_]): KMeansModel = instrumented { instr =>
+    println("Kmenas fit")
     transformSchema(dataset.schema, logging = true)
 
     instr.logPipelineStage(this)
@@ -67,19 +68,38 @@ class KMeans @Since("1.5.0") (
     } else {
       lit(1.0)
     }
+    println("Kmenas fit instances ")
+
     val instances = dataset.select(DatasetUtils.columnToVector(dataset, getFeaturesCol), w)
       .rdd.map { case Row(point: Vector, weight: Double) => (point, weight) }
 
+    println("Kmenas fit instances end ")
+
     val handlePersistence = (dataset.storageLevel == StorageLevel.NONE)
+
+    println("Kmenas fit isPlatformSupported ")
+
 
     val isPlatformSupported = Utils.checkClusterPlatformCompatibility(
       dataset.sparkSession.sparkContext)
+
+    println("Kmenas fit isPlatformSupported end")
+
+    logInfo(s"Kmenas fit isPlatformSupported is $isPlatformSupported ")
+
     val useKMeansDAL = Utils.isOAPEnabled() && isPlatformSupported &&
       $(distanceMeasure) == "euclidean" && !handleWeight
+    
+    logInfo(s"Kmenas fit useKMeansDAL is $useKMeansDAL ")
 
+    println("Kmenas fit isPlatformSupported end ")
+    println("Kmenas mode switch")
     val model = if (useKMeansDAL) {
+      println("Kmenas trainWithDAL ")
       trainWithDAL(instances, handlePersistence)
+
     } else {
+      println("Kmenas trainWithML ")
       trainWithML(instances, handlePersistence)
     }
 
@@ -172,6 +192,8 @@ class KMeans @Since("1.5.0") (
 
   private def trainWithML(instances: RDD[(Vector, Double)],
                           handlePersistence: Boolean): KMeansModel = instrumented { instr =>
+      println("Kmenas trainWithML ")
+
       val oldVectorInstances = instances.map {
         case (point: Vector, weight: Double) => (OldVectors.fromML(point), weight)
       }
