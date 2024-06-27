@@ -49,12 +49,12 @@ class NaiveBayesDALImpl(val uid: String,
       OneDAL.coalesceSparseLabelPointsToSparseNumericTables(labeledPoints,
         labelCol, featuresCol, executorNum)
     }
-
+    val breakdown_name = "NaiveBayesDAL_breakdown_" + executorNum
     val results = labeledPointsTables.mapPartitionsWithIndex {
       case (rank: Int, tables: Iterator[(Long, Long)]) =>
         val (featureTabAddr, lableTabAddr) = tables.next()
 
-        OneCCL.init(executorNum, rank, kvsIPPort)
+        OneCCL.init(executorNum, rank, kvsIPPort, breakdown_name)
 
         val computeStartTime = System.nanoTime()
 

@@ -54,8 +54,10 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
 
     const char *str = env->GetStringUTFChars(ip_port, 0);
     ccl::string ccl_ip_port(str);
+    const char *str_name = env->GetStringUTFChars(name, 0);
+    ccl::string ccl_name(str_name);
 
-    auto &singletonCCLInit = CCLInitSingleton::get(size, rank, ccl_ip_port, name);
+    auto &singletonCCLInit = CCLInitSingleton::get(size, rank, ccl_ip_port, ccl_name);
 
     g_kvs.push_back(singletonCCLInit.getKvs());
     g_comms.push_back(std::move(singletonCCLInit.getComm()));
@@ -69,6 +71,7 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     env->SetLongField(param, fid_comm_size, comm_size);
     env->SetLongField(param, fid_rank_id, rank_id);
     env->ReleaseStringUTFChars(ip_port, str);
+    env->ReleaseStringUTFChars(name, str_name);
 
     return 1;
 }

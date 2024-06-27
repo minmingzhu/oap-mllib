@@ -190,7 +190,7 @@ inline std::string get_data_path(const std::string& name) {
 static void doCorrelationOneAPICompute(
     JNIEnv *env, jlong pNumTabData, long numRows, long numClos,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
-    jobject resultObj, sycl::queue &queue, jstring breakdown_name) {
+    jobject resultObj, sycl::queue &queue, std::string breakdown_name) {
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
     auto t1 = std::chrono::high_resolution_clock::now();
@@ -304,7 +304,8 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
             rankId);
 
         jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
-
+        const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
+        std::string c_breakdown_name(cstr);
         int size = cclComm.size();
 
         auto queue =
@@ -319,11 +320,12 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
         auto duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
-        logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
+        logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
         doCorrelationOneAPICompute(env, pNumTabData, numRows, numClos, comm,
-                                       resultObj, queue, breakdown_name);
+                                       resultObj, queue, c_breakdown_name);
 
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
+        env->ReleaseStringUTFChars(breakdown_name, cstr);
         break;
     }
 #endif

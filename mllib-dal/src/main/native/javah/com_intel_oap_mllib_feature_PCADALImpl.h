@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_intel_oap_mllib_feature_PCADALImpl
  * Method:    cPCATrainDAL
- * Signature: (JIII[ILcom/intel/oap/mllib/feature/PCAResult;)J
+ * Signature: (JJJIII[ILjava/lang/String;Lcom/intel/oap/mllib/feature/PCAResult;)J
  */
 JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_feature_PCADALImpl_cPCATrainDAL
-  (JNIEnv *, jobject, jlong, jlong, jlong, jint, jint, jint, jintArray, jobject);
+  (JNIEnv *, jobject, jlong, jlong, jlong, jint, jint, jint, jintArray, jstring, jobject);
 
 #ifdef __cplusplus
 }

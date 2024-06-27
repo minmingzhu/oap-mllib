@@ -19,8 +19,8 @@ std::string name;
 public:
     static Logger& getInstance(std::string name) {
         static std::once_flag flag;
-        static Logger instance;
-        std::call_once(flag, [name] {
+        static Logger instance(name);
+        std::call_once(flag, [&name] {
             instance = Logger(name);
         });
         return instance;
@@ -29,7 +29,7 @@ public:
     void printLogToFile(const char *format, ...);
     void closeFile();
 private:
-    Logger(std::string name) : name(name) {
+    Logger(std::string name) : name(std::move(name)) {
         char* path = std::getenv("SPARKJOB_CONFIG_DIR");
         if (path != nullptr) {
          std::cout << "SPARKJOB_CONFIG_DIR Directory: " << path << std::endl;

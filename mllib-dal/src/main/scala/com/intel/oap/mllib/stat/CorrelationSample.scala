@@ -120,9 +120,9 @@ object CorrelationSample {
 //      computeDevice)
     logger.info(s"hTables")
     val kvsIPPort = getOneCCLIPPort(data)
-
+    val breakdown_name = "Correlation_training_breakdown_" + executorNum
     val result = data.mapPartitionsWithIndex { (rank, iter) =>
-      OneCCL.init(executorNum, rank, kvsIPPort)
+      OneCCL.init(executorNum, rank, kvsIPPort, breakdown_name)
 //      val (tableArr : Long, rows : Long, columns : Long) = if (useDevice == "GPU") {
 //      val parts = iter.next().toString.split("_")
 //        (parts(0).toLong, parts(1).toLong, parts(2).toLong)
@@ -147,6 +147,7 @@ object CorrelationSample {
       executorCores,
       computeDevice.ordinal(),
       gpuIndices,
+      breakdown_name,
       result
     )
 

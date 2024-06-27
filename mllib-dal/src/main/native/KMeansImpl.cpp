@@ -252,7 +252,7 @@ static jlong doKMeansOneAPICompute(
     JNIEnv *env, jlong pNumTabData, jlong numRows, jlong numClos,
     jlong pNumTabCenters, jint clusterNum, jdouble tolerance, jint iterationNum,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
-    jobject resultObj, sycl::queue &queue, jstring breakdown_name) {
+    jobject resultObj, sycl::queue &queue, std::string  breakdown_name) {
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
     float *htableArray = reinterpret_cast<float *>(pNumTabData);
@@ -372,6 +372,8 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
             rankId);
 
         jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
+        const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
+        std::string c_breakdown_name(cstr);
 
         int size = cclComm.size();
 
@@ -387,11 +389,12 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
         auto duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
-        logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
+        logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
         ret = doKMeansOneAPICompute(env, pNumTabData, numRows, numClos,
                                     pNumTabCenters, clusterNum, tolerance,
-                                    iterationNum, comm, resultObj, queue, breakdown_name);
+                                    iterationNum, comm, resultObj, queue, c_breakdown_name);
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
+        env->ReleaseStringUTFChars(breakdown_name, cstr);
         break;
     }
 #endif

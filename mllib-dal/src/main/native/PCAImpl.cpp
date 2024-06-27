@@ -184,7 +184,7 @@ static void doPCADAALCompute(JNIEnv *env, jobject obj, size_t rankId,
 static void doPCAOneAPICompute(
     JNIEnv *env, jlong pNumTabData, jlong numRows, jlong numClos,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
-    jobject resultObj, sycl::queue &queue, jstring breakdown_name) {
+    jobject resultObj, sycl::queue &queue, std::string breakdown_name) {
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
     float *htableArray = reinterpret_cast<float *>(pNumTabData);
@@ -298,6 +298,8 @@ Java_com_intel_oap_mllib_feature_PCADALImpl_cPCATrainDAL(
             rankId);
 
         jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
+        const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
+        std::string c_breakdown_name(cstr);
 
         int size = cclComm.size();
 
@@ -313,10 +315,11 @@ Java_com_intel_oap_mllib_feature_PCADALImpl_cPCATrainDAL(
         auto duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
-        logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
+        logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
         doPCAOneAPICompute(env, pNumTabData, numRows, numClos, comm, resultObj,
-                           queue, breakdown_name);
+                           queue, c_breakdown_name);
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
+        env->ReleaseStringUTFChars(breakdown_name, cstr);
         break;
     }
 #endif

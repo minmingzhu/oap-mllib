@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_intel_oap_mllib_stat_SummarizerDALImpl
  * Method:    cSummarizerTrainDAL
- * Signature: (JIII[ILcom/intel/oap/mllib/stat/SummarizerResult;)J
+ * Signature: (JJJIII[ILjava/lang/String;Lcom/intel/oap/mllib/stat/SummarizerResult;)J
  */
 JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_stat_SummarizerDALImpl_cSummarizerTrainDAL
-  (JNIEnv *, jobject, jlong, jlong, jlong, jint, jint, jint, jintArray, jobject);
+  (JNIEnv *, jobject, jlong, jlong, jlong, jint, jint, jint, jintArray, jstring, jobject);
 
 #ifdef __cplusplus
 }

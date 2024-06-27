@@ -42,10 +42,10 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1getAvailPort
 /*
  * Class:     com_intel_oap_mllib_OneCCL__
  * Method:    c_init
- * Signature: (IILjava/lang/String;Lcom/intel/oap/mllib/CCLParam;)I
+ * Signature: (IILjava/lang/String;Ljava/lang/String;Lcom/intel/oap/mllib/CCLParam;)I
  */
 JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init
-  (JNIEnv *, jobject, jint, jint, jstring, jobject);
+  (JNIEnv *, jobject, jint, jint, jstring, jstring, jobject);
 
 /*
  * Class:     com_intel_oap_mllib_OneCCL__

@@ -77,6 +77,7 @@ class ALSDALImpl[@specialized(Int, Long) ID: ClassTag]( data: RDD[Rating[ID]],
       .setName("Repartitioned for conversion").cache()
 
     val kvsIPPort = getOneCCLIPPort(numericTables)
+    val breakdown_name = "ALS_breakdown_name_" + executorNum
 
     val results = numericTables
       // Transpose the dataset
@@ -84,7 +85,7 @@ class ALSDALImpl[@specialized(Int, Long) ID: ClassTag]( data: RDD[Rating[ID]],
         Rating(p.item, p.user, p.rating)
       }
       .mapPartitionsWithIndex { (rank, iter) =>
-        OneCCL.init(executorNum, rank, kvsIPPort)
+        OneCCL.init(executorNum, rank, kvsIPPort, breakdown_name)
         val rankId = OneCCL.rankID()
 
         println("rankId", rankId, "nUsers", nVectors, "nItems", nFeatures)

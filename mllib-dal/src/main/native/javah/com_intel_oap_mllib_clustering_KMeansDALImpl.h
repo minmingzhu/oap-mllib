@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_intel_oap_mllib_clustering_KMeansDALImpl
  * Method:    cKMeansOneapiComputeWithInitCenters
- * Signature: (JJIDIIII[ILcom/intel/oap/mllib/clustering/KMeansResult;)J
+ * Signature: (JJJJIDIIII[ILjava/lang/String;Lcom/intel/oap/mllib/clustering/KMeansResult;)J
  */
 JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCenters
-  (JNIEnv *, jobject, jlong, jlong, jlong, jlong, jint, jdouble, jint, jint, jint, jint, jintArray, jobject);
+  (JNIEnv *, jobject, jlong, jlong, jlong, jlong, jint, jdouble, jint, jint, jint, jint, jintArray, jstring, jobject);
 
 #ifdef __cplusplus
 }
