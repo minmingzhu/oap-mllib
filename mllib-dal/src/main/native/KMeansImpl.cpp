@@ -252,7 +252,7 @@ static jlong doKMeansOneAPICompute(
     JNIEnv *env, jlong pNumTabData, jlong numRows, jlong numClos,
     jlong pNumTabCenters, jint clusterNum, jdouble tolerance, jint iterationNum,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
-    jobject resultObj, sycl::queue &queue) {
+    jobject resultObj, sycl::queue &queue, jstring breakdown_name) {
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
     float *htableArray = reinterpret_cast<float *>(pNumTabData);
@@ -268,9 +268,8 @@ static jlong doKMeansOneAPICompute(
     logger::println(logger::INFO,
                     "KMeans (native): create homogen table took %f secs",
                     duration / 1000);
-    auto training_breakdown_name = "Kmeans_training_breakdown_" + std::to_string(comm.get_rank_count());
-    logger::println(logger::INFO, "doKMeansOneAPICompute breakdown name %s", training_breakdown_name.c_str());
-    logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
+
+    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
     homogen_table centroids =
             *reinterpret_cast<const homogen_table *>(pNumTabCenters);
 
@@ -290,7 +289,7 @@ static jlong doKMeansOneAPICompute(
                     "KMeans (native): training step took %f secs",
                     duration / 1000);
 
-    logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, K-means training step took %f secs.", comm.get_rank(), duration / 1000 );
+    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, K-means training step took %f secs.", comm.get_rank(), duration / 1000 );
     if (isRoot) {
         logger::println(logger::INFO, "Iteration count: %d",
                         result_train.get_iteration_count());
@@ -303,7 +302,7 @@ static jlong doKMeansOneAPICompute(
         logger::println(logger::INFO,
                         "KMeans (native): training step took %d secs",
                         duration / 1000);
-        logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
+        logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
         // Get the class of the input object
         jclass clazz = env->GetObjectClass(resultObj);
         // Get Field references
@@ -336,7 +335,7 @@ JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCenters(
     JNIEnv *env, jobject obj, jlong pNumTabData, jlong numRows, jlong numClos, jlong pNumTabCenters,
     jint clusterNum, jdouble tolerance, jint iterationNum, jint executorNum,
-    jint executorCores, jint computeDeviceOrdinal, jintArray gpuIdxArray,
+    jint executorCores, jint computeDeviceOrdinal, jintArray gpuIdxArray, jstring breakdown_name,
     jobject resultObj) {
     logger::println(logger::INFO,
                     "OneDAL (native): use DPC++ kernels; device %s",
@@ -388,12 +387,10 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
         auto duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
-        auto training_breakdown_name = "Kmeans_training_breakdown_" + std::to_string(comm.get_rank_count());
-        logger::println(logger::INFO, "doKMeansOneAPICompute breakdown name %s", training_breakdown_name.c_str());
-        logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
+        logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
         ret = doKMeansOneAPICompute(env, pNumTabData, numRows, numClos,
                                     pNumTabCenters, clusterNum, tolerance,
-                                    iterationNum, comm, resultObj, queue);
+                                    iterationNum, comm, resultObj, queue, breakdown_name);
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
         break;
     }

@@ -105,6 +105,7 @@ class LinearRegressionDALImpl( val fitIntercept: Boolean,
       throw new SparkException(msg)
     }
     lrTimer.record("Data Convertion")
+    val training_breakdown_name = "LR_training_breakdown_" + executorNum;
 
     val results = labeledPointsTables.mapPartitionsWithIndex { (rank, tables) =>
         val (feature, label) = tables.next()
@@ -123,7 +124,7 @@ class LinearRegressionDALImpl( val fitIntercept: Boolean,
             (label.toString.toLong, 0L, 0L)
           }
 
-        OneCCL.init(executorNum, rank, kvsIPPort)
+        OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name)
         val result = new LiRResult()
 
         val gpuIndices = if (useDevice == "GPU") {
@@ -152,6 +153,7 @@ class LinearRegressionDALImpl( val fitIntercept: Boolean,
           executorCores,
           computeDevice.ordinal(),
           gpuIndices,
+          training_breakdown_name,
           result
         )
 
@@ -197,6 +199,7 @@ class LinearRegressionDALImpl( val fitIntercept: Boolean,
                                   executorCores: Int,
                                   computeDeviceOrdinal: Int,
                                   gpuIndices: Array[Int],
+                                  training_breakdown_name: String,
                                   result: LiRResult): Long
 
   }

@@ -184,7 +184,7 @@ static void doPCADAALCompute(JNIEnv *env, jobject obj, size_t rankId,
 static void doPCAOneAPICompute(
     JNIEnv *env, jlong pNumTabData, jlong numRows, jlong numClos,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
-    jobject resultObj, sycl::queue &queue) {
+    jobject resultObj, sycl::queue &queue, jstring breakdown_name) {
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
     float *htableArray = reinterpret_cast<float *>(pNumTabData);
@@ -200,9 +200,8 @@ static void doPCAOneAPICompute(
     logger::println(logger::INFO,
                         "PCA (native): create homogen table took %f secs",
                         duration / 1000);
-    auto training_breakdown_name = "PCA_training_breakdown_" + std::to_string(comm.get_rank_count());
-    logger::println(logger::INFO, "doPCAOneAPICompute breakdown name %s", training_breakdown_name.c_str());
-    logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
+
+    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
 
     const auto cov_desc =
         covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
@@ -216,7 +215,7 @@ static void doPCAOneAPICompute(
     logger::println(logger::INFO, "PCA (native): Correlation step took %f secs",
                     duration / 1000);
 
-    logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, PCA training step took %f secs.", comm.get_rank(), duration / 1000 );
+    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, PCA training step took %f secs.", comm.get_rank(), duration / 1000 );
     if (isRoot) {
         using float_t = GpuAlgorithmFPType;
         using method_t = pca_gpu::method::precomputed;
@@ -232,7 +231,7 @@ static void doPCAOneAPICompute(
                        .count();
         logger::println(logger::INFO, "PCA (native): Eigen step took %f secs",
                         duration / 1000);
-        logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
+        logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
         // Return all eigenvalues & eigenvectors
         // Get the class of the input object
         jclass clazz = env->GetObjectClass(resultObj);
@@ -266,7 +265,7 @@ JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_feature_PCADALImpl_cPCATrainDAL(
     JNIEnv *env, jobject obj, jlong pNumTabData, jlong numRows, jlong numClos,
     jint executorNum, jint executorCores, jint computeDeviceOrdinal,
-    jintArray gpuIdxArray, jobject resultObj) {
+    jintArray gpuIdxArray, jstring breakdown_name,jobject resultObj) {
     logger::println(logger::INFO,
                     "oneDAL (native): use DPC++ kernels; device %s",
                     ComputeDeviceString[computeDeviceOrdinal].c_str());
@@ -314,11 +313,9 @@ Java_com_intel_oap_mllib_feature_PCADALImpl_cPCATrainDAL(
         auto duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
-        auto training_breakdown_name = "PCA_training_breakdown_" + std::to_string(comm.get_rank_count());
-        logger::println(logger::INFO, "doPCAOneAPICompute breakdown name %s", training_breakdown_name.c_str());
-        logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
+        logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
         doPCAOneAPICompute(env, pNumTabData, numRows, numClos, comm, resultObj,
-                           queue);
+                           queue, breakdown_name);
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
         break;
     }

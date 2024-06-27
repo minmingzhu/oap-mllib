@@ -299,7 +299,7 @@ Java_com_intel_oap_mllib_regression_LinearRegressionDALImpl_cLinearRegressionTra
     JNIEnv *env, jobject obj, jlong feature, jlong featureRows,
     jlong featureCols, jlong label, jlong labelCols, jboolean fitIntercept,
     jdouble regParam, jdouble elasticNetParam, jint executorNum,
-    jint executorCores, jint computeDeviceOrdinal, jintArray gpuIdxArray,
+    jint executorCores, jint computeDeviceOrdinal, jintArray gpuIdxArray, jstring breakdown_name,
     jobject resultObj) {
 
     logger::println(logger::INFO,

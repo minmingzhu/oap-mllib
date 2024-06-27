@@ -59,8 +59,9 @@ class PCADALImpl(val k: Int,
     val kvsIPPort = getOneCCLIPPort(coalescedTables)
     pcaTimer.record("Data Convertion")
 
+    val training_breakdown_name = "PCA_training_breakdown_" + executorNum;
     coalescedTables.mapPartitionsWithIndex { (rank, table) =>
-      OneCCL.init(executorNum, rank, kvsIPPort)
+      OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name)
       Iterator.empty
     }.count()
     pcaTimer.record("OneCCL Init")
@@ -87,6 +88,7 @@ class PCADALImpl(val k: Int,
         executorCores,
         computeDevice.ordinal(),
         gpuIndices,
+        training_breakdown_name,
         result
       )
 
@@ -222,5 +224,6 @@ class PCADALImpl(val k: Int,
                                    executorCores: Int,
                                    computeDeviceOrdinal: Int,
                                    gpuIndices: Array[Int],
+                                   training_breakdown_name: String,
                                    result: PCAResult): Long
 }

@@ -338,7 +338,7 @@ Java_com_intel_oap_mllib_regression_RandomForestRegressorDALImpl_cRFRegressorTra
     jlong featureCols, jlong pNumTabLabel, jlong labelCols, jint executorNum,
     jint computeDeviceOrdinal, jint treeCount, jint numFeaturesPerNode,
     jint minObservationsLeafNode, jint maxTreeDepth, jlong seed, jint maxbins,
-    jboolean bootstrap, jintArray gpuIdxArray, jobject resultObj) {
+    jboolean bootstrap, jintArray gpuIdxArray, jstring breakdown_name, jobject resultObj) {
     logger::println(logger::INFO,
                     "OneDAL (native): use DPC++ kernels; device %s",
                     ComputeDeviceString[computeDeviceOrdinal].c_str());

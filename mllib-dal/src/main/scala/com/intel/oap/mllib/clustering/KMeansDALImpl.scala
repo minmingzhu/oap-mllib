@@ -51,9 +51,10 @@ class KMeansDALImpl(var nClusters: Int,
     kmeansTimer.record("Data Convertion")
 
     val kvsIPPort = getOneCCLIPPort(coalescedTables)
+    val training_breakdown_name = "Kmeans_training_breakdown_" + executorNum;
 
     coalescedTables.mapPartitionsWithIndex { (rank, iter) =>
-      OneCCL.init(executorNum, rank, kvsIPPort)
+      OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name)
       Iterator.empty
     }.count()
     kmeansTimer.record("OneCCL Init")
@@ -93,6 +94,7 @@ class KMeansDALImpl(var nClusters: Int,
         executorCores,
         computeDevice.ordinal(),
         gpuIndices,
+        training_breakdown_name,
         result
       )
 
@@ -148,5 +150,6 @@ class KMeansDALImpl(var nClusters: Int,
                                                        executorCores: Int,
                                                        computeDeviceOrdinal: Int,
                                                        gpuIndices: Array[Int],
+                                                       training_breakdown_name: String,
                                                        result: KMeansResult): Long
 }

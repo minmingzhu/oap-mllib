@@ -46,7 +46,7 @@ ccl::communicator &getComm() { return g_comms[0]; }
 ccl::shared_ptr_class<ccl::kvs> &getKvs() { return g_kvs[0]; }
 
 JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
-    JNIEnv *env, jobject obj, jint size, jint rank, jstring ip_port,
+    JNIEnv *env, jobject obj, jint size, jint rank, jstring ip_port, jstring name,
     jobject param) {
 
     logger::println(logger::INFO, "OneCCL (native): init");
@@ -55,7 +55,7 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     const char *str = env->GetStringUTFChars(ip_port, 0);
     ccl::string ccl_ip_port(str);
 
-    auto &singletonCCLInit = CCLInitSingleton::get(size, rank, ccl_ip_port);
+    auto &singletonCCLInit = CCLInitSingleton::get(size, rank, ccl_ip_port, name);
 
     g_kvs.push_back(singletonCCLInit.getKvs());
     g_comms.push_back(std::move(singletonCCLInit.getComm()));

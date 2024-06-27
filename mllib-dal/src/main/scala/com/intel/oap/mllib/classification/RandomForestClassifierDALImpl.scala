@@ -74,9 +74,10 @@ class RandomForestClassifierDALImpl(val uid: String,
     }
     rfcTimer.record("Data Convertion")
     val kvsIPPort = getOneCCLIPPort(labeledPointsTables)
+    val training_breakdown_name = "RFClassifier_training_breakdown_" + executorNum;
 
     labeledPointsTables.mapPartitionsWithIndex { (rank, table) =>
-      OneCCL.init(executorNum, rank, kvsIPPort)
+      OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name)
       Iterator.empty
     }.count()
     rfcTimer.record("OneCCL Init")
@@ -123,6 +124,7 @@ class RandomForestClassifierDALImpl(val uid: String,
         maxBins,
         bootstrap,
         gpuIndices,
+        training_breakdown_name,
         result)
 
       val computeEndTime = System.nanoTime()
@@ -167,6 +169,7 @@ class RandomForestClassifierDALImpl(val uid: String,
                                                    maxBins: Int,
                                                    bootstrap: Boolean,
                                                    gpuIndices: Array[Int],
+                                                   training_breakdown_name: String,
                                                    result: RandomForestResult):
   java.util.HashMap[java.lang.Integer, java.util.ArrayList[LearningNode]]
 }

@@ -204,7 +204,7 @@ static void doSummarizerDAALCompute(JNIEnv *env, jobject obj, size_t rankId,
 static void doSummarizerOneAPICompute(
     JNIEnv *env, jlong pNumTabData, jlong numRows, jlong numClos,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
-    jobject resultObj, sycl::queue &queue) {
+    jobject resultObj, sycl::queue &queue, jstring breakdown_name) {
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
     float *htableArray = reinterpret_cast<float *>(pNumTabData);
@@ -217,12 +217,11 @@ static void doSummarizerOneAPICompute(
     auto duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
             .count();
-    auto training_breakdown_name = "Summarizer_training_breakdown_" + std::to_string(comm.get_rank_count());
-    logger::println(logger::INFO, "doSummarizerOneAPICompute breakdown name %s", training_breakdown_name.c_str());
+
     logger::println(logger::INFO,
                     "Summarizer (native): create homogen table took %f secs",
                     duration / 1000);
-    logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
+    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
 
     const auto bs_desc = basic_statistics::descriptor<GpuAlgorithmFPType>{};
     t1 = std::chrono::high_resolution_clock::now();
@@ -235,7 +234,7 @@ static void doSummarizerOneAPICompute(
                     "Summarizer (native): computing step took %f secs",
                     duration / 1000);
 
-    logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, Summarizer training step took %f secs.", comm.get_rank(), duration / 1000 );
+    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, Summarizer training step took %f secs.", comm.get_rank(), duration / 1000 );
     if (isRoot) {
         t2 = std::chrono::high_resolution_clock::now();
         duration = (float)std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -244,7 +243,7 @@ static void doSummarizerOneAPICompute(
         logger::println(logger::INFO,
                         "Summarizer (native): computing step took %f secs",
                         duration / 1000);
-        logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
+        logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
         logger::println(logger::INFO, "Minimum");
         printHomegenTable(result_train.get_min());
         logger::println(logger::INFO, "Maximum");
@@ -291,7 +290,7 @@ JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_stat_SummarizerDALImpl_cSummarizerTrainDAL(
     JNIEnv *env, jobject obj, jlong pNumTabData, jlong numRows, jlong numClos,
     jint executorNum, jint executorCores, jint computeDeviceOrdinal,
-    jintArray gpuIdxArray, jobject resultObj) {
+    jintArray gpuIdxArray, jstring breakdown_name, jobject resultObj) {
     logger::println(logger::INFO,
                     "oneDAL (native): use DPC++ kernels; device %s",
                     ComputeDeviceString[computeDeviceOrdinal].c_str());
@@ -339,11 +338,10 @@ Java_com_intel_oap_mllib_stat_SummarizerDALImpl_cSummarizerTrainDAL(
         auto duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
-        auto training_breakdown_name = "Summarizer_training_breakdown_" + std::to_string(comm.get_rank_count());
-        logger::println(logger::INFO, "doSummarizerOneAPICompute breakdown name %s", training_breakdown_name.c_str());
-        logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
+
+        logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
         doSummarizerOneAPICompute(env, pNumTabData, numRows, numClos, comm,
-                                  resultObj, queue);
+                                  resultObj, queue, breakdown_name);
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
         break;
     }

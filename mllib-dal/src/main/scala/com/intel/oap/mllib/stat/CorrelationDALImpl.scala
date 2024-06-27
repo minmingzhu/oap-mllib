@@ -45,9 +45,10 @@ class CorrelationDALImpl(
     corTimer.record("Data Convertion")
 
     val kvsIPPort = getOneCCLIPPort(coalescedTables)
+    val training_breakdown_name = "Correlation_training_breakdown_" + executorNum;
 
     coalescedTables.mapPartitionsWithIndex { (rank, table) =>
-      OneCCL.init(executorNum, rank, kvsIPPort)
+      OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name)
       Iterator.empty
     }.count()
     corTimer.record("OneCCL Init")
@@ -77,6 +78,7 @@ class CorrelationDALImpl(
         executorCores,
         computeDevice.ordinal(),
         gpuIndices,
+        training_breakdown_name,
         result
       )
 
@@ -126,5 +128,6 @@ class CorrelationDALImpl(
                                            executorCores: Int,
                                            computeDeviceOrdinal: Int,
                                            gpuIndices: Array[Int],
+                                           training_breakdown_name: String,
                                            result: CorrelationResult): Long
 }
