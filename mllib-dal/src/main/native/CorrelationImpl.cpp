@@ -207,7 +207,7 @@ static void doCorrelationOneAPICompute(
     auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
     std::cout << "table size : " << numRows * numClos << std::endl;
     auto training_breakdown_name = "Correlation_training_breakdown_" + std::to_string(comm.get_rank_count());
-    logger::println(logger::INFO, "doCorrelationOneAPICompute breakdown name %s", training_breakdown_name);
+    logger::println(logger::INFO, "doCorrelationOneAPICompute breakdown name %s", training_breakdown_name.c_str());
     logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, table size %ld.", comm.get_rank(), numRows * numClos );
     queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
     homogen_table htable{queue, data, numRows, numClos,
@@ -322,7 +322,7 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
         auto training_breakdown_name = "Correlation_training_breakdown_" + std::to_string(comm.get_rank_count());
-        logger::println(logger::INFO, "doCorrelationOneAPICompute breakdown name %s", training_breakdown_name);
+        logger::println(logger::INFO, "doCorrelationOneAPICompute breakdown name %s", training_breakdown_name.c_str());
         logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
         doCorrelationOneAPICompute(env, pNumTabData, numRows, numClos, comm,
                                        resultObj, queue);

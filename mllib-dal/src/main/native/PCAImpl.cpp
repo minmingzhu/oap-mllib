@@ -201,7 +201,7 @@ static void doPCAOneAPICompute(
                         "PCA (native): create homogen table took %f secs",
                         duration / 1000);
     auto training_breakdown_name = "PCA_training_breakdown_" + std::to_string(comm.get_rank_count());
-    logger::println(logger::INFO, "doPCAOneAPICompute breakdown name %s", training_breakdown_name);
+    logger::println(logger::INFO, "doPCAOneAPICompute breakdown name %s", training_breakdown_name.c_str());
     logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
 
     const auto cov_desc =
@@ -315,7 +315,7 @@ Java_com_intel_oap_mllib_feature_PCADALImpl_cPCATrainDAL(
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
         auto training_breakdown_name = "PCA_training_breakdown_" + std::to_string(comm.get_rank_count());
-        logger::println(logger::INFO, "doPCAOneAPICompute breakdown name %s", training_breakdown_name);
+        logger::println(logger::INFO, "doPCAOneAPICompute breakdown name %s", training_breakdown_name.c_str());
         logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
         doPCAOneAPICompute(env, pNumTabData, numRows, numClos, comm, resultObj,
                            queue);

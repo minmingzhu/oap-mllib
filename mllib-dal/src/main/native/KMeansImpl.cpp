@@ -269,7 +269,7 @@ static jlong doKMeansOneAPICompute(
                     "KMeans (native): create homogen table took %f secs",
                     duration / 1000);
     auto training_breakdown_name = "Kmeans_training_breakdown_" + std::to_string(comm.get_rank_count());
-    logger::println(logger::INFO, "doKMeansOneAPICompute breakdown name %s", training_breakdown_name);
+    logger::println(logger::INFO, "doKMeansOneAPICompute breakdown name %s", training_breakdown_name.c_str());
     logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
     homogen_table centroids =
             *reinterpret_cast<const homogen_table *>(pNumTabCenters);
@@ -389,7 +389,7 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
         auto training_breakdown_name = "Kmeans_training_breakdown_" + std::to_string(comm.get_rank_count());
-        logger::println(logger::INFO, "doKMeansOneAPICompute breakdown name %s", training_breakdown_name);
+        logger::println(logger::INFO, "doKMeansOneAPICompute breakdown name %s", training_breakdown_name.c_str());
         logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
         ret = doKMeansOneAPICompute(env, pNumTabData, numRows, numClos,
                                     pNumTabCenters, clusterNum, tolerance,
