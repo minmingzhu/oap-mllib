@@ -233,7 +233,9 @@ static void doCorrelationOneAPICompute(
     logger::println(logger::INFO,
                     "Correlation batch(native): computing step took %f secs.",
                     duration / 1000);
-    logger::Logger::getInstance().printLogToFile("rankID was %d, Correlation computing step took %f secs.", comm.get_rank(), duration / 1000 );
+    training_breakdown_name = "Correlation_training_breakdown_" + comm.get_rank_comm().to_string();
+    logger::println(logger::INFO, "doCorrelationOneAPICompute breakdown name %s", training_breakdown_name);
+    logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, Correlation computing step took %f secs.", comm.get_rank(), duration / 1000 );
     if (isRoot) {
         logger::println(logger::INFO, "Mean:");
         printHomegenTable(result_train.get_means());

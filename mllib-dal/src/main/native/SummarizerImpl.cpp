@@ -232,7 +232,9 @@ static void doSummarizerOneAPICompute(
     logger::println(logger::INFO,
                     "Summarizer (native): computing step took %f secs",
                     duration / 1000);
-    logger::Logger::getInstance().printLogToFile("rankID was %d, Summarizer training step took %f secs.", comm.get_rank(), duration / 1000 );
+    training_breakdown_name = "Summarizer_training_breakdown_" + comm.get_rank_comm().to_string();
+    logger::println(logger::INFO, "doSummarizerOneAPICompute breakdown name %s", training_breakdown_name);
+    logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, Summarizer training step took %f secs.", comm.get_rank(), duration / 1000 );
     if (isRoot) {
         t2 = std::chrono::high_resolution_clock::now();
         duration = (float)std::chrono::duration_cast<std::chrono::milliseconds>(

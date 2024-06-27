@@ -287,7 +287,9 @@ static jlong doKMeansOneAPICompute(
     logger::println(logger::INFO,
                     "KMeans (native): training step took %f secs",
                     duration / 1000);
-    logger::Logger::getInstance().printLogToFile("rankID was %d, K-means training step took %f secs.", comm.get_rank(), duration / 1000 );
+    training_breakdown_name = "Kmeans_training_breakdown_" + comm.get_rank_comm().to_string();
+    logger::println(logger::INFO, "doKMeansOneAPICompute breakdown name %s", training_breakdown_name);
+    logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, K-means training step took %f secs.", comm.get_rank(), duration / 1000 );
     if (isRoot) {
         logger::println(logger::INFO, "Iteration count: %d",
                         result_train.get_iteration_count());
