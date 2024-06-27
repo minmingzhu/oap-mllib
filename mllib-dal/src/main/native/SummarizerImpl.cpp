@@ -217,7 +217,7 @@ static void doSummarizerOneAPICompute(
     auto duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
             .count();
-    auto training_breakdown_name = "Summarizer_training_breakdown_" + comm.get_rank_count().to_string();
+    auto training_breakdown_name = "Summarizer_training_breakdown_" + std::to_string(comm.get_rank_count());
     logger::println(logger::INFO, "doSummarizerOneAPICompute breakdown name %s", training_breakdown_name);
     logger::println(logger::INFO,
                     "Summarizer (native): create homogen table took %f secs",
@@ -339,7 +339,7 @@ Java_com_intel_oap_mllib_stat_SummarizerDALImpl_cSummarizerTrainDAL(
         auto duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
-        auto training_breakdown_name = "Summarizer_training_breakdown_" + comm.get_rank_count().to_string();
+        auto training_breakdown_name = "Summarizer_training_breakdown_" + std::to_string(comm.get_rank_count());
         logger::println(logger::INFO, "doSummarizerOneAPICompute breakdown name %s", training_breakdown_name);
         logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
         doSummarizerOneAPICompute(env, pNumTabData, numRows, numClos, comm,
