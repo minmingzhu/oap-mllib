@@ -200,7 +200,9 @@ static void doPCAOneAPICompute(
     logger::println(logger::INFO,
                         "PCA (native): create homogen table took %f secs",
                         duration / 1000);
-    logger::Logger::getInstance().printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
+    training_breakdown_name = "PCA_training_breakdown_" + comm.get_rank_comm().to_string();
+    logger::println(logger::INFO, "doPCAOneAPICompute breakdown name %s", training_breakdown_name);
+    logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
 
     const auto cov_desc =
         covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
@@ -213,8 +215,7 @@ static void doPCAOneAPICompute(
             .count();
     logger::println(logger::INFO, "PCA (native): Correlation step took %f secs",
                     duration / 1000);
-    training_breakdown_name = "PCA_training_breakdown_" + comm.get_rank_comm().to_string();
-    logger::println(logger::INFO, "doPCAOneAPICompute breakdown name %s", training_breakdown_name);
+
     logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, PCA training step took %f secs.", comm.get_rank(), duration / 1000 );
     if (isRoot) {
         using float_t = GpuAlgorithmFPType;
@@ -231,7 +232,7 @@ static void doPCAOneAPICompute(
                        .count();
         logger::println(logger::INFO, "PCA (native): Eigen step took %f secs",
                         duration / 1000);
-        logger::Logger::getInstance().printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
+        logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
         // Return all eigenvalues & eigenvectors
         // Get the class of the input object
         jclass clazz = env->GetObjectClass(resultObj);

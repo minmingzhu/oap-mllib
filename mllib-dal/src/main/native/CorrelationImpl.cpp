@@ -206,8 +206,9 @@ static void doCorrelationOneAPICompute(
 
     auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
     std::cout << "table size : " << numRows * numClos << std::endl;
-
-    logger::Logger::getInstance().printLogToFile("rankID was %d, table size %ld.", comm.get_rank(), numRows * numClos );
+    training_breakdown_name = "Correlation_training_breakdown_" + comm.get_rank_comm().to_string();
+    logger::println(logger::INFO, "doCorrelationOneAPICompute breakdown name %s", training_breakdown_name);
+    logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, table size %ld.", comm.get_rank(), numRows * numClos );
     queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
     homogen_table htable{queue, data, numRows, numClos,
                          detail::make_default_delete<const float>(queue)};
@@ -218,7 +219,8 @@ static void doCorrelationOneAPICompute(
     logger::println(logger::INFO,
                    "Correlation batch(native): create homogen table took %f secs",
                    duration / 1000);
-    logger::Logger::getInstance().printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
+
+    logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
     const auto cor_desc =
         covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
             covariance_gpu::result_options::cor_matrix |
@@ -233,8 +235,7 @@ static void doCorrelationOneAPICompute(
     logger::println(logger::INFO,
                     "Correlation batch(native): computing step took %f secs.",
                     duration / 1000);
-    training_breakdown_name = "Correlation_training_breakdown_" + comm.get_rank_comm().to_string();
-    logger::println(logger::INFO, "doCorrelationOneAPICompute breakdown name %s", training_breakdown_name);
+
     logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, Correlation computing step took %f secs.", comm.get_rank(), duration / 1000 );
     if (isRoot) {
         logger::println(logger::INFO, "Mean:");
@@ -249,7 +250,7 @@ static void doCorrelationOneAPICompute(
             logger::INFO,
             "Correlation batch(native): computing step took %f secs.",
             duration / 1000);
-        logger::Logger::getInstance().printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
+        logger::Logger::getInstance(training_breakdown_name).printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
 
         // Return all covariance & mean
         jclass clazz = env->GetObjectClass(resultObj);
