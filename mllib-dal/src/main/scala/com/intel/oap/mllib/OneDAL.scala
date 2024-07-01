@@ -558,7 +558,7 @@ object OneDAL {
           slice.toArray.zipWithIndex.map { case (row, index) =>
             val length = row.getAs[Vector](1).toArray.length
             OneDAL.cCopyFloatArrayToNative(featuresAddress, row.getAs[Vector](1).toArray, subRowCount.toLong * numCols * i + length * index)
-            labelsArray(subRowCount * i +  index) = row.getAs[Float](0)
+            labelsArray(subRowCount * i +  index) = row.getAs[Double](0).toFloat
           }
           (labelsArray, featuresAddress)
         }
