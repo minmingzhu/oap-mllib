@@ -29,7 +29,7 @@ public:
     void printLogToFile(const char *format, ...);
     void closeFile();
 private:
-    Logger(std::string name) : name(std::move(name)) {
+    Logger(std::string name) {
         char* path = std::getenv("SPARKJOB_CONFIG_DIR");
         if (path != nullptr) {
          std::cout << "SPARKJOB_CONFIG_DIR Directory: " << path << std::endl;
