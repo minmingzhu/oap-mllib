@@ -536,18 +536,18 @@ object OneDAL {
       partitionCoalescer = Some(new ExecutorInProcessCoalescePartitioner()))
       .setName("coalescedRdd")
 
-    // convert RDD to HomogenTable
+        // convert RDD to HomogenTable
     val coalescedTables = coalescedRdd.mapPartitionsWithIndex { (index: Int, it: Iterator[Row]) =>
       val list = it.toList
       val subRowCount: Int = list.size / numberCores
-      val labeledPointsList: ListBuffer[Future[(Array[Float], Long)]] =
-        new ListBuffer[Future[(Array[Float], Long)]]()
+      val labeledPointsList: ListBuffer[Future[(Long, Long)]] =
+        new ListBuffer[Future[(Long, Long)]]()
       val numRows = list.size
       val numCols = list(0).getAs[Vector](1).toArray.size
 
-      val labelsArray = new Array[Float](numRows)
-      val featuresAddress= OneDAL.cNewFloatArray(numRows.toLong * numCols)
-      for ( i <- 0 until  numberCores) {
+      val labelsAddress = OneDAL.cNewDoubleArray(numRows.toLong)
+      val featuresAddress= OneDAL.cNewDoubleArray(numRows.toLong * numCols)
+      for ( i <- 0 until numberCores) {
         val f = Future {
           val iter = list.iterator
           val slice = if (i == numberCores - 1) {
@@ -558,21 +558,17 @@ object OneDAL {
           slice.toArray.zipWithIndex.map { case (row, index) =>
             val length = row.getAs[Vector](1).toArray.length
             OneDAL.cCopyFloatArrayToNative(featuresAddress, row.getAs[Vector](1).toArray, subRowCount.toLong * numCols * i + length * index)
-            labelsArray(subRowCount * i +  index) = row.getAs[Double](0).toFloat
+            OneDAL.cCopyFloatArrayToNative(labelsAddress, Array(row.getAs[Double](0)), subRowCount * i +  index)
           }
-          (labelsArray, featuresAddress)
+          (labelsAddress, featuresAddress)
         }
         labeledPointsList += f
-
-        val result = Future.sequence(labeledPointsList)
-        Await.result(result, Duration.Inf)
       }
-      val labelsTable = new HomogenTable(numRows.toLong, 1, labelsArray,
-        device)
-      val featuresTable = new HomogenTable(numRows.toLong, numCols.toLong, featuresAddress, Common.DataType.FLOAT32,
-        device)
+      val result = Future.sequence(labeledPointsList)
+      Await.result(result, Duration.Inf)
 
-      Iterator((featuresTable.getcObejct(), labelsTable.getcObejct()))
+      Iterator(((featuresAddress, numRows.toLong, numCols.toLong), (labelsAddress, numRows.toLong, 1.toLong)))
+
     }.setName("coalescedTables").cache()
 
     coalescedTables.count()
