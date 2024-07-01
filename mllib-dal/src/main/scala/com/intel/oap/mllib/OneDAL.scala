@@ -495,7 +495,7 @@ object OneDAL {
                                          labelCol: String,
                                          featuresCol: String,
                                          executorNum: Int,
-                                         device: Common.ComputeDevice): RDD[(Long, Long)] = {
+                                         device: Common.ComputeDevice): RDD[(Tuple3[Long, Long, Long], Tuple3[Long, Long, Long])] = {
     require(executorNum > 0)
 
     logger.info(s"Processing partitions with $executorNum executors")
