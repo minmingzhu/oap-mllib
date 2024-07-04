@@ -121,7 +121,7 @@ object Utils {
     def register(timeMetrics: AlgoTimeMetrics): String = {
       val timeClassList = _algoTimeMetricsList.getOrElseUpdate(timeMetrics.algoName, ListBuffer())
       timeClassList += timeMetrics
-      val recorderName = timeMetrics.algoName + timeClassList.size.toString
+      val recorderName = timeMetrics.algoName + "_" + timeClassList.size.toString
       return recorderName
     }
   }

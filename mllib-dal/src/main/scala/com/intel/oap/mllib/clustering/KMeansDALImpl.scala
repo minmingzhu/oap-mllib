@@ -38,7 +38,8 @@ class KMeansDALImpl(var nClusters: Int,
 
   def train(data: RDD[Vector]): MLlibKMeansModel = {
     val sparkContext = data.sparkContext
-    val kmeansTimer = new Utils.AlgoTimeMetrics("KMeans", sparkContext)
+    val metrics_name = "Kmeans_" + executorNum
+    val kmeansTimer = new Utils.AlgoTimeMetrics(metrics_name, sparkContext)
     val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", Utils.DefaultComputeDevice)
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
     kmeansTimer.record("Preprocessing")

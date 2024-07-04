@@ -47,7 +47,8 @@ class RandomForestRegressorDALImpl(val uid: String,
             featuresCol: String): (util.Map[Integer, util.ArrayList[LearningNode]]) = {
     logInfo(s"RandomForestRegressorDALImpl executorNum : " + executorNum)
     val sparkContext = labeledPoints.rdd.sparkContext
-    val rfrTimer = new Utils.AlgoTimeMetrics("RandomForestRegressor", sparkContext)
+    val metrics_name = "RFRegressor_" + executorNum
+    val rfrTimer = new Utils.AlgoTimeMetrics(metrics_name, sparkContext)
     val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", Utils.DefaultComputeDevice)
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
     // used run Random Forest unit test
