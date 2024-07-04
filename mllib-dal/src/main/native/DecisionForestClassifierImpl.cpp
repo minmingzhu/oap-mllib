@@ -222,7 +222,7 @@ static jobject doRFClassifierOneAPICompute(
     jdouble minImpurityDecreaseSplitNode, jint maxTreeDepth, jlong seed,
     jint maxBins, jboolean bootstrap,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
-    jobject resultObj, sycl::queue &queue) {
+    jobject resultObj, sycl::queue &queue, std::string  breakdown_name) {
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
     float *htableFeatureArray = reinterpret_cast<float *>(pNumTabFeature);
@@ -245,6 +245,7 @@ static jobject doRFClassifierOneAPICompute(
     logger::println(logger::INFO,
                    "DF Classifier (native): create feature homogen table took %f secs",
                    duration / 1000);
+    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
     t1 = std::chrono::high_resolution_clock::now();
     auto labelData =
         sycl::malloc_shared<float>(featureRows * labelCols, queue);
@@ -285,6 +286,12 @@ static jobject doRFClassifierOneAPICompute(
         preview::train(comm, df_desc, hFeaturetable, hLabeltable);
     const auto result_infer =
         preview::infer(comm, df_desc, result_train.get_model(), hFeaturetable);
+    t2 = std::chrono::high_resolution_clock::now();
+    duration =
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
+                                                                     t1)
+            .count();
+    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, DF Classifier training step took %f secs.", comm.get_rank(), duration / 1000 );
     jobject trees = nullptr;
     if (isRoot) {
         logger::println(logger::INFO, "Variable importance results:");
@@ -303,9 +310,11 @@ static jobject doRFClassifierOneAPICompute(
         logger::println(logger::INFO,
                         "DF Classifier (native): training step took  %f secs.",
                         duration / 1000);
+        logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
 
         // convert to java hashmap
         trees = collect_model(env, result_train.get_model(), classCount);
+        print_model(result_train.get_model())
 
         // Get the class of the input object
         jclass clazz = env->GetObjectClass(resultObj);
@@ -362,7 +371,8 @@ Java_com_intel_oap_mllib_classification_RandomForestClassifierDALImpl_cRFClassif
             logger::INFO,
             "oneDAL (native): use GPU kernels with %d GPU(s) rankid %d", nGpu,
             rankId);
-
+        const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
+        std::string c_breakdown_name(cstr);
         jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
 
         int size = cclComm.size();
@@ -381,7 +391,9 @@ Java_com_intel_oap_mllib_classification_RandomForestClassifierDALImpl_cRFClassif
             numFeaturesPerNode, minObservationsLeafNode,
             minObservationsSplitNode, minWeightFractionLeafNode,
             minImpurityDecreaseSplitNode, maxTreeDepth, seed, maxBins,
-            bootstrap, comm, resultObj, queue);
+            bootstrap, comm, resultObj, queue, c_breakdown_name);
+        env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
+        env->ReleaseStringUTFChars(breakdown_name, cstr);
         return hashmapObj;
     }
     default: {

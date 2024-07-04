@@ -219,7 +219,8 @@ static jlong doLROneAPICompute(JNIEnv *env, size_t rankId,
                                jlong pNumTabFeature, jlong featureRows,
                                jlong featureCols, jlong pNumTabLabel,
                                jlong labelCols, jboolean jfitIntercept,
-                               jint executorNum, jobject resultObj) {
+                               jint executorNum, jobject resultObj,
+                               std::string  breakdown_name) {
     logger::println(logger::INFO,
                     "oneDAL (native): GPU compute start , rankid %d", rankId);
     const bool isRoot = (rankId == ccl_root);
@@ -247,6 +248,8 @@ static jlong doLROneAPICompute(JNIEnv *env, size_t rankId,
     logger::println(logger::INFO,
                    "LinerRegression(native): create feature homogen table took %f secs",
                    duration / 1000);
+    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
+
     t1 = std::chrono::high_resolution_clock::now();
     auto labelData =
         sycl::malloc_shared<float>(featureRows * labelCols, queue);
@@ -270,7 +273,16 @@ static jlong doLROneAPICompute(JNIEnv *env, size_t rankId,
 
     linear_regression_gpu::train_result result_train =
         preview::train(comm, linear_regression_desc, xtrain, ytrain);
+    t2 = std::chrono::high_resolution_clock::now();
+    duration =
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
+                                                                     t1)
+            .count();
+    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, LinerRegression training step took %f secs.", comm.get_rank(), duration / 1000 );
     if (isRoot) {
+
+        HomogenTablePtr result_matrix = std::make_shared<homogen_table>(
+            result_train.get_model().get_betas());
         t2 = std::chrono::high_resolution_clock::now();
         duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
@@ -279,8 +291,7 @@ static jlong doLROneAPICompute(JNIEnv *env, size_t rankId,
         logger::println(logger::INFO,
                        "LinerRegression(native): training step took %f secs",
                        duration / 1000);
-        HomogenTablePtr result_matrix = std::make_shared<homogen_table>(
-            result_train.get_model().get_betas());
+        logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
         saveHomogenTablePtrToVector(result_matrix);
         return (jlong)result_matrix.get();
     } else {
@@ -318,6 +329,8 @@ Java_com_intel_oap_mllib_regression_LinearRegressionDALImpl_cLinearRegressionTra
     jlong resultptr = 0L;
     if (useGPU) {
 #ifdef CPU_GPU_PROFILE
+        const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
+        std::string c_breakdown_name(cstr);
         int nGpu = env->GetArrayLength(gpuIdxArray);
         logger::println(
             logger::INFO,
@@ -331,8 +344,9 @@ Java_com_intel_oap_mllib_regression_LinearRegressionDALImpl_cLinearRegressionTra
 
         resultptr = doLROneAPICompute(
             env, rankId, cclComm, queue, feature, featureRows, featureCols,
-            label, labelCols, fitIntercept, executorNum, resultObj);
+            label, labelCols, fitIntercept, executorNum, resultObj, c_breakdown_name);
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
+        env->ReleaseStringUTFChars(breakdown_name, cstr);
 #endif
     } else {
         NumericTablePtr pLabel = *((NumericTablePtr *)label);

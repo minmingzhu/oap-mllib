@@ -213,7 +213,7 @@ static jobject doRFRegressorOneAPICompute(
     jint minObservationsLeafNode, jint maxTreeDepth, jlong seed, jint maxbins,
     jboolean bootstrap,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
-    jobject resultObj, sycl::queue &queue) {
+    jobject resultObj, sycl::queue &queue, std::string  breakdown_name) {
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
     float *htableFeatureArray = reinterpret_cast<float *>(pNumTabFeature);
@@ -236,6 +236,7 @@ static jobject doRFRegressorOneAPICompute(
     logger::println(logger::INFO,
                    "DF Regression (native): create feature homogen table took %f secs",
                    duration / 1000);
+    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
 
     t1 = std::chrono::high_resolution_clock::now();
     auto labelData =
@@ -275,6 +276,12 @@ static jobject doRFRegressorOneAPICompute(
         preview::train(comm, df_desc, hFeaturetable, hLabeltable);
     const auto result_infer =
         preview::infer(comm, df_desc, result_train.get_model(), hFeaturetable);
+    t2 = std::chrono::high_resolution_clock::now();
+    duration =
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
+                                                                     t1)
+            .count();
+    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, DF Regression training step took %f secs.", comm.get_rank(), duration / 1000 );
     jobject trees = nullptr;
     if (isRoot) {
         logger::println(logger::INFO, "Variable importance results:");
@@ -289,6 +296,7 @@ static jobject doRFRegressorOneAPICompute(
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
                                                                          t1)
                 .count();
+        logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
         logger::println(logger::INFO,
                         "DF Regression (native): training step took %f secs.",
                         duration / 1000);
@@ -355,7 +363,8 @@ Java_com_intel_oap_mllib_regression_RandomForestRegressorDALImpl_cRFRegressorTra
             rankId);
 
         jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
-
+        const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
+        std::string c_breakdown_name(cstr);
         int size = cclComm.size();
 
         auto queue =
@@ -369,7 +378,9 @@ Java_com_intel_oap_mllib_regression_RandomForestRegressorDALImpl_cRFRegressorTra
             env, pNumTabFeature, featureRows, featureCols, pNumTabLabel,
             labelCols, executorNum, computeDeviceOrdinal, treeCount,
             numFeaturesPerNode, minObservationsLeafNode, maxTreeDepth, seed,
-            maxbins, bootstrap, comm, resultObj, queue);
+            maxbins, bootstrap, comm, resultObj, queue, c_breakdown_name);
+        env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
+        env->ReleaseStringUTFChars(breakdown_name, cstr);
         return hashmapObj;
     }
     default: {
