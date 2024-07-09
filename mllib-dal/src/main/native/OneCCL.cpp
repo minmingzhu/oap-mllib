@@ -39,8 +39,8 @@ static const int CCL_IP_LEN = 128;
 static std::list<std::string> local_host_ips;
 static size_t comm_size = 0;
 static size_t rank_id = 0;
-static std::vector<ccl::communicator> g_comms;
-static std::vector<ccl::shared_ptr_class<ccl::kvs>> g_kvs;
+std::vector<ccl::communicator> g_comms;
+std::vector<ccl::shared_ptr_class<ccl::kvs>> g_kvs;
 
 ccl::communicator &getComm() { return g_comms[0]; }
 ccl::shared_ptr_class<ccl::kvs> &getKvs() { return g_kvs[0]; }
@@ -59,8 +59,6 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
 
     auto &singletonCCLInit = CCLInitSingleton::get(size, rank, ccl_ip_port, ccl_name);
 
-    g_kvs.push_back(singletonCCLInit.getKvs());
-    g_comms.push_back(std::move(singletonCCLInit.getComm()));
     rank_id = getComm().rank();
     comm_size = getComm().size();
 
@@ -72,6 +70,7 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     env->SetLongField(param, fid_rank_id, rank_id);
     env->ReleaseStringUTFChars(ip_port, str);
     env->ReleaseStringUTFChars(name, str_name);
+    logger::println(logger::INFO, "OneCCL (native): init finished");
 
     return 1;
 }

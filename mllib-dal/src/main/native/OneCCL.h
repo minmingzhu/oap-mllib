@@ -19,6 +19,8 @@
 #include <oneapi/ccl.hpp>
 
 #include <vector>
+extern std::vector<ccl::communicator> g_comms;
+extern std::vector<ccl::shared_ptr_class<ccl::kvs>> g_kvs;
 using namespace std;
 
 namespace ccl {

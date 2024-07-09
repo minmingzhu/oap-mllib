@@ -19,10 +19,11 @@
 #include <mutex>
 #include <vector>
 #include <oneapi/ccl.hpp>
+#include "OneCCL.h"
 
 #include "Logger.h"
-static std::vector<ccl::communicator> g_ccl_comms;
-static std::vector<ccl::shared_ptr_class<ccl::kvs>> g_ccl_kvs;
+static std::mutex g_mtx;
+
 class CCLInitSingleton {
 public:
     static CCLInitSingleton& get(int size, int rank, ccl::string ccl_ip_port, ccl::string name) {
@@ -33,20 +34,14 @@ public:
         });
         return instance;
     }
-    ccl::communicator& getComm() {
-        return g_ccl_comms[0];
-    }
-
-    ccl::shared_ptr_class<ccl::kvs>& getKvs() {
-        return g_ccl_kvs[0];
-    }
 private:
     CCLInitSingleton() {
     }
 
     CCLInitSingleton(int size, int rank, ccl::string ccl_ip_port, ccl::string name) {
         auto t1 = std::chrono::high_resolution_clock::now();
-
+        logger::println(logger::INFO, "CCLInitSingleton name %s",
+                        name);
         ccl::init();
 
         auto t2 = std::chrono::high_resolution_clock::now();
@@ -59,12 +54,27 @@ private:
 
 
         t1 = std::chrono::high_resolution_clock::now();
+        logger::println(logger::INFO, "OneCCL (native): create_kvs_attr");
+
         auto kvs_attr = ccl::create_kvs_attr();
+
         kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
+        logger::println(logger::INFO, "OneCCL (native): create_main_kvs");
 
         auto kvs = ccl::create_main_kvs(kvs_attr);
-        g_ccl_kvs.push_back(kvs);
-        g_ccl_comms.push_back(std::move(ccl::create_communicator(size, rank, kvs)));
+        logger::println(logger::INFO, "OneCCL (native): g_ccl_kvs.push_back(kvs)");
+
+        {
+            std::lock_guard<std::mutex> lock(g_mtx);
+            g_kvs.push_back(kvs);
+        }
+        logger::println(logger::INFO, "OneCCL (native): ccl::create_communicator(size, rank, kvs)");
+        {
+            std::lock_guard<std::mutex> lock(g_mtx);
+            g_comms.push_back(std::move(ccl::create_communicator(size, rank, kvs)));
+        }
+        logger::println(logger::INFO, "OneCCL (native): ccl::create_communicator finished");
+
         t2 = std::chrono::high_resolution_clock::now();
         duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
