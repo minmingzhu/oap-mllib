@@ -26,6 +26,7 @@ import org.apache.spark.ml.util._
 import org.apache.spark.mllib.clustering.{KMeansModel => MLlibKMeansModel}
 import org.apache.spark.mllib.linalg.{Vector => OldVector, Vectors => OldVectors}
 import org.apache.spark.rdd.RDD
+import java.time.Instant
 
 class KMeansDALImpl(var nClusters: Int,
                     var maxIterations: Int,
@@ -41,7 +42,7 @@ class KMeansDALImpl(var nClusters: Int,
     val metrics_name = "Kmeans_" + executorNum
     val kmeansTimer = new Utils.AlgoTimeMetrics(metrics_name, sparkContext)
     val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", Utils.DefaultComputeDevice)
-    val storePath = sparkContext.getConf.get("spark.oap.mllib.kvsStorePath")
+    val storePath = sparkContext.getConf.get("spark.oap.mllib.kvsStorePath") + "/" + Instant.now()
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
     kmeansTimer.record("Preprocessing")
 
