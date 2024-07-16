@@ -131,4 +131,8 @@ class CorrelationDALImpl(
                                            gpuIndices: Array[Int],
                                            training_breakdown_name: String,
                                            result: CorrelationResult): Long
+
+  @native private[mllib] def cCorrelationSampleTrainDAL( rank: Int,
+                                                       executorNum: Int,
+                                                       ip_port: String): Long
 }
