@@ -29,7 +29,7 @@ object OneCCL extends Logging {
 
 //    setExecutorEnv()
 
-    logInfo(s"Initializing with IP_PORT: ${ip_port}")
+    logInfo(s"Initializing with rank: ${rank}")
 
     // cclParam is output from native code
     c_init(executor_num, rank, ip_port, name, store_path, cclParam)

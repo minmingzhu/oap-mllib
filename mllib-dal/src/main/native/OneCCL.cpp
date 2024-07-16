@@ -100,12 +100,10 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     JNIEnv *env, jobject obj, jint size, jint rank, jstring ip_port, jstring name, jstring store_path,
     jobject param) {
 
-    logger::println(logger::INFO, "OneCCL (native): init");
+    logger::println(logger::INFO, "OneCCL (native): init; Rank id %d", rank);
 
     ccl::shared_ptr_class<ccl::kvs> kvs;
 
-    const char *str = env->GetStringUTFChars(ip_port, 0);
-    ccl::string ccl_ip_port(str);
     const char *str_name = env->GetStringUTFChars(name, 0);
     ccl::string ccl_name(str_name);
     const char* path = env->GetStringUTFChars(store_path, 0);
@@ -123,7 +121,7 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     logger::println(logger::INFO, "OneCCL singleton init took %f secs",
                     duration / 1000);
     logger::Logger::getInstance(ccl_name).printLogToFile("rankID was %d, OneCCL singleton init took %f secs.", rank, duration / 1000 );
-
+    logger::println(logger::INFO, "OneCCL (native): create_main_kvs");
     if (create_kvs_by_store(store, rank, kvs, ccl_name) != KVS_CREATE_SUCCESS) {
         logger::println(logger::INFO, "OneCCL (native): can not create kvs by store");
         return -1;
@@ -131,13 +129,6 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
 
     t1 = std::chrono::high_resolution_clock::now();
     logger::println(logger::INFO, "OneCCL (native): create_kvs_attr");
-
-    auto kvs_attr = ccl::create_kvs_attr();
-
-    kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
-    logger::println(logger::INFO, "OneCCL (native): create_main_kvs");
-
-    logger::println(logger::INFO, "OneCCL (native): g_ccl_kvs.push_back(kvs)");
     {
         std::lock_guard<std::mutex> lock(g_mtx);
         g_kvs.push_back(kvs);
@@ -169,7 +160,6 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
 
     env->SetLongField(param, fid_comm_size, comm_size);
     env->SetLongField(param, fid_rank_id, rank_id);
-    env->ReleaseStringUTFChars(ip_port, str);
     env->ReleaseStringUTFChars(name, str_name);
     env->ReleaseStringUTFChars(store_path, path);
     logger::println(logger::INFO, "OneCCL (native): init finished");
