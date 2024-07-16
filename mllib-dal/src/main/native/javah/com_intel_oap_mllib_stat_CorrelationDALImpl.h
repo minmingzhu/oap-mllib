@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL
   (JNIEnv *, jobject, jlong, jlong, jlong, jint, jint, jint, jintArray, jstring, jobject);
 
+/*
+ * Class:     com_intel_oap_mllib_stat_CorrelationDALImpl
+ * Method:    cCorrelationSampleTrainDAL
+ * Signature: (IILjava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationSampleTrainDAL
+  (JNIEnv *, jobject, jint, jint, jstring);
+
 #ifdef __cplusplus
 }
 #endif
