@@ -1,0 +1,174 @@
+/*******************************************************************************
+* Copyright 2021 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
+#include <sycl/sycl.hpp>
+#include <iomanip>
+#include <iostream>
+#include <unistd.h>
+#include <string>
+#include <thread>
+
+#ifndef ONEDAL_DATA_PARALLEL
+#define ONEDAL_DATA_PARALLEL
+#endif
+
+#include "oneapi/dal/algo/covariance.hpp"
+#include "oneapi/dal/io/csv.hpp"
+#include "Communicator.hpp"
+#include "service_sycl.h"
+
+#include "utils.hpp"
+
+namespace dal = oneapi::dal;
+using namespace std;
+
+void weak(sycl::queue& queue, const string& path, dal::preview::spmd::communicator<dal::preview::spmd::device_memory_access::usm>& comm) {
+
+    const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
+        dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
+
+    auto rank_id = comm.get_rank();
+    auto rank_count = comm.get_rank_count();
+
+    auto input_vec = get_file_path(path);
+    const auto train_data_file_name = get_data_path(input_vec[rank_id]);
+    cout <<"RankID = " << rank_id  << " File name: " << train_data_file_name << endl;
+    auto t1 = chrono::high_resolution_clock::now();
+    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{ train_data_file_name });
+
+    auto rows = x_train.get_row_count();
+    auto cols = x_train.get_column_count();
+    auto size = rows * cols;
+    cout <<"RankID = " << rank_id  << ", table size " << size << endl;
+    comm.barrier();
+    // MPI_Barrier(MPI_COMM_WORLD);
+    auto t2 = chrono::high_resolution_clock::now();
+
+    cout <<"RankID = " << rank_id  << ", loading CSV took "
+         << (float)chrono::duration_cast<chrono::milliseconds>(
+                t2 - t1)
+                    .count() /
+                1000
+         << " secs" << endl;
+    t1 = chrono::high_resolution_clock::now();
+    const auto result = dal::preview::compute(comm, cov_desc, x_train);
+    t2 = chrono::high_resolution_clock::now();
+    cout <<"RankID = " << rank_id  << ", cov training step took "
+        << (float)chrono::duration_cast<chrono::milliseconds>(
+                t2 - t1)
+                    .count() /
+                1000
+        << " secs" << endl;
+    if(comm.get_rank() == 0) {
+        cout << "Mean:\n" << result.get_means() << endl;
+        cout << "Correlation:\n" << result.get_cor_matrix() << endl;
+        t2 = chrono::high_resolution_clock::now();
+        cout <<"RankID = " << rank_id  << ", training step took "
+            << (float)chrono::duration_cast<chrono::milliseconds>(
+                    t2 - t1)
+                        .count() /
+                    1000
+            << " secs" << endl;
+    }
+}
+
+
+ccl::shared_ptr_class<ccl::kvs> getCclPortKvs(ccl::string ccl_ip_port){
+    std::cout << "ccl_ip_port = " << ccl_ip_port << std::endl;
+    auto kvs_attr = ccl::create_kvs_attr();
+    std::cout << "ccl_ip_port 1 "<< std::endl;
+    kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
+    std::cout << "ccl_ip_port 2 "<< std::endl;
+
+    ccl::shared_ptr_class<ccl::kvs>  kvs = ccl::create_main_kvs(kvs_attr);
+    std::cout << "ccl_ip_port 3 "<< std::endl;
+
+    return kvs;
+}
+
+std::vector<sycl::device> get_gpus()
+{
+
+    auto platforms = sycl::platform::get_platforms();
+    for (auto p : platforms) {
+        auto devices = p.get_devices(sycl::info::device_type::gpu);
+        if (!devices.empty()) {
+            return devices;
+        }
+    }
+    std::cout << "No GPUs!" << std::endl;
+    exit(-3);
+    return {};
+}
+
+JNIEXPORT jlong JNICALL
+Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationSampleTrainDAL(
+    JNIEnv *env, jobject obj, jint rank, jint rank_count, jstring ip_port)
+    cout << "main:\n" << endl;
+    const char *str = env->GetStringUTFChars(ip_port, 0);
+    ccl::string ccl_ip_port(str);
+    const char* path = "/home/damon/storage/DataRoot/HiBench_CSV/Correlation/Input/4000000";
+    string pathStr;
+    pathStr.append(path);
+    auto gpus = get_gpus();
+
+    auto t1 = chrono::high_resolution_clock::now();
+    ccl::init();
+    auto t2 = chrono::high_resolution_clock::now();
+    cout << "OneCCL singleton init took "
+        << (float)chrono::duration_cast<chrono::milliseconds>(
+                t2 - t1)
+                    .count() /
+                1000
+        << " secs" << endl;
+
+    t1 = chrono::high_resolution_clock::now();
+
+    auto kvs = getCclPortKvs(ccl_ip_port);
+    cout << "rank = " << rank << endl;
+    auto ccl_comm = ccl::create_communicator(rank_count, rank, kvs);
+    auto local_rank = getLocalRank(rank_count, rank, ccl_comm);
+    auto rank_id = local_rank % gpus.size();
+    auto device   = gpus[rank_id];
+    cout << "RankID = " << rank  << ", Running on " << device.get_info<sycl::info::device::name>() << endl;
+    cout << "RankID = " << rank  << ", Running on " << device.get_platform().get_info<sycl::info::platform::name>() << endl;
+    t2 = chrono::high_resolution_clock::now();
+    cout << "RankID = " << rank
+         << ", OneCCL create communicator took "
+         << (float)chrono::duration_cast<chrono::milliseconds>(
+                t2 - t1)
+                    .count() /
+                1000
+         << " secs" << endl;
+    sycl::queue q{ device };
+    t1 = chrono::high_resolution_clock::now();
+    auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::ccl>(q, rank_count, rank, kvs);
+    t2 = chrono::high_resolution_clock::now();
+            cout << "RankID = " << rank
+                << ", create communicator took "
+                << (float)chrono::duration_cast<chrono::milliseconds>(
+                        t2 - t1)
+                            .count() /
+                        1000
+                << " secs" << endl;
+    if(strcmp(action, "weak") == 0){
+        weak(q, pathStr, comm);
+    }else{
+        cout << "Thread id = " << this_thread::get_id()  << " error " << endl;
+    }
+    env->ReleaseStringUTFChars(ip_port, str);
+     return 0;
+}
