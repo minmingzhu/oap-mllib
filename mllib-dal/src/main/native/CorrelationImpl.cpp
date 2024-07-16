@@ -159,6 +159,7 @@ static void doCorrelationOneAPICompute(
     float *htableArray = reinterpret_cast<float *>(pNumTabData);
     logger::println(logger::INFO, "numRows was %d", numRows);
     logger::println(logger::INFO, "numClos was %d", numClos);
+    auto t1 = std::chrono::high_resolution_clock::now();
 
     auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
     std::cout << "table size : " << numRows * numClos << std::endl;
@@ -181,10 +182,10 @@ static void doCorrelationOneAPICompute(
             covariance_gpu::result_options::cor_matrix |
             covariance_gpu::result_options::means);
 
-    auto t1 = std::chrono::high_resolution_clock::now();
+    t1 = std::chrono::high_resolution_clock::now();
     logger::println(logger::INFO, "Correlation batch(native): compute start");
     const auto result_train = preview::compute(comm, cor_desc, htable);
-    auto t2 = std::chrono::high_resolution_clock::now();
+    t2 = std::chrono::high_resolution_clock::now();
     duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
             .count();
