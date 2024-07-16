@@ -28,9 +28,7 @@
 #include "oneapi/dal/algo/covariance.hpp"
 #include "oneapi/dal/io/csv.hpp"
 #include "Communicator.hpp"
-#include "service_sycl.h"
 
-#include "utils.hpp"
 
 namespace dal = oneapi::dal;
 using namespace std;
@@ -112,6 +110,33 @@ std::vector<sycl::device> get_gpus()
     std::cout << "No GPUs!" << std::endl;
     exit(-3);
     return {};
+}
+
+inline std::string get_data_path(const std::string& name) {
+    const std::vector<std::string> paths = { "./data", "samples/oneapi/dpc/mpi/data" };
+
+    for (const auto& path : paths) {
+        const std::string try_path = path + "/" + name;
+        if (check_file(try_path)) {
+            return try_path;
+        }
+    }
+
+    return name;
+}
+
+std::vector<std::string> get_file_path(const std::string& path) {
+    std::vector<std::string> result;
+    for (auto& file : fs::directory_iterator(path)){
+         if(fs::is_empty(file.path())){
+             continue;
+         }else if(file.path().extension()==".crc" || file.path().extension()==""){
+             continue;
+         }else{
+            result.push_back(file.path());
+         }
+    }
+    return result;
 }
 
 JNIEXPORT jlong JNICALL
