@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <string>
 #include <thread>
+#include <filesystem>
 
 #ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
@@ -32,56 +33,6 @@
 
 namespace dal = oneapi::dal;
 using namespace std;
-
-void weak(sycl::queue& queue, const string& path, dal::preview::spmd::communicator<dal::preview::spmd::device_memory_access::usm>& comm) {
-
-    const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
-        dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
-
-    auto rank_id = comm.get_rank();
-    auto rank_count = comm.get_rank_count();
-
-    auto input_vec = get_file_path(path);
-    const auto train_data_file_name = get_data_path(input_vec[rank_id]);
-    cout <<"RankID = " << rank_id  << " File name: " << train_data_file_name << endl;
-    auto t1 = chrono::high_resolution_clock::now();
-    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{ train_data_file_name });
-
-    auto rows = x_train.get_row_count();
-    auto cols = x_train.get_column_count();
-    auto size = rows * cols;
-    cout <<"RankID = " << rank_id  << ", table size " << size << endl;
-    comm.barrier();
-    // MPI_Barrier(MPI_COMM_WORLD);
-    auto t2 = chrono::high_resolution_clock::now();
-
-    cout <<"RankID = " << rank_id  << ", loading CSV took "
-         << (float)chrono::duration_cast<chrono::milliseconds>(
-                t2 - t1)
-                    .count() /
-                1000
-         << " secs" << endl;
-    t1 = chrono::high_resolution_clock::now();
-    const auto result = dal::preview::compute(comm, cov_desc, x_train);
-    t2 = chrono::high_resolution_clock::now();
-    cout <<"RankID = " << rank_id  << ", cov training step took "
-        << (float)chrono::duration_cast<chrono::milliseconds>(
-                t2 - t1)
-                    .count() /
-                1000
-        << " secs" << endl;
-    if(comm.get_rank() == 0) {
-        cout << "Mean:\n" << result.get_means() << endl;
-        cout << "Correlation:\n" << result.get_cor_matrix() << endl;
-        t2 = chrono::high_resolution_clock::now();
-        cout <<"RankID = " << rank_id  << ", training step took "
-            << (float)chrono::duration_cast<chrono::milliseconds>(
-                    t2 - t1)
-                        .count() /
-                    1000
-            << " secs" << endl;
-    }
-}
 
 
 ccl::shared_ptr_class<ccl::kvs> getCclPortKvs(ccl::string ccl_ip_port){
@@ -137,6 +88,56 @@ std::vector<std::string> get_file_path(const std::string& path) {
          }
     }
     return result;
+}
+
+void weak(sycl::queue& queue, const string& path, dal::preview::spmd::communicator<dal::preview::spmd::device_memory_access::usm>& comm) {
+
+    const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
+        dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
+
+    auto rank_id = comm.get_rank();
+    auto rank_count = comm.get_rank_count();
+
+    auto input_vec = get_file_path(path);
+    const auto train_data_file_name = get_data_path(input_vec[rank_id]);
+    cout <<"RankID = " << rank_id  << " File name: " << train_data_file_name << endl;
+    auto t1 = chrono::high_resolution_clock::now();
+    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{ train_data_file_name });
+
+    auto rows = x_train.get_row_count();
+    auto cols = x_train.get_column_count();
+    auto size = rows * cols;
+    cout <<"RankID = " << rank_id  << ", table size " << size << endl;
+    comm.barrier();
+    // MPI_Barrier(MPI_COMM_WORLD);
+    auto t2 = chrono::high_resolution_clock::now();
+
+    cout <<"RankID = " << rank_id  << ", loading CSV took "
+         << (float)chrono::duration_cast<chrono::milliseconds>(
+                t2 - t1)
+                    .count() /
+                1000
+         << " secs" << endl;
+    t1 = chrono::high_resolution_clock::now();
+    const auto result = dal::preview::compute(comm, cov_desc, x_train);
+    t2 = chrono::high_resolution_clock::now();
+    cout <<"RankID = " << rank_id  << ", cov training step took "
+        << (float)chrono::duration_cast<chrono::milliseconds>(
+                t2 - t1)
+                    .count() /
+                1000
+        << " secs" << endl;
+    if(comm.get_rank() == 0) {
+        cout << "Mean:\n" << result.get_means() << endl;
+        cout << "Correlation:\n" << result.get_cor_matrix() << endl;
+        t2 = chrono::high_resolution_clock::now();
+        cout <<"RankID = " << rank_id  << ", training step took "
+            << (float)chrono::duration_cast<chrono::milliseconds>(
+                    t2 - t1)
+                        .count() /
+                    1000
+            << " secs" << endl;
+    }
 }
 
 JNIEXPORT jlong JNICALL
