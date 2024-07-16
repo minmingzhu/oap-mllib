@@ -51,6 +51,51 @@ ccl::communicator &getComm() { return g_comms[0]; }
 ccl::shared_ptr_class<ccl::kvs> &getKvs() { return g_kvs[0]; }
 std::shared_ptr<file_store> store;
 
+static int create_kvs_by_store(std::shared_ptr<file_store> store,
+                        int rank,
+                        ccl::shared_ptr_class<ccl::kvs>& kvs,
+                        ccl::string name) {
+    logger::println(logger::INFO, "OneCCL (native): create_kvs_by_store ");
+    auto t1 = std::chrono::high_resolution_clock::now();
+    ccl::kvs::address_type main_addr;
+    auto start = std::chrono::system_clock::now();
+    if (rank == 0) {
+        kvs = ccl::create_main_kvs();
+        main_addr = kvs->get_address();
+        if (store->write((void*)main_addr.data(), main_addr.size()) < 0) {
+            logger::println(logger::INFO, "OneCCL (native): error occurred during write attempt");
+            kvs.reset();
+            return KVS_CREATE_FAILURE;
+        }
+        auto end = std::chrono::system_clock::now();
+        auto exec_time =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(end -start)
+                .count();
+        logger::println(logger::INFO, "OneCCL (native): write to store time %f secs",
+                exec_time / 1000);
+    }
+    else {
+        if (store->read((void*)main_addr.data(), main_addr.size()) < 0) {
+            logger::println(logger::INFO, "OneCCL (native): error occurred during read attempt");
+            kvs.reset();
+            return KVS_CREATE_FAILURE;
+        }
+        auto end = std::chrono::system_clock::now();
+        auto exec_time =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(end -start)
+                .count();
+        logger::println(logger::INFO, "OneCCL (native): read from store time %f secs",
+                exec_time / 1000);
+        kvs = ccl::create_kvs(main_addr);
+    }
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+                .count();
+    logger::Logger::getInstance(name).printLogToFile("rankID was %d, OneCCL create communicator took %f secs.", rank, duration / 1000 );
+    return KVS_CREATE_SUCCESS;
+}
+
 JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     JNIEnv *env, jobject obj, jint size, jint rank, jstring ip_port, jstring name,
     jobject param) {
@@ -280,49 +325,3 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1getAvailPort(
 
     return port;
 }
-
-static int create_kvs_by_store(std::shared_ptr<file_store> store,
-                        int rank,
-                        ccl::shared_ptr_class<ccl::kvs>& kvs,
-                        ccl::string name) {
-    logger::println(logger::INFO, "OneCCL (native): create_kvs_by_store ");
-    auto t1 = std::chrono::high_resolution_clock::now();
-    ccl::kvs::address_type main_addr;
-    auto start = std::chrono::system_clock::now();
-    if (rank == 0) {
-        kvs = ccl::create_main_kvs();
-        main_addr = kvs->get_address();
-        if (store->write((void*)main_addr.data(), main_addr.size()) < 0) {
-            logger::println(logger::INFO, "OneCCL (native): error occurred during write attempt");
-            kvs.reset();
-            return KVS_CREATE_FAILURE;
-        }
-        auto end = std::chrono::system_clock::now();
-        auto exec_time =
-            (float)std::chrono::duration_cast<std::chrono::milliseconds>(end -start)
-                .count();
-        logger::println(logger::INFO, "OneCCL (native): write to store time %f secs",
-                exec_time / 1000);
-    }
-    else {
-        if (store->read((void*)main_addr.data(), main_addr.size()) < 0) {
-            logger::println(logger::INFO, "OneCCL (native): error occurred during read attempt");
-            kvs.reset();
-            return KVS_CREATE_FAILURE;
-        }
-        auto end = std::chrono::system_clock::now();
-        auto exec_time =
-            (float)std::chrono::duration_cast<std::chrono::milliseconds>(end -start)
-                .count();
-        logger::println(logger::INFO, "OneCCL (native): read from store time %f secs",
-                exec_time / 1000);
-        kvs = ccl::create_kvs(main_addr);
-    }
-    auto t2 = std::chrono::high_resolution_clock::now();
-    auto duration =
-            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
-                .count();
-    logger::Logger::getInstance(name).printLogToFile("rankID was %d, OneCCL create communicator took %f secs.", rank, duration / 1000 );
-    return KVS_CREATE_SUCCESS;
-}
-
