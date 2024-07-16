@@ -88,11 +88,10 @@ object CorrelationSample {
     val executorCores = Utils.sparkExecutorCores()
     logger.info(s"executorNum ${executorNum}")
     logger.info(s"executorCores ${executorCores}")
-
+    val cor = new CorrelationDALImpl(executorNum, executorCores)
     val kvsIPPort = getOneCCLIPPort(data)
     data.mapPartitionsWithIndex { (rank, iter) =>
-      new CorrelationDALImpl(executorNum, executorCores)
-        .cCorrelationSampleTrainDAL(rank, executorNum, kvsIPPort)
+      cor.cCorrelationSampleTrainDAL(rank, executorNum, kvsIPPort)
       Iterator.empty
     }.collect()
     spark.stop()

@@ -32,6 +32,7 @@
 #include "Communicator.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/common.hpp"
+#include "com_intel_oap_mllib_stat_CorrelationDALImpl.h"
 
 
 namespace dal = oneapi::dal;
