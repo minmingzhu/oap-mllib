@@ -29,11 +29,71 @@
 #include "oneapi/dal/algo/covariance.hpp"
 #include "oneapi/dal/io/csv.hpp"
 #include "Communicator.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/table/common.hpp"
 
 
 namespace dal = oneapi::dal;
 using namespace std;
 namespace fs = std::filesystem;
+
+std::ostream &operator<<(std::ostream &stream, const oneapi::dal::table &table) {
+    std::cout << "output : " << std::endl;
+    auto arr = oneapi::dal::row_accessor<const float>(table).pull();
+    const auto x = arr.get_data();
+
+    if (table.get_row_count() <= 10) {
+        for (std::int64_t i = 0; i < table.get_row_count(); i++) {
+            if(table.get_column_count() <= 20) {
+                for (std::int64_t j = 0; j < table.get_column_count(); j++) {
+                    std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
+                              << std::setprecision(6) << x[i * table.get_column_count() + j];
+                }
+                std::cout << std::endl;
+            } else {
+                for (std::int64_t j = 0; j < 20; j++) {
+                    std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
+                              << std::setprecision(6) << x[i * table.get_column_count() + j];
+                }
+                std::cout << std::endl;
+            }
+        }
+    }
+    else {
+        for (std::int64_t i = 0; i < 5; i++) {
+            if(table.get_column_count() <= 20) {
+                for (std::int64_t j = 0; j < table.get_column_count(); j++) {
+                    std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
+                              << std::setprecision(6) << x[i * table.get_column_count() + j];
+                }
+                std::cout << std::endl;
+            } else {
+                for (std::int64_t j = 0; j < 20; j++) {
+                    std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
+                              << std::setprecision(6) << x[i * table.get_column_count() + j];
+                }
+                std::cout << std::endl;
+            }
+        }
+        std::cout << "..." << (table.get_row_count() - 10) << " lines skipped..." << std::endl;
+        for (std::int64_t i = table.get_row_count() - 5; i < table.get_row_count(); i++) {
+            if(table.get_column_count() <= 20) {
+                for (std::int64_t j = 0; j < table.get_column_count(); j++) {
+                    std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
+                              << std::setprecision(6) << x[i * table.get_column_count() + j];
+                }
+                std::cout << std::endl;
+            } else {
+                for (std::int64_t j = 0; j < 20; j++) {
+                    std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
+                              << std::setprecision(6) << x[i * table.get_column_count() + j];
+                }
+                std::cout << std::endl;
+            }
+        }
+    }
+    return stream;
+}
 
 inline bool check_file(const std::string& name) {
     return std::ifstream{ name }.good();
