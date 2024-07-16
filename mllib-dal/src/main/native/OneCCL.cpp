@@ -97,18 +97,21 @@ static int create_kvs_by_store(std::shared_ptr<file_store> store,
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
-    JNIEnv *env, jobject obj, jint size, jint rank, jstring ip_port, jstring name,
+    JNIEnv *env, jobject obj, jint size, jint rank, jstring ip_port, jstring name, jstring store_path
     jobject param) {
 
     logger::println(logger::INFO, "OneCCL (native): init");
-    store = std::make_shared<file_store>(
-                kvs_param, rank, std::chrono::seconds(STORE_TIMEOUT_SEC));
+
     ccl::shared_ptr_class<ccl::kvs> kvs;
 
     const char *str = env->GetStringUTFChars(ip_port, 0);
     ccl::string ccl_ip_port(str);
     const char *str_name = env->GetStringUTFChars(name, 0);
     ccl::string ccl_name(str_name);
+    const char* path = env->GetStringUTFChars(store_path, 0);
+    std::string kvs_store_path(path);
+    store = std::make_shared<file_store>(
+                kvs_store_path, rank, std::chrono::seconds(STORE_TIMEOUT_SEC));
 
     auto t1 = std::chrono::high_resolution_clock::now();
     ccl::init();
@@ -119,7 +122,7 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
 
     logger::println(logger::INFO, "OneCCL singleton init took %f secs",
                     duration / 1000);
-    logger::Logger::getInstance(name).printLogToFile("rankID was %d, OneCCL singleton init took %f secs.", rank, duration / 1000 );
+    logger::Logger::getInstance(ccl_name).printLogToFile("rankID was %d, OneCCL singleton init took %f secs.", rank, duration / 1000 );
 
     if (create_kvs_by_store(store, rank, kvs, ccl_name) != KVS_CREATE_SUCCESS) {
         logger::println(logger::INFO, "OneCCL (native): can not create kvs by store");
@@ -168,6 +171,7 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     env->SetLongField(param, fid_rank_id, rank_id);
     env->ReleaseStringUTFChars(ip_port, str);
     env->ReleaseStringUTFChars(name, str_name);
+    env->ReleaseStringUTFChars(store_path, path);
     logger::println(logger::INFO, "OneCCL (native): init finished");
 
     return 1;
