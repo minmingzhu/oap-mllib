@@ -74,6 +74,7 @@ class LinearRegressionDALImpl( val fitIntercept: Boolean,
     val metrics_name = "LinearRegression_" + executorNum
     val lrTimer = new Utils.AlgoTimeMetrics(metrics_name, sparkContext)
     val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", Utils.DefaultComputeDevice)
+    val storePath = sparkContext.getConf.get("spark.oap.mllib.kvsStorePath")
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
 
     val isTest = sparkContext.getConf.getBoolean("spark.oap.mllib.isTest", false)
@@ -123,7 +124,7 @@ class LinearRegressionDALImpl( val fitIntercept: Boolean,
             (label.toString.toLong, 0L, 0L)
           }
 
-        OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name)
+        OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name, storePath)
         val result = new LiRResult()
 
         val gpuIndices = if (useDevice == "GPU") {

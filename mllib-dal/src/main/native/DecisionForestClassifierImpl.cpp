@@ -314,7 +314,7 @@ static jobject doRFClassifierOneAPICompute(
 
         // convert to java hashmap
         trees = collect_model(env, result_train.get_model(), classCount);
-        print_model(result_train.get_model())
+        print_model(result_train.get_model());
 
         // Get the class of the input object
         jclass clazz = env->GetObjectClass(resultObj);

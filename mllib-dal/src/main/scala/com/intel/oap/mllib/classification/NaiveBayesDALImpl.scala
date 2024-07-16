@@ -40,7 +40,8 @@ class NaiveBayesDALImpl(val uid: String,
   def train(labeledPoints: Dataset[_],
             labelCol: String,
             featuresCol: String): NaiveBayesDALModel = {
-
+    val sparkContext = labeledPoints.rdd.sparkContext
+    val storePath = sparkContext.getConf.get("spark.oap.mllib.kvsStorePath")
     val kvsIPPort = getOneCCLIPPort(labeledPoints.rdd)
 
     val labeledPointsTables = if (OneDAL.isDenseDataset(labeledPoints, featuresCol)) {
@@ -54,7 +55,7 @@ class NaiveBayesDALImpl(val uid: String,
       case (rank: Int, tables: Iterator[(Long, Long)]) =>
         val (featureTabAddr, lableTabAddr) = tables.next()
 
-        OneCCL.init(executorNum, rank, kvsIPPort, breakdown_name)
+        OneCCL.init(executorNum, rank, kvsIPPort, breakdown_name, storePath)
 
         val computeStartTime = System.nanoTime()
 

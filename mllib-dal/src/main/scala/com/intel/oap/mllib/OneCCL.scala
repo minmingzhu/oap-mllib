@@ -24,14 +24,15 @@ object OneCCL extends Logging {
 
   var cclParam = new CCLParam()
 
-  def init(executor_num: Int, rank: Int, ip_port: String, name: String): Unit = {
+  def init(executor_num: Int, rank: Int, ip_port: String, name: String,
+           store_path: String): Unit = {
 
 //    setExecutorEnv()
 
     logInfo(s"Initializing with IP_PORT: ${ip_port}")
 
     // cclParam is output from native code
-    c_init(executor_num, rank, ip_port, name, cclParam)
+    c_init(executor_num, rank, ip_port, name, store_path, cclParam)
 
     // executor number should equal to oneCCL world size
     assert(executor_num == cclParam.getCommSize,
@@ -67,7 +68,8 @@ object OneCCL extends Logging {
 
   @native def c_getAvailPort(localIP: String): Int
 
-  @native private def c_init(size: Int, rank: Int, ip_port: String, name: String, param: CCLParam): Int
+  @native private def c_init(size: Int, rank: Int, ip_port: String, name: String,
+                             store_path: String, param: CCLParam): Int
 
   @native private def c_cleanup(): Unit
 }

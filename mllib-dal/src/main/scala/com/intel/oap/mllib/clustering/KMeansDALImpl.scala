@@ -41,6 +41,7 @@ class KMeansDALImpl(var nClusters: Int,
     val metrics_name = "Kmeans_" + executorNum
     val kmeansTimer = new Utils.AlgoTimeMetrics(metrics_name, sparkContext)
     val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", Utils.DefaultComputeDevice)
+    val storePath = sparkContext.getConf.get("spark.oap.mllib.kvsStorePath")
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
     kmeansTimer.record("Preprocessing")
 
@@ -53,14 +54,15 @@ class KMeansDALImpl(var nClusters: Int,
 
     val kvsIPPort = getOneCCLIPPort(coalescedTables)
     val training_breakdown_name = "Kmeans_training_breakdown_" + executorNum;
-
     coalescedTables.mapPartitionsWithIndex { (rank, iter) =>
-      OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name)
+      OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name, storePath)
       Iterator.empty
     }.count()
     kmeansTimer.record("OneCCL Init")
+    logInfo(s"OneCCL init finished")
 
     val results = coalescedTables.mapPartitionsWithIndex { (rank, iter) =>
+      logInfo(s"coalescedTables.mapPartitionsWithIndex")
       var cCentroids = 0L
       val result = new KMeansResult()
       val gpuIndices = if (useDevice == "GPU") {
@@ -76,12 +78,13 @@ class KMeansDALImpl(var nClusters: Int,
       } else {
         (iter.next().toString.toLong, 0L, 0L)
       }
-
+      logInfo(s"tableArr $tableArr, rows $rows, columns $columns")
       val initCentroids = if (useDevice == "GPU") {
         OneDAL.makeHomogenTable(centers, computeDevice).getcObejct()
       } else {
         OneDAL.makeNumericTable(centers).getCNumericTable
       }
+      logInfo(s"initCentroids HomogenTable")
 
       cCentroids = cKMeansOneapiComputeWithInitCenters(
         tableArr,

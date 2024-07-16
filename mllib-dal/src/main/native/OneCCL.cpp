@@ -97,7 +97,7 @@ static int create_kvs_by_store(std::shared_ptr<file_store> store,
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
-    JNIEnv *env, jobject obj, jint size, jint rank, jstring ip_port, jstring name, jstring store_path
+    JNIEnv *env, jobject obj, jint size, jint rank, jstring ip_port, jstring name, jstring store_path,
     jobject param) {
 
     logger::println(logger::INFO, "OneCCL (native): init");

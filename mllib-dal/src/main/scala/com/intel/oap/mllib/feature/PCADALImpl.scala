@@ -48,6 +48,7 @@ class PCADALImpl(val k: Int,
     val metrics_name = "PCA_" + executorNum
     val pcaTimer = new Utils.AlgoTimeMetrics(metrics_name, sparkContext)
     val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", Utils.DefaultComputeDevice)
+    val storePath = sparkContext.getConf.get("spark.oap.mllib.kvsStorePath")
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
     pcaTimer.record("Preprocessing")
 
@@ -62,7 +63,7 @@ class PCADALImpl(val k: Int,
 
     val training_breakdown_name = "PCA_training_breakdown_" + executorNum;
     coalescedTables.mapPartitionsWithIndex { (rank, table) =>
-      OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name)
+      OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name, storePath)
       Iterator.empty
     }.count()
     pcaTimer.record("OneCCL Init")

@@ -34,6 +34,7 @@ class CorrelationDALImpl(
     val metrics_name = "Correlation_" + executorNum
     val corTimer = new Utils.AlgoTimeMetrics(metrics_name, sparkContext)
     val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", Utils.DefaultComputeDevice)
+    val storePath = sparkContext.getConf.get("spark.oap.mllib.kvsStorePath")
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
     corTimer.record("Preprocessing")
 
@@ -49,7 +50,7 @@ class CorrelationDALImpl(
     val training_breakdown_name = "Correlation_training_breakdown_" + executorNum;
 
     coalescedTables.mapPartitionsWithIndex { (rank, table) =>
-      OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name)
+      OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name, storePath)
       Iterator.empty
     }.count()
     corTimer.record("OneCCL Init")
@@ -132,7 +133,7 @@ class CorrelationDALImpl(
                                            training_breakdown_name: String,
                                            result: CorrelationResult): Long
 
-  @native private[mllib] def cCorrelationSampleTrainDAL( rank: Int,
+  @native def cCorrelationSampleTrainDAL(rank: Int,
                                                        executorNum: Int,
                                                        ip_port: String): Long
 }

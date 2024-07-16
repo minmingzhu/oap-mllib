@@ -57,6 +57,7 @@ class ALSDALImpl[@specialized(Int, Long) ID: ClassTag]( data: RDD[Rating[ID]],
   def train(): (RDD[(ID, Array[Float])], RDD[(ID, Array[Float])]) = {
     val executorNum = Utils.sparkExecutorNum(data.sparkContext)
     val executorCores = Utils.sparkExecutorCores()
+    val storePath = data.sparkContext.getConf.get("spark.oap.mllib.kvsStorePath")
 
     val nFeatures = data.max()(new Ordering[Rating[ID]]() {
       override def compare(x: Rating[ID], y: Rating[ID]): Int =
@@ -85,7 +86,7 @@ class ALSDALImpl[@specialized(Int, Long) ID: ClassTag]( data: RDD[Rating[ID]],
         Rating(p.item, p.user, p.rating)
       }
       .mapPartitionsWithIndex { (rank, iter) =>
-        OneCCL.init(executorNum, rank, kvsIPPort, breakdown_name)
+        OneCCL.init(executorNum, rank, kvsIPPort, breakdown_name, storePath)
         val rankId = OneCCL.rankID()
 
         println("rankId", rankId, "nUsers", nVectors, "nItems", nFeatures)

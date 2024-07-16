@@ -58,6 +58,7 @@ class RandomForestClassifierDALImpl(val uid: String,
     val metrics_name = "RFClassifier_" + executorNum
     val rfcTimer = new Utils.AlgoTimeMetrics(metrics_name, sparkContext)
     val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", Utils.DefaultComputeDevice)
+    val storePath = sparkContext.getConf.get("spark.oap.mllib.kvsStorePath")
     // used run Random Forest unit test
     val isTest = sparkContext.getConf.getBoolean("spark.oap.mllib.isTest", false)
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
@@ -78,7 +79,7 @@ class RandomForestClassifierDALImpl(val uid: String,
     val training_breakdown_name = "RFClassifier_training_breakdown_" + executorNum;
 
     labeledPointsTables.mapPartitionsWithIndex { (rank, table) =>
-      OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name)
+      OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name, storePath)
       Iterator.empty
     }.count()
     rfcTimer.record("OneCCL Init")
