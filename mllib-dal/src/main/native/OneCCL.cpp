@@ -58,6 +58,7 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     logger::println(logger::INFO, "OneCCL (native): init");
     store = std::make_shared<file_store>(
                 kvs_param, rank, std::chrono::seconds(STORE_TIMEOUT_SEC));
+    ccl::shared_ptr_class<ccl::kvs> kvs;
 
     const char *str = env->GetStringUTFChars(ip_port, 0);
     ccl::string ccl_ip_port(str);
@@ -76,7 +77,7 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     logger::Logger::getInstance(name).printLogToFile("rankID was %d, OneCCL singleton init took %f secs.", rank, duration / 1000 );
 
     if (create_kvs_by_store(store, rank, kvs, ccl_name) != KVS_CREATE_SUCCESS) {
-        std::cout << "can not create kvs by store" << std::endl;
+        logger::println(logger::INFO, "OneCCL (native): can not create kvs by store");
         return -1;
     }
 
@@ -88,9 +89,7 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
     logger::println(logger::INFO, "OneCCL (native): create_main_kvs");
 
-    ccl::shared_ptr_class<ccl::kvs> kvs = ccl::create_main_kvs(kvs_attr);
     logger::println(logger::INFO, "OneCCL (native): g_ccl_kvs.push_back(kvs)");
-
     {
         std::lock_guard<std::mutex> lock(g_mtx);
         g_kvs.push_back(kvs);
@@ -110,7 +109,7 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
             .count();
     logger::println(logger::INFO, "OneCCL (native): init took %f secs",
                     duration / 1000);
-    logger::Logger::getInstance(name).printLogToFile("rankID was %d, OneCCL create communicator took %f secs.", rank, duration / 1000 );
+    logger::Logger::getInstance(ccl_name).printLogToFile("rankID was %d, OneCCL create communicator took %f secs.", rank, duration / 1000 );
 
 
     rank_id = getComm().rank();
