@@ -33,7 +33,11 @@
 
 namespace dal = oneapi::dal;
 using namespace std;
+namespace fs = std::filesystem;
 
+inline bool check_file(const std::string& name) {
+    return std::ifstream{ name }.good();
+}
 
 ccl::shared_ptr_class<ccl::kvs> getCclPortKvs(ccl::string ccl_ip_port){
     std::cout << "ccl_ip_port = " << ccl_ip_port << std::endl;
