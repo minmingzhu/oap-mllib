@@ -142,7 +142,7 @@ void weak(sycl::queue& queue, const string& path, dal::preview::spmd::communicat
 
 JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationSampleTrainDAL(
-    JNIEnv *env, jobject obj, jint rank, jint rank_count, jstring ip_port)
+    JNIEnv *env, jobject obj, jint rank, jint rank_count, jstring ip_port){
     cout << "main:\n" << endl;
     const char *str = env->GetStringUTFChars(ip_port, 0);
     ccl::string ccl_ip_port(str);
