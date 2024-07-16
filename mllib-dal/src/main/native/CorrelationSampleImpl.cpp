@@ -21,6 +21,7 @@
 #include <string>
 #include <thread>
 #include <filesystem>
+#include <jni.h>
 
 #ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
@@ -154,6 +155,26 @@ std::vector<std::string> get_file_path(const std::string& path) {
     return result;
 }
 
+int getLocalRank(int size, int rank, ccl::communicator& comm)
+{
+    /* Obtain local rank among nodes sharing the same host name */
+    char zero = static_cast<char>(0);
+    std::vector<char> name(MPI_MAX_PROCESSOR_NAME + 1, zero);
+    int resultlen = 0;
+    std::string str(name.begin(), name.end());
+    std::vector<char> allNames((MPI_MAX_PROCESSOR_NAME + 1) * size, zero);
+    std::vector<size_t> aReceiveCount(size, MPI_MAX_PROCESSOR_NAME + 1);
+    ccl::allgatherv((int8_t *)name.data(), name.size(), (int8_t *)allNames.data(), aReceiveCount, comm).wait();
+    int localRank = 0;
+    for (int i = 0; i < rank; i++)
+    {
+        auto nameBegin = allNames.begin() + i * (MPI_MAX_PROCESSOR_NAME + 1);
+        std::string nbrName(nameBegin, nameBegin + (MPI_MAX_PROCESSOR_NAME + 1));
+        if (nbrName == str) localRank++;
+    }
+    return localRank;
+}
+
 void weak(sycl::queue& queue, const string& path, dal::preview::spmd::communicator<dal::preview::spmd::device_memory_access::usm>& comm) {
 
     const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
@@ -254,11 +275,7 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationSampleTrainDAL(
                             .count() /
                         1000
                 << " secs" << endl;
-    if(strcmp(action, "weak") == 0){
-        weak(q, pathStr, comm);
-    }else{
-        cout << "Thread id = " << this_thread::get_id()  << " error " << endl;
-    }
+    weak(q, pathStr, comm);
     env->ReleaseStringUTFChars(ip_port, str);
-     return 0;
+    return 0;
 }
