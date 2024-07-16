@@ -299,7 +299,7 @@ static int create_kvs_by_store(std::shared_ptr<file_store> store,
             return KVS_CREATE_FAILURE;
         }
         auto end = std::chrono::system_clock::now();
-        auto exec_time =  =
+        auto exec_time =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(end -start)
                 .count();
         logger::println(logger::INFO, "OneCCL (native): write to store time %f secs",
@@ -312,7 +312,7 @@ static int create_kvs_by_store(std::shared_ptr<file_store> store,
             return KVS_CREATE_FAILURE;
         }
         auto end = std::chrono::system_clock::now();
-        auto exec_time =  =
+        auto exec_time =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(end -start)
                 .count();
         logger::println(logger::INFO, "OneCCL (native): read from store time %f secs",
