@@ -26,7 +26,7 @@ static std::vector<sycl::device> get_gpus() {
 
 static int getLocalRank(ccl::communicator &comm, int size, int rank) {
     logger::println(logger::INFO, "getLocalRank");
-    const int MPI_MAX_PROCESSOR_NAME = 256;
+    const int MPI_MAX_PROCESSOR_NAME = 128;
     /* Obtain local rank among nodes sharing the same host name */
     char zero = static_cast<char>(0);
     std::vector<char> name(MPI_MAX_PROCESSOR_NAME + 1, zero);
@@ -75,24 +75,24 @@ sycl::queue getAssignedGPU(const ComputeDevice device, ccl::communicator &comm,
     }
     case ComputeDevice::gpu: {
         logger::println(logger::INFO, "selector GPU");
-        auto local_rank = getLocalRank(comm, size, rankId);
+//        auto local_rank = getLocalRank(comm, size, rankId);
         auto gpus = get_gpus();
-
-        logger::println(logger::INFO,
-                        "rank: %d size: %d local_rank: %d n_gpu: %d", rankId,
-                        size, local_rank, n_gpu);
-
-        auto gpu_selected = gpu_indices[local_rank % n_gpu];
+//
+//        logger::println(logger::INFO,
+//                        "rank: %d size: %d local_rank: %d n_gpu: %d", rankId,
+//                        size, local_rank, n_gpu);
+//
+//        auto gpu_selected = gpu_indices[local_rank % n_gpu];
+//        logger::println(logger::INFO, "GPU selected for current rank: %d",
+//                        gpu_selected);
+//
+//        // In case gpu_selected index is larger than number of GPU SYCL devices
+//        auto rank_id = gpu_selected % gpus.size();
+//        logger::println(logger::INFO, "GPU selected for current rank_id: %d and total gpus %d",
+//                        rank_id, gpus.size());
+        auto rank_gpu = gpus[gpu_indices[0]];
         logger::println(logger::INFO, "GPU selected for current rank: %d",
-                        gpu_selected);
-
-        // In case gpu_selected index is larger than number of GPU SYCL devices
-        auto rank_id = gpu_selected % gpus.size();
-        logger::println(logger::INFO, "GPU selected for current rank_id: %d and total gpus %d",
-                        rank_id, gpus.size());
-        auto rank_gpu = gpus[rank_id];
-        logger::println(logger::INFO, "GPU selected for current rank: %d",
-                gpu_selected);
+                gpu_indices[0]);
         sycl::queue q{rank_gpu};
         return q;
     }
