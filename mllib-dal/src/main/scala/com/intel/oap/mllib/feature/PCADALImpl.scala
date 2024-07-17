@@ -17,6 +17,7 @@
 package com.intel.oap.mllib.feature
 
 import com.intel.daal.datamanagement.data.{HomogenNumericTable, NumericTable}
+
 import java.nio.DoubleBuffer
 import com.intel.oap.mllib.Utils.getOneCCLIPPort
 import com.intel.oap.mllib.{OneCCL, OneDAL, Service, Utils}
@@ -31,6 +32,8 @@ import org.apache.spark.rdd.RDD
 import java.util.Arrays
 import com.intel.oneapi.dal.table.{Common, HomogenTable, RowAccessor}
 import org.apache.spark.storage.StorageLevel
+
+import java.time.Instant
 
 class PCADALModel private[mllib] (
   val k: Int,
@@ -48,7 +51,7 @@ class PCADALImpl(val k: Int,
     val metrics_name = "PCA_" + executorNum
     val pcaTimer = new Utils.AlgoTimeMetrics(metrics_name, sparkContext)
     val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", Utils.DefaultComputeDevice)
-    val storePath = sparkContext.getConf.get("spark.oap.mllib.kvsStorePath")
+    val storePath = sparkContext.getConf.get("spark.oap.mllib.kvsStorePath") + "/" + Instant.now()
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
     pcaTimer.record("Preprocessing")
 

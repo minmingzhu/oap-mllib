@@ -26,6 +26,7 @@ import org.apache.spark.ml.recommendation.ALS.Rating
 import org.apache.spark.rdd.RDD
 
 import java.nio.{ByteBuffer, ByteOrder, FloatBuffer}
+import java.time.Instant
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 
@@ -57,7 +58,8 @@ class ALSDALImpl[@specialized(Int, Long) ID: ClassTag]( data: RDD[Rating[ID]],
   def train(): (RDD[(ID, Array[Float])], RDD[(ID, Array[Float])]) = {
     val executorNum = Utils.sparkExecutorNum(data.sparkContext)
     val executorCores = Utils.sparkExecutorCores()
-    val storePath = data.sparkContext.getConf.get("spark.oap.mllib.kvsStorePath")
+    val storePath = data.sparkContext.getConf
+      .get("spark.oap.mllib.kvsStorePath") + "/" + Instant.now()
 
     val nFeatures = data.max()(new Ordering[Rating[ID]]() {
       override def compare(x: Rating[ID], y: Rating[ID]): Int =

@@ -25,6 +25,8 @@ import org.apache.spark.ml.linalg.{Matrices, Matrix, Vector}
 import org.apache.spark.ml.util.Instrumentation
 import org.apache.spark.sql.Dataset
 
+import java.time.Instant
+
 class NaiveBayesDALModel private[mllib] (
     val uid: String,
     val pi: Vector,
@@ -41,7 +43,7 @@ class NaiveBayesDALImpl(val uid: String,
             labelCol: String,
             featuresCol: String): NaiveBayesDALModel = {
     val sparkContext = labeledPoints.rdd.sparkContext
-    val storePath = sparkContext.getConf.get("spark.oap.mllib.kvsStorePath")
+    val storePath = sparkContext.getConf.get("spark.oap.mllib.kvsStorePath") + "/" + Instant.now()
     val kvsIPPort = getOneCCLIPPort(labeledPoints.rdd)
 
     val labeledPointsTables = if (OneDAL.isDenseDataset(labeledPoints, featuresCol)) {

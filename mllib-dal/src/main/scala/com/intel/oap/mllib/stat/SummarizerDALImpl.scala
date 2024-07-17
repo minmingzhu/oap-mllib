@@ -26,6 +26,8 @@ import org.apache.spark.rdd.RDD
 import com.intel.oap.mllib.Utils.getOneCCLIPPort
 import com.intel.oneapi.dal.table.Common
 
+import java.time.Instant
+
 class SummarizerDALImpl(val executorNum: Int,
                         val executorCores: Int)
   extends Serializable with Logging {
@@ -35,7 +37,7 @@ class SummarizerDALImpl(val executorNum: Int,
     val metrics_name = "Summarizer_" + executorNum
     val sumTimer = new Utils.AlgoTimeMetrics(metrics_name, sparkContext)
     val useDevice = sparkContext.getConf.get("spark.oap.mllib.device", Utils.DefaultComputeDevice)
-    val storePath = sparkContext.getConf.get("spark.oap.mllib.kvsStorePath")
+    val storePath = sparkContext.getConf.get("spark.oap.mllib.kvsStorePath") + "/" + Instant.now()
     val computeDevice = Common.ComputeDevice.getDeviceByName(useDevice)
     sumTimer.record("Preprocessing")
 

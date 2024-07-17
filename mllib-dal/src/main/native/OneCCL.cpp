@@ -135,7 +135,6 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     }
     logger::println(logger::INFO, "OneCCL (native): ccl::create_communicator(size, rank, kvs)");
     logger::println(logger::INFO, "ccl::create_communicator %d ,%d", size, rank);
-    auto comm = ccl::create_communicator(size, rank, kvs);
     {
         std::lock_guard<std::mutex> lock(g_mtx);
         g_comms.push_back(ccl::create_communicator(size, rank, kvs));
