@@ -25,13 +25,11 @@ static std::vector<sycl::device> get_gpus() {
 }
 
 static int getLocalRank(ccl::communicator &comm, int size, int rank) {
-    const int MPI_MAX_PROCESSOR_NAME = 128;
+    logger::println(logger::INFO, "getLocalRank");
+    const int MPI_MAX_PROCESSOR_NAME = 256;
     /* Obtain local rank among nodes sharing the same host name */
     char zero = static_cast<char>(0);
     std::vector<char> name(MPI_MAX_PROCESSOR_NAME + 1, zero);
-    // int resultlen = 0;
-    // MPI_Get_processor_name(name.data(), &resultlen);
-    gethostname(name.data(), MPI_MAX_PROCESSOR_NAME);
     std::string str(name.begin(), name.end());
     std::vector<char> allNames((MPI_MAX_PROCESSOR_NAME + 1) * size, zero);
     std::vector<size_t> aReceiveCount(size, MPI_MAX_PROCESSOR_NAME + 1);
@@ -46,9 +44,8 @@ static int getLocalRank(ccl::communicator &comm, int size, int rank) {
         if (nbrName == str)
             localRank++;
     }
+    logger::println(logger::INFO, "getLocalRank %d ", localRank);
     return localRank;
-
-    //    return 0;
 }
 
 static sycl::queue getSyclQueue(const sycl::device device) {
@@ -90,7 +87,12 @@ sycl::queue getAssignedGPU(const ComputeDevice device, ccl::communicator &comm,
                         gpu_selected);
 
         // In case gpu_selected index is larger than number of GPU SYCL devices
-        auto rank_gpu = gpus[gpu_selected % gpus.size()];
+        auto rank_id = gpu_selected % gpus.size();
+        logger::println(logger::INFO, "GPU selected for current rank_id: %d and total gpus %d",
+                        rank_id, gpus.size());
+        auto rank_gpu = gpus[rank_id];
+        logger::println(logger::INFO, "GPU selected for current rank: %d",
+                gpu_selected);
         sycl::queue q{rank_gpu};
         return q;
     }
