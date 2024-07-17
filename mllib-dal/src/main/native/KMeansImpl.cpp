@@ -257,6 +257,8 @@ static jlong doKMeansOneAPICompute(
     const bool isRoot = (comm.get_rank() == ccl_root);
     float *htableArray = reinterpret_cast<float *>(pNumTabData);
     auto t1 = std::chrono::high_resolution_clock::now();
+    logger::println(logger::INFO, "numRows was %d", numRows);
+    logger::println(logger::INFO, "numClos was %d", numClos);
     auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
     queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
     homogen_table htable{queue, data, numRows, numClos,
@@ -273,10 +275,12 @@ static jlong doKMeansOneAPICompute(
     homogen_table centroids =
             *reinterpret_cast<const homogen_table *>(pNumTabCenters);
 
-    const auto kmeans_desc = kmeans_gpu::descriptor<GpuAlgorithmFPType>()
+    const auto kmeans_desc = kmeans_gpu::descriptor()
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
                                  .set_accuracy_threshold(tolerance);
+
+
     kmeans_gpu::train_input local_input{htable, centroids};
     t1 = std::chrono::high_resolution_clock::now();
     kmeans_gpu::train_result result_train =
