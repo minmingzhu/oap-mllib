@@ -108,6 +108,9 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     ccl::string ccl_name(str_name);
     const char* path = env->GetStringUTFChars(store_path, 0);
     std::string kvs_store_path(path);
+    const char *str = env->GetStringUTFChars(ip_port, 0);
+    ccl::string ccl_ip_port(str);
+
     store = std::make_shared<file_store>(
                 kvs_store_path, rank, std::chrono::seconds(STORE_TIMEOUT_SEC));
 
@@ -121,18 +124,21 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     logger::println(logger::INFO, "OneCCL singleton init took %f secs",
                     duration / 1000);
     logger::Logger::getInstance(ccl_name).printLogToFile("rankID was %d, OneCCL singleton init took %f secs.", rank, duration / 1000 );
-    logger::println(logger::INFO, "OneCCL (native): create_main_kvs");
-    if (create_kvs_by_store(store, rank, kvs, ccl_name) != KVS_CREATE_SUCCESS) {
-        logger::println(logger::INFO, "OneCCL (native): can not create kvs by store");
-        return -1;
-    }
+//    logger::println(logger::INFO, "OneCCL (native): create_main_kvs");
+//    if (create_kvs_by_store(store, rank, kvs, ccl_name) != KVS_CREATE_SUCCESS) {
+//        logger::println(logger::INFO, "OneCCL (native): can not create kvs by store");
+//        return -1;
+//    }
+//
+//    t1 = std::chrono::high_resolution_clock::now();
+//    logger::println(logger::INFO, "OneCCL (native): create_kvs_attr");
+//    {
+//        std::lock_guard<std::mutex> lock(g_mtx);
+//        g_kvs.push_back(kvs);
+//    }
+    
+    auto &singletonCCLInit = CCLInitSingleton::get(size, rank, ccl_ip_port, ccl_name);
 
-    t1 = std::chrono::high_resolution_clock::now();
-    logger::println(logger::INFO, "OneCCL (native): create_kvs_attr");
-    {
-        std::lock_guard<std::mutex> lock(g_mtx);
-        g_kvs.push_back(kvs);
-    }
 //    logger::println(logger::INFO, "OneCCL (native): ccl::create_communicator(size, rank, kvs)");
 //    logger::println(logger::INFO, "ccl::create_communicator %d ,%d", size, rank);
 //    {
@@ -161,6 +167,7 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     env->SetLongField(param, fid_rank_id, rank);
     env->ReleaseStringUTFChars(name, str_name);
     env->ReleaseStringUTFChars(store_path, path);
+    env->ReleaseStringUTFChars(ip_port, str);
     logger::println(logger::INFO, "OneCCL (native): init finished");
 
     return 1;
@@ -172,10 +179,35 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL
-Java_com_intel_oap_mllib_OneCCL_00024_c_1initDpcpp(JNIEnv *env, jobject) {
-    logger::printerrln(logger::INFO, "OneCCL (native): init dpcpp");
+Java_com_intel_oap_mllib_OneCCL_00024_c_1initDpcpp(JNIEnv *env, jobject, jstring ip_port, jstring name) {
+    logger::printerrln(logger::INFO, "OneCCL (native): init dpcpp, Rank id %d", rank");
 
+    const char *str_name = env->GetStringUTFChars(name, 0);
+    ccl::string ccl_name(str_name);
+    const char *str = env->GetStringUTFChars(ip_port, 0);
+    ccl::string ccl_ip_port(str);
+
+    auto t1 = std::chrono::high_resolution_clock::now();
     ccl::init();
+
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration =
+        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+
+    logger::println(logger::INFO, "OneCCL singleton init took %f secs",
+                    duration / 1000);
+    logger::Logger::getInstance(ccl_name).printLogToFile("rankID was %d, OneCCL singleton init took %f secs.", rank, duration / 1000 );
+
+    auto &singletonCCLInit = CCLInitSingleton::get(size, rank, ccl_ip_port, ccl_name);
+
+    jclass cls = env->GetObjectClass(param);
+    jfieldID fid_comm_size = env->GetFieldID(cls, "commSize", "J");
+    jfieldID fid_rank_id = env->GetFieldID(cls, "rankId", "J");
+
+    env->SetLongField(param, fid_comm_size, size);
+    env->SetLongField(param, fid_rank_id, rank);
+    env->ReleaseStringUTFChars(name, str_name);
+    env->ReleaseStringUTFChars(ip_port, str);
 
     return 1;
 }
