@@ -75,6 +75,7 @@ class CorrelationDALImpl(
         null
       }
       cCorrelationTrainDAL(
+        rank,
         tableArr,
         rows,
         columns,
@@ -125,7 +126,8 @@ class CorrelationDALImpl(
   }
 
 
-  @native private[mllib] def cCorrelationTrainDAL(data: Long,
+  @native private[mllib] def cCorrelationTrainDAL(rank: Int,
+                                           data: Long,
                                            numRows: Long,
                                            numCols: Long,
                                            executorNum: Int,
