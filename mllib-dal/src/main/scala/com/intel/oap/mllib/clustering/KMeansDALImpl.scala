@@ -72,6 +72,7 @@ class KMeansDALImpl(var nClusters: Int,
       } else {
         null
       }
+      logInfo(s"gpuIndices is ${gpuIndices.mkString(", ")}.")
 
       val (tableArr : Long, rows : Long, columns : Long) = if (useDevice == "GPU") {
         val parts = iter.next().toString.split("_")
@@ -88,6 +89,7 @@ class KMeansDALImpl(var nClusters: Int,
       logInfo(s"initCentroids HomogenTable")
 
       cCentroids = cKMeansOneapiComputeWithInitCenters(
+        rank,
         tableArr,
         rows,
         columns,
@@ -144,7 +146,8 @@ class KMeansDALImpl(var nClusters: Int,
     parentModel
   }
 
-  @native private[mllib] def cKMeansOneapiComputeWithInitCenters(data: Long,
+  @native private[mllib] def cKMeansOneapiComputeWithInitCenters(rank: Int,
+                                                       data: Long,
                                                        numRows: Long,
                                                        numCols: Long,
                                                        centers: Long,

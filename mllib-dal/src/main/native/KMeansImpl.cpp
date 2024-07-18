@@ -337,7 +337,7 @@ static jlong doKMeansOneAPICompute(
  */
 JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCenters(
-    JNIEnv *env, jobject obj, jlong pNumTabData, jlong numRows, jlong numClos, jlong pNumTabCenters,
+    JNIEnv *env, jobject obj, jint rank, jlong pNumTabData, jlong numRows, jlong numClos, jlong pNumTabCenters,
     jint clusterNum, jdouble tolerance, jint iterationNum, jint executorNum,
     jint executorCores, jint computeDeviceOrdinal, jintArray gpuIdxArray, jstring breakdown_name,
     jobject resultObj) {
@@ -347,11 +347,11 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
 
     jlong ret = 0L;
     ccl::communicator &cclComm = getComm();
-    int rankId = cclComm.rank();
     ComputeDevice device = getComputeDeviceByOrdinal(computeDeviceOrdinal);
     switch (device) {
     case ComputeDevice::host:
     case ComputeDevice::cpu: {
+        int rankId = cclComm.rank();
         NumericTablePtr pData = *((NumericTablePtr *)pNumTabData);
         NumericTablePtr centroids = *((NumericTablePtr *)pNumTabCenters);
         // Set number of threads for OneDAL to use for each rank
@@ -379,16 +379,13 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
         const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
         std::string c_breakdown_name(cstr);
 
-        int size = cclComm.size();
-
-        auto queue =
-            getAssignedGPU(device, cclComm, size, rankId, gpuIndices, nGpu);
-
+        auto queue = getGPU(device, gpuIndices);
+        auto rank_gpu = gpus[gpu_indices[0]];
         ccl::shared_ptr_class<ccl::kvs> &kvs = getKvs();
         auto t1 = std::chrono::high_resolution_clock::now();
         auto comm =
             preview::spmd::make_communicator<preview::spmd::backend::ccl>(
-                queue, size, rankId, kvs);
+                queue, executorNum, rank, kvs);
         auto t2 = std::chrono::high_resolution_clock::now();
         auto duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)

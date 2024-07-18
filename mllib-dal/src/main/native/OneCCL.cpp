@@ -133,13 +133,13 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
         std::lock_guard<std::mutex> lock(g_mtx);
         g_kvs.push_back(kvs);
     }
-    logger::println(logger::INFO, "OneCCL (native): ccl::create_communicator(size, rank, kvs)");
-    logger::println(logger::INFO, "ccl::create_communicator %d ,%d", size, rank);
-    {
-        std::lock_guard<std::mutex> lock(g_mtx);
-        g_comms.push_back(ccl::create_communicator(size, rank, kvs));
-    }
-    logger::println(logger::INFO, "OneCCL (native): ccl::create_communicator finished");
+//    logger::println(logger::INFO, "OneCCL (native): ccl::create_communicator(size, rank, kvs)");
+//    logger::println(logger::INFO, "ccl::create_communicator %d ,%d", size, rank);
+//    {
+//        std::lock_guard<std::mutex> lock(g_mtx);
+//        g_comms.push_back(ccl::create_communicator(size, rank, kvs));
+//    }
+//    logger::println(logger::INFO, "OneCCL (native): ccl::create_communicator finished");
 
     t2 = std::chrono::high_resolution_clock::now();
     duration =
@@ -148,17 +148,17 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     logger::println(logger::INFO, "OneCCL (native): init took %f secs",
                     duration / 1000);
     logger::Logger::getInstance(ccl_name).printLogToFile("rankID was %d, OneCCL create communicator took %f secs.", rank, duration / 1000 );
+//
+//
+//    rank_id = getComm().rank();
+//    comm_size = getComm().size();
+//
+//    jclass cls = env->GetObjectClass(param);
+//    jfieldID fid_comm_size = env->GetFieldID(cls, "commSize", "J");
+//    jfieldID fid_rank_id = env->GetFieldID(cls, "rankId", "J");
 
-
-    rank_id = getComm().rank();
-    comm_size = getComm().size();
-
-    jclass cls = env->GetObjectClass(param);
-    jfieldID fid_comm_size = env->GetFieldID(cls, "commSize", "J");
-    jfieldID fid_rank_id = env->GetFieldID(cls, "rankId", "J");
-
-    env->SetLongField(param, fid_comm_size, comm_size);
-    env->SetLongField(param, fid_rank_id, rank_id);
+    env->SetLongField(param, fid_comm_size, size);
+    env->SetLongField(param, fid_rank_id, rank);
     env->ReleaseStringUTFChars(name, str_name);
     env->ReleaseStringUTFChars(store_path, path);
     logger::println(logger::INFO, "OneCCL (native): init finished");
@@ -174,6 +174,7 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
 JNIEXPORT jint JNICALL
 Java_com_intel_oap_mllib_OneCCL_00024_c_1initDpcpp(JNIEnv *env, jobject) {
     logger::printerrln(logger::INFO, "OneCCL (native): init dpcpp");
+
     ccl::init();
 
     return 1;

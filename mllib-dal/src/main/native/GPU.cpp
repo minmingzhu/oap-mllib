@@ -104,6 +104,32 @@ sycl::queue getAssignedGPU(const ComputeDevice device, ccl::communicator &comm,
     }
 }
 
+sycl::queue getGPU(const ComputeDevice device,jint *gpu_indices) {
+    switch (device) {
+    case ComputeDevice::host:
+    case ComputeDevice::cpu: {
+        logger::printerrln(
+            logger::ERROR,
+            "Not implemented for HOST/CPU device, Please run on GPU device.");
+        exit(-1);
+    }
+    case ComputeDevice::gpu: {
+        logger::println(logger::INFO, "selector GPU");
+        auto gpus = get_gpus();
+        auto rank_gpu = gpus[gpu_indices[0]];
+        logger::println(logger::INFO, "GPU selected for current rank: %d",
+                gpu_indices[0]);
+        sycl::queue q{rank_gpu};
+        return q;
+    }
+
+    default: {
+        logger::printerrln(logger::ERROR, "No Device!");
+        exit(-1);
+    }
+    }
+}
+
 sycl::queue getQueue(const ComputeDevice device) {
     logger::println(logger::INFO, "Get Queue");
 
