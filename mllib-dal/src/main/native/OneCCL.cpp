@@ -180,34 +180,34 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
  */
 JNIEXPORT jint JNICALL
 Java_com_intel_oap_mllib_OneCCL_00024_c_1initDpcpp(JNIEnv *env, jobject, jstring ip_port, jstring name) {
-    logger::printerrln(logger::INFO, "OneCCL (native): init dpcpp, Rank id %d", rank");
+//    logger::printerrln(logger::INFO, "OneCCL (native): init dpcpp");
 
-    const char *str_name = env->GetStringUTFChars(name, 0);
-    ccl::string ccl_name(str_name);
-    const char *str = env->GetStringUTFChars(ip_port, 0);
-    ccl::string ccl_ip_port(str);
-
-    auto t1 = std::chrono::high_resolution_clock::now();
-    ccl::init();
-
-    auto t2 = std::chrono::high_resolution_clock::now();
-    auto duration =
-        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-
-    logger::println(logger::INFO, "OneCCL singleton init took %f secs",
-                    duration / 1000);
-    logger::Logger::getInstance(ccl_name).printLogToFile("rankID was %d, OneCCL singleton init took %f secs.", rank, duration / 1000 );
-
-    auto &singletonCCLInit = CCLInitSingleton::get(size, rank, ccl_ip_port, ccl_name);
-
-    jclass cls = env->GetObjectClass(param);
-    jfieldID fid_comm_size = env->GetFieldID(cls, "commSize", "J");
-    jfieldID fid_rank_id = env->GetFieldID(cls, "rankId", "J");
-
-    env->SetLongField(param, fid_comm_size, size);
-    env->SetLongField(param, fid_rank_id, rank);
-    env->ReleaseStringUTFChars(name, str_name);
-    env->ReleaseStringUTFChars(ip_port, str);
+//    const char *str_name = env->GetStringUTFChars(name, 0);
+//    ccl::string ccl_name(str_name);
+//    const char *str = env->GetStringUTFChars(ip_port, 0);
+//    ccl::string ccl_ip_port(str);
+//
+//    auto t1 = std::chrono::high_resolution_clock::now();
+//    ccl::init();
+//
+//    auto t2 = std::chrono::high_resolution_clock::now();
+//    auto duration =
+//        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+//
+//    logger::println(logger::INFO, "OneCCL singleton init took %f secs",
+//                    duration / 1000);
+//    logger::Logger::getInstance(ccl_name).printLogToFile("rankID was %d, OneCCL singleton init took %f secs.", rank, duration / 1000 );
+//
+//    auto &singletonCCLInit = CCLInitSingleton::get(size, rank, ccl_ip_port, ccl_name);
+//
+//    jclass cls = env->GetObjectClass(param);
+//    jfieldID fid_comm_size = env->GetFieldID(cls, "commSize", "J");
+//    jfieldID fid_rank_id = env->GetFieldID(cls, "rankId", "J");
+//
+//    env->SetLongField(param, fid_comm_size, size);
+//    env->SetLongField(param, fid_rank_id, rank);
+//    env->ReleaseStringUTFChars(name, str_name);
+//    env->ReleaseStringUTFChars(ip_port, str);
 
     return 1;
 }
