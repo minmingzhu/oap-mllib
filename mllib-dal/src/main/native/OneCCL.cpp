@@ -124,28 +124,28 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     logger::println(logger::INFO, "OneCCL singleton init took %f secs",
                     duration / 1000);
     logger::Logger::getInstance(ccl_name).printLogToFile("rankID was %d, OneCCL singleton init took %f secs.", rank, duration / 1000 );
-//    logger::println(logger::INFO, "OneCCL (native): create_main_kvs");
-//    if (create_kvs_by_store(store, rank, kvs, ccl_name) != KVS_CREATE_SUCCESS) {
-//        logger::println(logger::INFO, "OneCCL (native): can not create kvs by store");
-//        return -1;
-//    }
-//
-//    t1 = std::chrono::high_resolution_clock::now();
-//    logger::println(logger::INFO, "OneCCL (native): create_kvs_attr");
-//    {
-//        std::lock_guard<std::mutex> lock(g_mtx);
-//        g_kvs.push_back(kvs);
-//    }
-    
-    auto &singletonCCLInit = CCLInitSingleton::get(size, rank, ccl_ip_port, ccl_name);
+    logger::println(logger::INFO, "OneCCL (native): create_main_kvs");
+    if (create_kvs_by_store(store, rank, kvs, ccl_name) != KVS_CREATE_SUCCESS) {
+        logger::println(logger::INFO, "OneCCL (native): can not create kvs by store");
+        return -1;
+    }
 
-//    logger::println(logger::INFO, "OneCCL (native): ccl::create_communicator(size, rank, kvs)");
-//    logger::println(logger::INFO, "ccl::create_communicator %d ,%d", size, rank);
-//    {
-//        std::lock_guard<std::mutex> lock(g_mtx);
-//        g_comms.push_back(ccl::create_communicator(size, rank, kvs));
-//    }
-//    logger::println(logger::INFO, "OneCCL (native): ccl::create_communicator finished");
+    t1 = std::chrono::high_resolution_clock::now();
+    logger::println(logger::INFO, "OneCCL (native): create_kvs_attr");
+    {
+        std::lock_guard<std::mutex> lock(g_mtx);
+        g_kvs.push_back(kvs);
+    }
+    
+//    auto &singletonCCLInit = CCLInitSingleton::get(size, rank, ccl_ip_port, ccl_name);
+
+    logger::println(logger::INFO, "OneCCL (native): ccl::create_communicator(size, rank, kvs)");
+    logger::println(logger::INFO, "ccl::create_communicator %d ,%d", size, rank);
+    {
+        std::lock_guard<std::mutex> lock(g_mtx);
+        g_comms.push_back(ccl::create_communicator(size, rank, kvs));
+    }
+    logger::println(logger::INFO, "OneCCL (native): ccl::create_communicator finished");
 
     t2 = std::chrono::high_resolution_clock::now();
     duration =
