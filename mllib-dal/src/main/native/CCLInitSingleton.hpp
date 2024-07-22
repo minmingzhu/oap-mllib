@@ -68,12 +68,12 @@ private:
             std::lock_guard<std::mutex> lock(g_mtx);
             g_kvs.push_back(kvs);
         }
-        logger::println(logger::INFO, "OneCCL (native): ccl::create_communicator(size, rank, kvs)");
-        {
-            std::lock_guard<std::mutex> lock(g_mtx);
-            g_comms.push_back(std::move(ccl::create_communicator(size, rank, kvs)));
-        }
-        logger::println(logger::INFO, "OneCCL (native): ccl::create_communicator finished");
+//        logger::println(logger::INFO, "OneCCL (native): ccl::create_communicator(size, rank, kvs)");
+//        {
+//            std::lock_guard<std::mutex> lock(g_mtx);
+//            g_comms.push_back(std::move(ccl::create_communicator(size, rank, kvs)));
+//        }
+//        logger::println(logger::INFO, "OneCCL (native): ccl::create_communicator finished");
 
         t2 = std::chrono::high_resolution_clock::now();
         duration =
