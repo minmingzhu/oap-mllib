@@ -337,7 +337,7 @@ Java_com_intel_oap_mllib_stat_SummarizerDALImpl_cSummarizerTrainDAL(
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
 
-        logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rankId, duration / 1000 );
+        logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rank, duration / 1000 );
         doSummarizerOneAPICompute(env, pNumTabData, numRows, numClos, comm,
                                   resultObj, queue, c_breakdown_name);
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
