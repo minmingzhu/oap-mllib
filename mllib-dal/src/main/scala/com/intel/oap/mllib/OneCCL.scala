@@ -20,14 +20,12 @@ import org.apache.spark.internal.Logging
 
 object OneCCL extends Logging {
 
-  LibLoader.loadLibraries()
+//  LibLoader.loadLibraries()
 
   var cclParam = new CCLParam()
 
   def init(executor_num: Int, rank: Int, ip_port: String, name: String,
            store_path: String): Unit = {
-
-//    setExecutorEnv()
 
     logInfo(s"Initializing with rank: ${rank}")
 
@@ -43,12 +41,8 @@ object OneCCL extends Logging {
   }
 
   // Run on Executor
-  def setExecutorEnv(): Unit = {
-    setEnv("CCL_ATL_TRANSPORT", "ofi")
-    // Set CCL_ROOT to workaround CCL_ROOT env read bug, should remove when upstream fix this
-    setEnv("CCL_ROOT", "/opt/intel/oneapi/ccl/latest")
-    // Uncomment this if you whant to debug oneCCL
-    // setEnv("CCL_LOG_LEVEL", "debug")
+  def setExecutorEnv(key: String, value: String): Unit = {
+    setEnv(key, value)
   }
 
   // Run on Executor
