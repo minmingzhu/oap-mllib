@@ -155,18 +155,24 @@ static void doCorrelationOneAPICompute(
     jobject resultObj, sycl::queue &queue, std::string breakdown_name) {
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
-
-    float *htableArray = reinterpret_cast<float *>(pNumTabData);
-    logger::println(logger::INFO, "numRows was %d", numRows);
-    logger::println(logger::INFO, "numClos was %d", numClos);
     auto t1 = std::chrono::high_resolution_clock::now();
+    auto input_vec = get_file_path("/home/damon/storage/DataRoot/HiBench_CSV/Correlation/Input/4000000");
+    const auto train_data_file_name = get_data_path(input_vec[comm.get_rank()]);
+    cout << "rank id = " << comm.get_rank()  << " File name: " << train_data_file_name << endl;
+    const auto htable = read<table>(queue, csv::data_source{ train_data_file_name });
+    comm.barrier();
 
-    auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
-    std::cout << "table size : " << numRows * numClos << std::endl;
-    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, table size %ld.", comm.get_rank(), numRows * numClos );
-    queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
-    homogen_table htable{queue, data, numRows, numClos,
-                         detail::make_default_delete<const float>(queue)};
+//    float *htableArray = reinterpret_cast<float *>(pNumTabData);
+//    logger::println(logger::INFO, "numRows was %d", numRows);
+//    logger::println(logger::INFO, "numClos was %d", numClos);
+//    auto t1 = std::chrono::high_resolution_clock::now();
+
+//    auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
+//    std::cout << "table size : " << numRows * numClos << std::endl;
+//    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, table size %ld.", comm.get_rank(), numRows * numClos );
+//    queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
+//    homogen_table htable{queue, data, numRows, numClos,
+//                         detail::make_default_delete<const float>(queue)};
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
@@ -179,8 +185,7 @@ static void doCorrelationOneAPICompute(
 
     const auto cor_desc =
         covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
-            covariance_gpu::result_options::cor_matrix |
-            covariance_gpu::result_options::means);
+            covariance_gpu::result_options::cor_matrix | covariance_gpu::result_options::means);
 
     t1 = std::chrono::high_resolution_clock::now();
     logger::println(logger::INFO, "Correlation batch(native): compute start");
