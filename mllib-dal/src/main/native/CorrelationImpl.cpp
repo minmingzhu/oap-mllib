@@ -268,7 +268,7 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
 
 //        auto queue = getGPU(device, gpuIndices);
         auto device = sycl::device(sycl::gpu_selector_v);
-        sycl::queue queue{device}
+        sycl::queue queue{device};
 
         ccl::shared_ptr_class<ccl::kvs> &kvs = getKvs();
         auto t1 = std::chrono::high_resolution_clock::now();
