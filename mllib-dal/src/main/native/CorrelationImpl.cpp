@@ -155,7 +155,7 @@ static void doCorrelationDaalCompute(JNIEnv *env, jobject obj, size_t rankId,
     }
 }
 
-std::vector<std::string> get_file_path(const std::string& path) {
+std::vector<std::string> file_path(const std::string& path) {
     std::vector<std::string> result;
     for (auto& file : fs::directory_iterator(path)){
          if(fs::is_empty(file.path())){
@@ -173,7 +173,7 @@ inline bool check_file(const std::string& name) {
     return std::ifstream{ name }.good();
 }
 
-inline std::string get_data_path(const std::string& name) {
+inline std::string data_path(const std::string& name) {
     const std::vector<std::string> paths = { "./data", "samples/oneapi/dpc/mpi/data" };
 
     for (const auto& path : paths) {
@@ -194,8 +194,8 @@ static void doCorrelationOneAPICompute(
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
     auto t1 = std::chrono::high_resolution_clock::now();
-    auto input_vec = get_file_path("/home/damon/storage/DataRoot/HiBench_CSV/Correlation/Input/4000000");
-    const auto train_data_file_name = get_data_path(input_vec[comm.get_rank()]);
+    auto input_vec = file_path("/home/damon/storage/DataRoot/HiBench_CSV/Correlation/Input/4000000");
+    const auto train_data_file_name = data_path(input_vec[comm.get_rank()]);
     cout << "rank id = " << comm.get_rank()  << " File name: " << train_data_file_name << endl;
     const auto htable = read<table>(queue, csv::data_source{ train_data_file_name });
     comm.barrier();
