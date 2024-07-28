@@ -194,9 +194,11 @@ static void doCorrelationOneAPICompute(
     jobject resultObj, sycl::queue &queue, std::string breakdown_name) {
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
     const char* env_var = std::getenv("ZE_AFFINITY_MASK"); // replace "PATH" with the environment variable you want to check
+    const char* env_var_1 = std::getenv("ZE_ENABLE_PCI_ID_DEVICE_ORDER"); // replace "PATH" with the environment variable you want to check
 
     if (env_var) {
         std::cout << "ZE_AFFINITY_MASK: " << env_var << std::endl;
+        std::cout << "ZE_ENABLE_PCI_ID_DEVICE_ORDER: " << env_var_1 << std::endl;
     } else {
         std::cout << "Environment variable not found." << std::endl;
     }
