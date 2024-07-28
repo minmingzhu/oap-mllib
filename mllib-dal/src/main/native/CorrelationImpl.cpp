@@ -43,6 +43,7 @@ namespace covariance_gpu = oneapi::dal::covariance;
 using namespace daal;
 using namespace daal::services;
 namespace covariance_cpu = daal::algorithms::covariance;
+extern char **environ;
 
 static void doCorrelationDaalCompute(JNIEnv *env, jobject obj, size_t rankId,
                                      ccl::communicator &comm,
@@ -193,14 +194,17 @@ static void doCorrelationOneAPICompute(
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
     jobject resultObj, sycl::queue &queue, std::string breakdown_name) {
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
-    const char* env_var = std::getenv("ZE_AFFINITY_MASK"); // replace "PATH" with the environment variable you want to check
-    const char* env_var_1 = std::getenv("ZE_ENABLE_PCI_ID_DEVICE_ORDER"); // replace "PATH" with the environment variable you want to check
-
-    if (env_var) {
-        std::cout << "ZE_AFFINITY_MASK: " << env_var << std::endl;
-        std::cout << "ZE_ENABLE_PCI_ID_DEVICE_ORDER: " << env_var_1 << std::endl;
-    } else {
-        std::cout << "Environment variable not found." << std::endl;
+//    const char* env_var = std::getenv("ZE_AFFINITY_MASK"); // replace "PATH" with the environment variable you want to check
+//    const char* env_var_1 = std::getenv("ZE_ENABLE_PCI_ID_DEVICE_ORDER"); // replace "PATH" with the environment variable you want to check
+//
+//    if (env_var) {
+//        std::cout << "ZE_AFFINITY_MASK: " << env_var << std::endl;
+//        std::cout << "ZE_ENABLE_PCI_ID_DEVICE_ORDER: " << env_var_1 << std::endl;
+//    } else {
+//        std::cout << "Environment variable not found." << std::endl;
+//    }
+    for (char **env = environ; *env != nullptr; ++env) {
+        std::cout << *env << std::endl;
     }
     const bool isRoot = (comm.get_rank() == ccl_root);
     auto t1 = std::chrono::high_resolution_clock::now();
