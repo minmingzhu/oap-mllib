@@ -34,6 +34,7 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/io/csv.hpp"
 #include "Logger.h"
+#include <cstdlib> // for getenv
 
 using namespace std;
 #ifdef CPU_GPU_PROFILE
@@ -192,6 +193,13 @@ static void doCorrelationOneAPICompute(
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
     jobject resultObj, sycl::queue &queue, std::string breakdown_name) {
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
+    const char* env_var = std::getenv("ZE_AFFINITY_MASK"); // replace "PATH" with the environment variable you want to check
+
+    if (env_var) {
+        std::cout << "ZE_AFFINITY_MASK: " << env_var << std::endl;
+    } else {
+        std::cout << "Environment variable not found." << std::endl;
+    }
     const bool isRoot = (comm.get_rank() == ccl_root);
     auto t1 = std::chrono::high_resolution_clock::now();
     auto input_vec = file_path("/home/damon/storage/DataRoot/HiBench_CSV/Correlation/Input/4000000");
