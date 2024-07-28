@@ -118,7 +118,7 @@ class KMeansDALImpl(var nClusters: Int,
         training_breakdown_name,
         result
       )
-
+      logInfo(s"convert cCentroids HomogenTable to vector start")
       val ret = if (rank == 0) {
           assert(cCentroids != 0)
           val centerVectors = if (useDevice == "GPU") {
@@ -131,6 +131,7 @@ class KMeansDALImpl(var nClusters: Int,
         } else {
           Iterator.empty
         }
+      logInfo(s"convert cCentroids HomogenTable to vector end")
       OneCCL.cleanup()
       ret
     }.collect()

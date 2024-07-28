@@ -161,6 +161,7 @@ object OneDAL {
   }
 
   def homogenTableToVectors(table: HomogenTable, device: Common.ComputeDevice): Array[Vector] = {
+    logger.info(s"homogenTableToVectors function")
     val numRows = table.getRowCount.toInt
 
     val rowAcc = new RowAccessor(table.getcObejct(), device)
@@ -171,6 +172,7 @@ object OneDAL {
       val internArray = rowAcc.pullDouble(row, row + 1)
       resArray(row) = Vectors.dense(internArray)
     }
+    logger.info(s"homogenTableToVectors function end")
     resArray
   }
 
