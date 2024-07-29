@@ -326,8 +326,7 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
         ccl::string ccl_ip_port(str);
 
         auto t1 = std::chrono::high_resolution_clock::now();
-        logger::println(logger::INFO, "CCLInitSingleton name %s",
-                        name);
+
         ccl::init();
 
         auto t2 = std::chrono::high_resolution_clock::now();
@@ -336,7 +335,7 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
 
         logger::println(logger::INFO, "OneCCL singleton init took %f secs",
                         duration / 1000);
-        logger::Logger::getInstance(name).printLogToFile("rankID was %d, OneCCL singleton init took %f secs.", rank, duration / 1000 );
+        logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, OneCCL singleton init took %f secs.", rank, duration / 1000 );
 
 
         t1 = std::chrono::high_resolution_clock::now();
@@ -356,7 +355,7 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
                 .count();
         logger::println(logger::INFO, "OneCCL (native): init took %f secs",
                         duration / 1000);
-        logger::Logger::getInstance(name).printLogToFile("rankID was %d, OneCCL create communicator took %f secs.", rank, duration / 1000 );
+        logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, OneCCL create communicator took %f secs.", rank, duration / 1000 );
 
 //        auto queue = getGPU(device, gpuIndices);
         auto device = sycl::device(sycl::gpu_selector_v);
