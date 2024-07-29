@@ -320,12 +320,12 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
             rank);
         jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
 
-        auto queue = getGPU(device, gpuIndices);
-//        auto gpu_device = sycl::device(sycl::gpu_selector_v);
-//        sycl::queue queue{gpu_device};
+//        auto queue = getGPU(device, gpuIndices);
+        auto gpu_device = sycl::device(sycl::gpu_selector_v);
+        sycl::queue queue{gpu_device};
         const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
         std::string c_breakdown_name(cstr);
-        const char *str = env->GetStringUTFChars(ip_port, 0);
+        const char *str = env->GetStringUTFChars(ip_port, nullptr);
         ccl::string ccl_ip_port(str);
 
         auto t1 = std::chrono::high_resolution_clock::now();
