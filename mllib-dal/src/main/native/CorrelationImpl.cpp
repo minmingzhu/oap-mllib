@@ -318,11 +318,11 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
             logger::INFO,
             "oneDAL (native): use GPU kernels with %d GPU(s) rankid %d", nGpu,
             rank);
+        jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
 
-        //        auto queue = getGPU(device, gpuIndices);
+        auto queue = getGPU(device, gpuIndices);
         auto gpu_device = sycl::device(sycl::gpu_selector_v);
         sycl::queue queue{gpu_device};
-        jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
         const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
         std::string c_breakdown_name(cstr);
         const char *str = env->GetStringUTFChars(ip_port, 0);
