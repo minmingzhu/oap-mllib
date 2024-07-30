@@ -282,6 +282,20 @@ static void doCorrelationOneAPICompute(
     }
 }
 #endif
+std::vector<sycl::device> test_gpus()
+{
+
+    auto platforms = sycl::platform::get_platforms();
+    for (auto p : platforms) {
+        auto devices = p.get_devices(sycl::info::device_type::gpu);
+        if (!devices.empty()) {
+            return devices;
+        }
+    }
+    std::cout << "No GPUs!" << std::endl;
+    exit(-3);
+    return {};
+}
 
 JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
@@ -319,7 +333,8 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
             "oneDAL (native): use GPU kernels with %d GPU(s) rankid %d", nGpu,
             rank);
         jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
-        auto queue = getGPU(device, gpuIndices);
+        auto gpus = test_gpus()
+//        auto queue = getGPU(device, gpuIndices);
 //        auto gpu_device = sycl::device(sycl::gpu_selector_v);
 //        sycl::queue queue{gpu_device};
         const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
@@ -358,6 +373,7 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
         logger::println(logger::INFO, "OneCCL (native): init took %f secs",
                         duration / 1000);
         logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, OneCCL create communicator took %f secs.", rank, duration / 1000 );
+        sycl::queue queue{gpus[gpu_indices[0]]};
 
         t1 = std::chrono::high_resolution_clock::now();
         auto comm =
