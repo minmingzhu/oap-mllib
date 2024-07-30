@@ -238,7 +238,7 @@ static void doCorrelationOneAPICompute(
     const auto cor_desc =
         covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
             covariance_gpu::result_options::cor_matrix | covariance_gpu::result_options::means);
-
+    comm.barrier();
     t1 = std::chrono::high_resolution_clock::now();
     logger::println(logger::INFO, "Correlation batch(native): compute start");
     const auto result_train = preview::compute(comm, cor_desc, htable);
@@ -348,7 +348,7 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
         kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
         logger::println(logger::INFO, "OneCCL (native): create_main_kvs");
 
-        auto kvs = ccl::create_main_kvs(kvs_attr);
+        ccl::shared_ptr_class<ccl::kvs> kvs = ccl::create_main_kvs(kvs_attr);
         logger::println(logger::INFO, "OneCCL (native): g_ccl_kvs.push_back(kvs)");
 
         t2 = std::chrono::high_resolution_clock::now();
