@@ -128,9 +128,12 @@ class CorrelationDALImpl(
       } else {
         Iterator.empty
       }
-      OneCCL.cleanup()
+      if (useDevice == "CPU") {
+         OneCCL.cleanup()
+      }
       ret
     }.collect()
+    logInfo(s"CorrelationDAL compute end")
     corTimer.record("Training")
     corTimer.print()
 
