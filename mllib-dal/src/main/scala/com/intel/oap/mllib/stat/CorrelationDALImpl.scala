@@ -133,12 +133,11 @@ class CorrelationDALImpl(
       }
       ret
     }.collect()
+    // Make sure there is only one result from rank 0
+    assert(results.length == 1)
     logInfo(s"CorrelationDAL compute end")
     corTimer.record("Training")
     corTimer.print()
-
-    // Make sure there is only one result from rank 0
-    assert(results.length == 1)
 
     val correlationMatrix = results(0)
 
