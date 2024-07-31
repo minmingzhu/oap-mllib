@@ -229,12 +229,6 @@ void weak(sycl::queue& queue, const string& path, dal::preview::spmd::communicat
 JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationSampleTrainDAL(
     JNIEnv *env, jobject obj, jint rank, jint rank_count, jstring ip_port){
-    cout << "main:\n" << endl;
-    const char *str = env->GetStringUTFChars(ip_port, 0);
-    ccl::string ccl_ip_port(str);
-    const char* path = "/home/damon/storage/DataRoot/HiBench_CSV/Correlation/Input/4000000";
-    string pathStr;
-    pathStr.append(path);
     auto gpus = get_gpus();
 
     auto t1 = chrono::high_resolution_clock::now();
@@ -255,8 +249,6 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationSampleTrainDAL(
     auto local_rank = getLocalRank(rank_count, rank, ccl_comm);
     auto rank_id = local_rank % gpus.size();
     auto device   = gpus[rank_id];
-    cout << "RankID = " << rank  << ", Running on " << device.get_info<sycl::info::device::name>() << endl;
-    cout << "RankID = " << rank  << ", Running on " << device.get_platform().get_info<sycl::info::platform::name>() << endl;
     t2 = chrono::high_resolution_clock::now();
     cout << "RankID = " << rank
          << ", OneCCL create communicator took "
@@ -276,7 +268,6 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationSampleTrainDAL(
                             .count() /
                         1000
                 << " secs" << endl;
-    weak(q, pathStr, comm);
     env->ReleaseStringUTFChars(ip_port, str);
     return 0;
 }
