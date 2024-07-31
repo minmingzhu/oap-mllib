@@ -230,6 +230,8 @@ JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationSampleTrainDAL(
     JNIEnv *env, jobject obj, jint rank, jint rank_count, jstring ip_port){
     auto gpus = get_gpus();
+    const char *str = env->GetStringUTFChars(ip_port, nullptr);
+    ccl::string ccl_ip_port(str);
 
     auto t1 = chrono::high_resolution_clock::now();
     ccl::init();
