@@ -61,7 +61,8 @@ object CorrelationSample {
     val kvsIPPort = getOneCCLIPPort(data)
     data.mapPartitionsWithIndex { (rank, iter) =>
       logger.info(s"run cCorrelationSampleTrainDAL")
-      cor.cCorrelationSampleTrainDAL(rank, executorNum, kvsIPPort)
+      val result = cor.cCorrelationSampleTrainDAL(rank, executorNum, kvsIPPort)
+      logger.info(s"run cCorrelationSampleTrainDAL end ${result}")
       Iterator.empty
     }.collect()
 
