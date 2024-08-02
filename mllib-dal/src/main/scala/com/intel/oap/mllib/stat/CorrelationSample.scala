@@ -64,7 +64,7 @@ object CorrelationSample {
       val result = cor.cCorrelationSampleTrainDAL(rank, executorNum, kvsIPPort)
       logger.info(s"run cCorrelationSampleTrainDAL end ${result}")
       Iterator.empty
-    }.collect()
+    }.count()
 
     logger.info(s"spark.stop()")
     spark.stop()
