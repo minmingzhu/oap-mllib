@@ -41,6 +41,7 @@ object CorrelationSample {
     import spark.implicits._
 
     val data = spark.sparkContext.parallelize( 1 to rep_num ).repartition(rep_num)
+    data.count()
     logger.info(s"getNumPartitions ${data.getNumPartitions}")
 
     val executorNum = Utils.sparkExecutorNum(data.sparkContext)
@@ -63,6 +64,8 @@ object CorrelationSample {
       cor.cCorrelationSampleTrainDAL(rank, executorNum, kvsIPPort)
       Iterator.empty
     }.collect()
+
+    logger.info(s"spark.stop()")
     spark.stop()
   }
 }
