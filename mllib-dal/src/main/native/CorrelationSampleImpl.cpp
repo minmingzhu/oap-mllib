@@ -229,6 +229,7 @@ void weak(sycl::queue& queue, const string& path, dal::preview::spmd::communicat
 JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationSampleTrainDAL(
     JNIEnv *env, jobject obj, jint rank, jint rank_count, jstring ip_port){
+    cout << "sample`" << endl;
     auto gpus = get_gpus();
     const char *str = env->GetStringUTFChars(ip_port, nullptr);
     ccl::string ccl_ip_port(str);
@@ -246,19 +247,18 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationSampleTrainDAL(
     t1 = chrono::high_resolution_clock::now();
 
     auto kvs = getCclPortKvs(ccl_ip_port);
-    cout << "rank = " << rank << endl;
-    auto ccl_comm = ccl::create_communicator(rank_count, rank, kvs);
-    auto local_rank = getLocalRank(rank_count, rank, ccl_comm);
-    auto rank_id = local_rank % gpus.size();
-    auto device   = gpus[rank_id];
+//    auto ccl_comm = ccl::create_communicator(rank_count, rank, kvs);
+//    auto local_rank = getLocalRank(rank_count, rank, ccl_comm);
+//    auto rank_id = local_rank % gpus.size();
     t2 = chrono::high_resolution_clock::now();
     cout << "RankID = " << rank
-         << ", OneCCL create communicator took "
+         << ", OneCCL create kvs took "
          << (float)chrono::duration_cast<chrono::milliseconds>(
                 t2 - t1)
                     .count() /
                 1000
          << " secs" << endl;
+    auto device   = gpus[0];
     sycl::queue q{ device };
     t1 = chrono::high_resolution_clock::now();
     auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::ccl>(q, rank_count, rank, kvs);

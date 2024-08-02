@@ -19,6 +19,7 @@ package com.intel.oap.mllib.stat
 
 import com.intel.oap.mllib.Utils.getOneCCLIPPort
 import com.intel.oap.mllib.{LibLoader, OneCCL, OneDAL, Utils}
+import org.apache.spark.TaskContext
 import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.functions.{col, split}
 import scopt.OptionParser
@@ -46,9 +47,19 @@ object CorrelationSample {
     val executorCores = Utils.sparkExecutorCores()
     logger.info(s"executorNum ${executorNum}")
     logger.info(s"executorCores ${executorCores}")
+    data.mapPartitionsWithIndex { (rank, iter) =>
+      logger.info(s"set ZE_AFFINITY_MASK")
+      val resources = TaskContext.get().resources()
+      val gpuIndices = resources("gpu").addresses.map(_.toInt)
+      logger.info(s"set ZE_AFFINITY_MASK rank is $rank.")
+      logger.info(s"gpuIndices is ${gpuIndices.mkString(", ")}.")
+      OneCCL.setExecutorEnv("ZE_AFFINITY_MASK", gpuIndices(0).toString())
+      Iterator.empty
+    }.count()
     val cor = new CorrelationDALImpl(executorNum, executorCores)
     val kvsIPPort = getOneCCLIPPort(data)
     data.mapPartitionsWithIndex { (rank, iter) =>
+      logger.info(s"run cCorrelationSampleTrainDAL")
       cor.cCorrelationSampleTrainDAL(rank, executorNum, kvsIPPort)
       Iterator.empty
     }.collect()
