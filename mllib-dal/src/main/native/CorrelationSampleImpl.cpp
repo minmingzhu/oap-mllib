@@ -67,6 +67,16 @@ JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationSampleTrainDAL(
     JNIEnv *env, jobject obj, jint rank, jint rank_count, jstring ip_port){
     cout << "sample`" << endl;
+    const char* env_var = std::getenv("ZE_AFFINITY_MASK"); // replace "PATH" with the environment variable you want to check
+    const char* env_var_1 = std::getenv("ZE_ENABLE_PCI_ID_DEVICE_ORDER"); // replace "PATH" with the environment variable you want to check
+
+    if (env_var) {
+        std::cout << "ZE_AFFINITY_MASK: " << env_var << std::endl;
+        std::cout << "ZE_ENABLE_PCI_ID_DEVICE_ORDER: " << env_var_1 << std::endl;
+    } else {
+        std::cout << "Environment variable not found." << std::endl;
+    }
+
     auto gpus = get_gpus();
     const char *str = env->GetStringUTFChars(ip_port, nullptr);
     ccl::string ccl_ip_port(str);
