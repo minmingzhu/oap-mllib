@@ -105,7 +105,7 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationSampleTrainDAL(
 //    auto device   = gpus[0];
 //    sycl::queue q{ device };
     auto device = sycl::device(sycl::gpu_selector_v);
-    sycl::queue queue{device};
+    sycl::queue q{device};
     t1 = chrono::high_resolution_clock::now();
     auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::ccl>(q, rank_count, rank, kvs);
     t2 = chrono::high_resolution_clock::now();
