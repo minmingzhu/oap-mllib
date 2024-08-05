@@ -77,7 +77,6 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationSampleTrainDAL(
         std::cout << "Environment variable not found." << std::endl;
     }
 
-//    auto gpus = get_gpus();
     const char *str = env->GetStringUTFChars(ip_port, nullptr);
     ccl::string ccl_ip_port(str);
 
@@ -102,10 +101,17 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationSampleTrainDAL(
                     .count() /
                 1000
          << " secs" << endl;
-//    auto device   = gpus[0];
-//    sycl::queue q{ device };
+    t1 = chrono::high_resolution_clock::now();
     auto device = sycl::device(sycl::gpu_selector_v);
     sycl::queue q{device};
+    t2 = chrono::high_resolution_clock::now();
+            cout << "RankID = " << rank
+                << ", select gpus took "
+                << (float)chrono::duration_cast<chrono::milliseconds>(
+                        t2 - t1)
+                            .count() /
+                        1000
+                << " secs" << endl;
     t1 = chrono::high_resolution_clock::now();
     auto comm = dal::preview::spmd::make_communicator<dal::preview::spmd::backend::ccl>(q, rank_count, rank, kvs);
     t2 = chrono::high_resolution_clock::now();
