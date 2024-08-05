@@ -194,15 +194,15 @@ static void doCorrelationOneAPICompute(
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
     jobject resultObj, sycl::queue &queue, std::string breakdown_name) {
     logger::println(logger::INFO, "oneDAL (native): GPU compute start");
-//    const char* env_var = std::getenv("ZE_AFFINITY_MASK"); // replace "PATH" with the environment variable you want to check
-//    const char* env_var_1 = std::getenv("ZE_ENABLE_PCI_ID_DEVICE_ORDER"); // replace "PATH" with the environment variable you want to check
-//
-//    if (env_var) {
-//        std::cout << "ZE_AFFINITY_MASK: " << env_var << std::endl;
-//        std::cout << "ZE_ENABLE_PCI_ID_DEVICE_ORDER: " << env_var_1 << std::endl;
-//    } else {
-//        std::cout << "Environment variable not found." << std::endl;
-//    }
+    const char* env_var = std::getenv("ZE_AFFINITY_MASK"); // replace "PATH" with the environment variable you want to check
+    const char* env_var_1 = std::getenv("ZE_ENABLE_PCI_ID_DEVICE_ORDER"); // replace "PATH" with the environment variable you want to check
+
+    if (env_var) {
+        std::cout << "ZE_AFFINITY_MASK: " << env_var << std::endl;
+        std::cout << "ZE_ENABLE_PCI_ID_DEVICE_ORDER: " << env_var_1 << std::endl;
+    } else {
+        std::cout << "Environment variable not found." << std::endl;
+    }
 //    for (char **env = environ; *env != nullptr; ++env) {
 //        std::cout << *env << std::endl;
 //    }
@@ -282,20 +282,6 @@ static void doCorrelationOneAPICompute(
     }
 }
 #endif
-std::vector<sycl::device> test_gpus()
-{
-
-    auto platforms = sycl::platform::get_platforms();
-    for (auto p : platforms) {
-        auto devices = p.get_devices(sycl::info::device_type::gpu);
-        if (!devices.empty()) {
-            return devices;
-        }
-    }
-    std::cout << "No GPUs!" << std::endl;
-    exit(-3);
-    return {};
-}
 
 JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
@@ -333,7 +319,7 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
             "oneDAL (native): use GPU kernels with %d GPU(s) rankid %d", nGpu,
             rank);
         jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
-        auto gpus = test_gpus();
+        auto gpus = get_gpus();
 //        auto queue = getGPU(device, gpuIndices);
 //        auto gpu_device = sycl::device(sycl::gpu_selector_v);
 //        sycl::queue queue{gpu_device};
@@ -356,21 +342,18 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
 
 
         t1 = std::chrono::high_resolution_clock::now();
-        logger::println(logger::INFO, "OneCCL (native): create_kvs_attr");
 
         auto kvs_attr = ccl::create_kvs_attr();
 
         kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
-        logger::println(logger::INFO, "OneCCL (native): create_main_kvs");
 
         ccl::shared_ptr_class<ccl::kvs> kvs = ccl::create_main_kvs(kvs_attr);
-        logger::println(logger::INFO, "OneCCL (native): g_ccl_kvs.push_back(kvs)");
 
         t2 = std::chrono::high_resolution_clock::now();
         duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
-        logger::println(logger::INFO, "OneCCL (native): init took %f secs",
+        logger::println(logger::INFO, "OneCCL (native): create kvs took %f secs",
                         duration / 1000);
         logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, OneCCL create communicator took %f secs.", rank, duration / 1000 );
         sycl::queue queue{gpus[gpuIndices[0]]};
