@@ -21,7 +21,7 @@ import com.intel.oap.mllib.{OneCCL, OneDAL, Utils}
 import com.intel.oneapi.dal.table.Common
 import org.apache.spark.TaskContext
 import org.apache.spark.internal.Logging
-import org.apache.spark.ml.linalg.{Matrix, Vector}
+import org.apache.spark.ml.linalg.{DenseMatrix, Matrix, Vector}
 import org.apache.spark.rdd.RDD
 
 import java.time.Instant
@@ -113,17 +113,16 @@ class CorrelationDALImpl(
       val ret = if (rank == 0) {
         val convResultStartTime = System.nanoTime()
         val correlationNumericTable = if (useDevice == "GPU") {
-          OneDAL.homogenTableToMatrix(OneDAL.makeHomogenTable(result.getCorrelationNumericTable),
+          OneDAL.homogenTableToVectors(OneDAL.makeHomogenTable(result.getCorrelationNumericTable),
             computeDevice)
         } else {
-          OneDAL.numericTableToMatrix(OneDAL.makeNumericTable(result.getCorrelationNumericTable))
+          OneDAL.numericTableToVectors(OneDAL.makeNumericTable(result.getCorrelationNumericTable))
         }
         val convResultEndTime = System.nanoTime()
 
         val durationCovResult = (convResultEndTime - convResultStartTime).toDouble / 1E9
 
         logInfo(s"CorrelationDAL result conversion took ${durationCovResult} secs")
-
         Iterator(correlationNumericTable)
       } else {
         Iterator.empty
@@ -139,14 +138,17 @@ class CorrelationDALImpl(
     corTimer.record("Training")
     corTimer.print()
 
-    val correlationMatrix = results(0)
+    val correlationArray = results(0)
+    val numRows = correlationArray.length
+    val numCols = if (numRows > 0) correlationArray(0).size else 0
+
+    // Flatten the Array[Vector] into a single Array[Double]
+    val matrixData = correlationArray.flatMap(_.toArray)
+
+    // Create DenseMatrix
+    val correlationMatrix = new DenseMatrix(numRows, numCols, matrixData)
 
     correlationMatrix
-  }
-
-
-  def CorrelationSampleTrainDAL(data: RDD[Vector]) = {
-
   }
 
   @native private[mllib] def cCorrelationTrainDAL(rank: Int,
