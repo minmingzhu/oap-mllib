@@ -283,20 +283,6 @@ static void doCorrelationOneAPICompute(
 }
 #endif
 
-std::vector<sycl::device> test_gpus() {
-    auto platforms = sycl::platform::get_platforms();
-    for (auto p : platforms) {
-        auto devices = p.get_devices(sycl::info::device_type::gpu);
-        if (!devices.empty()) {
-            return devices;
-        }
-    }
-    logger::printerrln(logger::ERROR, "No GPUs!");
-    exit(-1);
-
-    return {};
-}
-
 JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
     JNIEnv *env, jobject obj, jint rank, jlong pNumTabData, jlong numRows, jlong numClos,
@@ -333,7 +319,7 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
             "oneDAL (native): use GPU kernels with %d GPU(s) rankid %d", nGpu,
             rank);
         jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
-        auto gpus = test_gpus();
+        auto gpus = get_gpus();
 //        auto queue = getGPU(device, gpuIndices);
 //        auto gpu_device = sycl::device(sycl::gpu_selector_v);
 //        sycl::queue queue{gpu_device};
