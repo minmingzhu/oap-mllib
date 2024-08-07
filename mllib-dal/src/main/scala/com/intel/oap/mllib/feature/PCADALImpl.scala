@@ -65,10 +65,12 @@ class PCADALImpl(val k: Int,
     pcaTimer.record("Data Convertion")
 
     val training_breakdown_name = "PCA_training_breakdown_" + executorNum;
-    coalescedTables.mapPartitionsWithIndex { (rank, table) =>
-      OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name, storePath)
-      Iterator.empty
-    }.count()
+    if (useDevice == "CPU") {
+        coalescedTables.mapPartitionsWithIndex { (rank, table) =>
+          OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name, storePath)
+          Iterator.empty
+        }.count()
+    }
     pcaTimer.record("OneCCL Init")
 
     val results = coalescedTables.mapPartitionsWithIndex { (rank, iter) =>
@@ -94,6 +96,7 @@ class PCADALImpl(val k: Int,
         executorCores,
         computeDevice.ordinal(),
         gpuIndices,
+        kvsIPPort,
         training_breakdown_name,
         result
       )
@@ -122,14 +125,15 @@ class PCADALImpl(val k: Int,
       } else {
         Iterator.empty
       }
-      OneCCL.cleanup()
+      if (useDevice == "CPU") {
+         OneCCL.cleanup()
+      }
       ret
     }.collect()
-    pcaTimer.record("Training")
-    pcaTimer.print()
-
     // Make sure there is only one result from rank 0
     assert(results.length == 1)
+    pcaTimer.record("Training")
+    pcaTimer.print()
 
     val pc = results(0)._1
     val explainedVariance = results(0)._2
@@ -231,6 +235,7 @@ class PCADALImpl(val k: Int,
                                    executorCores: Int,
                                    computeDeviceOrdinal: Int,
                                    gpuIndices: Array[Int],
+                                   kvsIPPort: String,
                                    training_breakdown_name: String,
                                    result: PCAResult): Long
 }

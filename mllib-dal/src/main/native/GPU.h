@@ -13,3 +13,5 @@ sycl::queue getAssignedGPU(const ComputeDevice device, ccl::communicator &comm,
 sycl::queue getQueue(const ComputeDevice device);
 
 sycl::queue getGPU(const ComputeDevice device,jint *gpu_indices);
+
+std::vector<sycl::device> get_gpus();

@@ -52,10 +52,12 @@ class SummarizerDALImpl(val executorNum: Int,
     val kvsIPPort = getOneCCLIPPort(data)
     val training_breakdown_name = "Summarizer_training_breakdown_" + executorNum;
 
-    coalescedTables.mapPartitionsWithIndex { (rank, table) =>
-      OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name, storePath)
-      Iterator.empty
-    }.count()
+    if (useDevice == "CPU") {
+        coalescedTables.mapPartitionsWithIndex { (rank, table) =>
+          OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name, storePath)
+          Iterator.empty
+        }.count()
+    }
     sumTimer.record("OneCCL Init")
 
     val results = coalescedTables.mapPartitionsWithIndex { (rank, iter) =>
@@ -84,6 +86,7 @@ class SummarizerDALImpl(val executorNum: Int,
         executorCores,
         computeDevice.ordinal(),
         gpuIndices,
+        kvsIPPort,
         training_breakdown_name,
         result
       )
@@ -136,14 +139,17 @@ class SummarizerDALImpl(val executorNum: Int,
       } else {
         Iterator.empty
       }
-      OneCCL.cleanup()
+      if (useDevice == "CPU") {
+         OneCCL.cleanup()
+      }
       ret
     }.collect()
+    // Make sure there is only one result from rank 0
+    assert(results.length == 1)
     sumTimer.record("Training")
     sumTimer.print()
 
-    // Make sure there is only one result from rank 0
-    assert(results.length == 1)
+
 
     val meanVector = results(0)._1
     val varianceVector = results(0)._2
@@ -166,6 +172,7 @@ class SummarizerDALImpl(val executorNum: Int,
                                           executorCores: Int,
                                           computeDeviceOrdinal: Int,
                                           gpuIndices: Array[Int],
+                                          kvsIPPort: String,
                                           training_breakdown_name: String,
                                           result: SummarizerResult): Long
 }

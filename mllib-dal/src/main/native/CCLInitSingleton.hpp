@@ -40,8 +40,7 @@ private:
 
     CCLInitSingleton(int size, int rank, ccl::string ccl_ip_port, ccl::string name) {
         auto t1 = std::chrono::high_resolution_clock::now();
-        logger::println(logger::INFO, "CCLInitSingleton name %s",
-                        name);
+
         ccl::init();
 
         auto t2 = std::chrono::high_resolution_clock::now();
