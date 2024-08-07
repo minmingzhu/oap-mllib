@@ -171,25 +171,8 @@ std::vector<std::string> file_path(const std::string& path) {
     return result;
 }
 
-inline bool check_file(const std::string& name) {
-    return std::ifstream{ name }.good();
-}
-
-inline std::string data_path(const std::string& name) {
-    const std::vector<std::string> paths = { "./data", "samples/oneapi/dpc/mpi/data" };
-
-    for (const auto& path : paths) {
-        const std::string try_path = path + "/" + name;
-        if (check_file(try_path)) {
-            return try_path;
-        }
-    }
-
-    return name;
-}
-
 #ifdef CPU_GPU_PROFILE
-static void doCorrelationOneAPICompute(
+static jlong doCorrelationOneAPICompute(
     JNIEnv *env, jlong pNumTabData, long numRows, long numClos,
     preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
     jobject resultObj, sycl::queue &queue, std::string breakdown_name) {
@@ -267,18 +250,21 @@ static void doCorrelationOneAPICompute(
         logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
 
         // Return all covariance & mean
-        jclass clazz = env->GetObjectClass(resultObj);
-
-        // Get Field references
-        jfieldID correlationNumericTableField =
-            env->GetFieldID(clazz, "correlationNumericTable", "J");
+//        jclass clazz = env->GetObjectClass(resultObj);
+//
+//        // Get Field references
+//        jfieldID correlationNumericTableField =
+//            env->GetFieldID(clazz, "correlationNumericTable", "J");
 
         HomogenTablePtr correlation =
             std::make_shared<homogen_table>(result_train.get_cor_matrix());
         saveHomogenTablePtrToVector(correlation);
-
-        env->SetLongField(resultObj, correlationNumericTableField,
-                          (jlong)correlation.get());
+//
+//        env->SetLongField(resultObj, correlationNumericTableField,
+//                          (jlong)correlation.get());
+        return (jlong)correlation.get();
+    } else {
+        return (jlong)0;
     }
 }
 #endif
@@ -291,7 +277,7 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
     logger::println(logger::INFO,
                     "oneDAL (native): use DPC++ kernels; device %s",
                     ComputeDeviceString[computeDeviceOrdinal].c_str());
-
+    jlong ret = 0L;
     ComputeDevice device = getComputeDeviceByOrdinal(computeDeviceOrdinal);
     switch (device) {
     case ComputeDevice::host:
@@ -369,7 +355,7 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
         logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rank, duration / 1000 );
-        doCorrelationOneAPICompute(env, pNumTabData, numRows, numClos, comm,
+        ret = doCorrelationOneAPICompute(env, pNumTabData, numRows, numClos, comm,
                                        resultObj, queue, c_breakdown_name);
 
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
@@ -383,5 +369,5 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
                     ComputeDeviceString[computeDeviceOrdinal].c_str());
     }
     }
-    return 0;
+    return ret;
 }
