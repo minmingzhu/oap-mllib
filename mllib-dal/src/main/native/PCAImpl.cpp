@@ -333,9 +333,9 @@ Java_com_intel_oap_mllib_feature_PCADALImpl_cPCATrainDAL(
         logger::println(logger::INFO, "OneCCL (native): create kvs took %f secs",
                         duration / 1000);
         logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, OneCCL create communicator took %f secs.", rank, duration / 1000 );
-        sycl::queue queue{gpus[gpuIndices[0]]};
+        sycl::queue queue{gpus[0]};
         t1 = std::chrono::high_resolution_clock::now();
-        comm =
+        auto comm =
             preview::spmd::make_communicator<preview::spmd::backend::ccl>(
                 queue, executorNum, rank, kvs);
         t2 = std::chrono::high_resolution_clock::now();
