@@ -70,7 +70,8 @@ object OneDAL {
     matrix
   }
 
-  def homogenTableToMatrix(table: HomogenTable, device: Common.ComputeDevice): Option[Matrix] = {
+  def homogenTableToMatrix(table: HomogenTable, device: Common.ComputeDevice): Matrix = {
+    var matrix: Matrix = null
     try {
         val numRows = table.getRowCount.toInt
         val numCols = table.getColumnCount.toInt
@@ -82,16 +83,16 @@ object OneDAL {
         logger.info(arrayDouble.head.toString)
 
         // Transpose as DAL numeric table is row-major and DenseMatrix is column major
-        val matrix = new DenseMatrix(numRows, numCols, arrayDouble, isTransposed = true)
+        matrix = new DenseMatrix(numRows, numCols, arrayDouble, isTransposed = true)
 
         Some(matrix)
       } catch {
         case e: IllegalArgumentException =>
           println(s"Invalid argument exception: ${e.getMessage}")
-          None
+          matrix
         case e: Exception =>
           println(s"An error occurred: ${e.getMessage}")
-          None
+          matrix
     }
   }
 
