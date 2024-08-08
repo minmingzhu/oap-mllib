@@ -76,7 +76,7 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
 
       jdouble buffer[10];
       env->GetDoubleArrayRegion(newDoubleArray, 0, row_values.get_count(), buffer);
-      for (int i = 0; i < arraySize; ++i) {
+      for (int i = 0; i < row_values.get_count(); ++i) {
             std::cout << buffer[i] << " ";
       }
       std::cout << std::endl;
