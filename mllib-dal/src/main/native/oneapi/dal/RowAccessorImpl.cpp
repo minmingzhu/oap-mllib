@@ -68,7 +68,6 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
       logger::println(logger::INFO, "RowAccessor get_count %d", row_values.get_count());
       newDoubleArray = env->NewDoubleArray(row_values.get_count());
       env->SetDoubleArrayRegion(newDoubleArray, 0, row_values.get_count(),  row_values.get_data());
-      logger::println(logger::INFO, "return newDoubleArray");
       // Get the length of the jdoubleArray
       jsize length = env->GetArrayLength(newDoubleArray);
       logger::println(logger::INFO, "newDoubleArray size %d", length);
@@ -80,6 +79,7 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
             std::cout << buffer[i] << " ";
       }
       std::cout << std::endl;
+      logger::println(logger::INFO, "return newDoubleArray");
       return newDoubleArray;
   }
 
