@@ -90,7 +90,8 @@ class CorrelationDALImpl(
       } else {
         null
       }
-      cCorrelationTrainDAL(
+      var rCorrelation = 0L
+      rCorrelation = cCorrelationTrainDAL(
         rank,
         tableArr,
         rows,
@@ -113,11 +114,13 @@ class CorrelationDALImpl(
       val ret = if (rank == 0) {
         val convResultStartTime = System.nanoTime()
         val correlationNumericTable = if (useDevice == "GPU") {
-          OneDAL.homogenTableToMatrix(OneDAL.makeHomogenTable(result.getCorrelationNumericTable),
+          assert(rCorrelation != 0)
+          OneDAL.homogenTableToMatrix(OneDAL.makeHomogenTable(rCorrelation),
             computeDevice)
         } else {
-          OneDAL.numericTableToMatrix(OneDAL.makeNumericTable(result.getCorrelationNumericTable))
+          OneDAL.numericTableToMatrix(OneDAL.makeNumericTable(rCorrelation))
         }
+        logInfo(s"correlationNumericTable result ${correlationNumericTable.toArray(0).toString}")
         val convResultEndTime = System.nanoTime()
 
         val durationCovResult = (convResultEndTime - convResultStartTime).toDouble / 1E9
