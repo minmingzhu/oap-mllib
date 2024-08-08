@@ -75,7 +75,10 @@ object OneDAL {
     val numCols = table.getColumnCount.toInt
 
     val accessor = new RowAccessor(table.getcObejct(), device)
-    val arrayDouble: Array[Double] = accessor.pullDouble(0, numRows)
+    val arrayDouble: Array[Double] = accessor.pullFloat(0, numRows).map(_.toDouble)
+    logger.info(arrayDouble.length.toString)
+    logger.info(s"homogenTableToMatrix 1")
+    logger.info(arrayDouble.head.toString)
 
     // Transpose as DAL numeric table is row-major and DenseMatrix is column major
     val matrix = new DenseMatrix(numRows, numCols, arrayDouble, isTransposed = true)
