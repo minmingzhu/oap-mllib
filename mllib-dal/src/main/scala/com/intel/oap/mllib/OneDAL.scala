@@ -70,20 +70,29 @@ object OneDAL {
     matrix
   }
 
-  def homogenTableToMatrix(table: HomogenTable, device: Common.ComputeDevice): Matrix = {
-    val numRows = table.getRowCount.toInt
-    val numCols = table.getColumnCount.toInt
+  def homogenTableToMatrix(table: HomogenTable, device: Common.ComputeDevice): Option[Matrix] = {
+    try {
+        val numRows = table.getRowCount.toInt
+        val numCols = table.getColumnCount.toInt
 
-    val accessor = new RowAccessor(table.getcObejct(), device)
-    val arrayDouble: Array[Double] = accessor.pullFloat(0, numRows).map(_.toDouble)
-    logger.info(arrayDouble.length.toString)
-    logger.info(s"homogenTableToMatrix 1")
-    logger.info(arrayDouble.head.toString)
+        val accessor = new RowAccessor(table.getcObejct(), device)
+        val arrayDouble: Array[Double] = accessor.pullFloat(0, numRows).map(_.toDouble)
+        logger.info(arrayDouble.length.toString)
+        logger.info(s"homogenTableToMatrix 1")
+        logger.info(arrayDouble.head.toString)
 
-    // Transpose as DAL numeric table is row-major and DenseMatrix is column major
-    val matrix = new DenseMatrix(numRows, numCols, arrayDouble, isTransposed = true)
+        // Transpose as DAL numeric table is row-major and DenseMatrix is column major
+        val matrix = new DenseMatrix(numRows, numCols, arrayDouble, isTransposed = true)
 
-    matrix
+        Some(matrix)
+      } catch {
+        case e: IllegalArgumentException =>
+          println(s"Invalid argument exception: ${e.getMessage}")
+          None
+        case e: Exception =>
+          println(s"An error occurred: ${e.getMessage}")
+          None
+    }
   }
 
   def homogenTableToOldMatrix(table: HomogenTable, device: Common.ComputeDevice): OldMatrix = {
