@@ -41,6 +41,7 @@ using namespace oneapi::dal;
 JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPullDouble
   (JNIEnv *env, jobject, jlong cTableAddr, jlong cRowStartIndex, jlong cRowEndIndex,
    jint computeDeviceOrdinal){
+   jdoubleArray newDoubleArray = nullptr;'
    try {
           logger::println(logger::INFO, "RowAccessor PullDouble");
           logger::println(logger::INFO, "RowAccessor cRowStartIndex %d", cRowStartIndex);
@@ -48,7 +49,7 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
 
           homogen_table htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
           row_accessor<const double> acc {htable};
-          jdoubleArray newDoubleArray = nullptr;
+//          jdoubleArray newDoubleArray = nullptr;
           oneapi::dal::array<double> row_values;
           ComputeDevice device = getComputeDeviceByOrdinal(computeDeviceOrdinal);
           switch(device) {
@@ -68,31 +69,30 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
               }
               logger::println(logger::INFO, "RowAccessor get_count %d", row_values.get_count());
               newDoubleArray = env->NewDoubleArray(row_values.get_count());
+              if (newDoubleArray == nullptr) {
+                    throw std::runtime_error("Failed to allocate memory for jdoubleArray");
+              }
               env->SetDoubleArrayRegion(newDoubleArray, 0, row_values.get_count(),  row_values.get_data());
               // Get the length of the jdoubleArray
               jsize length = env->GetArrayLength(newDoubleArray);
               logger::println(logger::INFO, "newDoubleArray size %d", length);
-        //      std::cout << "Values in the jdoubleArray: ";
-        //
-        //      jboolean isCopy;
-        //      jdouble* elements = env->GetDoubleArrayElements(newDoubleArray, &isCopy);
-        //
-        //      // Use the elements
-        //      for (int i = 0; i < row_values.get_count(); ++i) {
-        //            std::cout << elements[i] << " ";
-        //      }
-        //
-        //      // Release the elements
-        //      env->ReleaseDoubleArrayElements(newDoubleArray, elements, 0);
               logger::println(logger::INFO, "return newDoubleArray");
-              return newDoubleArray;
     } catch (const std::exception& e) {
         // Handle exception
         std::cerr << "Exception occurred while pulling data: " << e.what() << std::endl;
+        if (newDoubleArray != nullptr) {
+            env->DeleteLocalRef(newDoubleArray); // Clean up in case of failure
+        }
+        newDoubleArray = nullptr; // Indicate failure
     } catch (...) {
         // Catch all other exceptions
         std::cerr << "Unknown exception occurred while pulling data." << std::endl;
+        if (newDoubleArray != nullptr) {
+            env->DeleteLocalRef(newDoubleArray); // Clean up in case of failure
+        }
+        newDoubleArray = nullptr; // Indicate failure
     }
+    return newDoubleArray;
 
   }
 
