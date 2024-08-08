@@ -116,18 +116,18 @@ class CorrelationDALImpl(
         val convResultStartTime = System.nanoTime()
         val correlationNumericTable = if (useDevice == "GPU") {
           assert(rCorrelation != 0)
-          OneDAL.homogenTableToVectors(OneDAL.makeHomogenTable(rCorrelation),
+          OneDAL.homogenTableToMatrix(OneDAL.makeHomogenTable(rCorrelation),
             computeDevice)
         } else {
-          OneDAL.numericTableToVectors(OneDAL.makeNumericTable(rCorrelation))
+          OneDAL.numericTableToMatrix(OneDAL.makeNumericTable(rCorrelation))
         }
-        logInfo(s"correlationNumericTable result ${correlationNumericTable(0).toString}")
+        logInfo(s"correlationNumericTable result ${correlationNumericTable.toArray(0).toString}")
         val convResultEndTime = System.nanoTime()
 
         val durationCovResult = (convResultEndTime - convResultStartTime).toDouble / 1E9
 
         logInfo(s"CorrelationDAL result conversion took ${durationCovResult} secs")
-        logInfo(s"correlationNumericTable result ${correlationNumericTable(0).toString}")
+        logInfo(s"correlationNumericTable result ${correlationNumericTable.toArray(0).toString}")
         Iterator(correlationNumericTable)
       } else {
         Iterator.empty
@@ -143,14 +143,7 @@ class CorrelationDALImpl(
     corTimer.record("Training")
     corTimer.print()
 
-    // Convert Array[Vector] to Matrix
-    val numRows = results(0).length
-    val numCols = results(0).head.size
-    val matrixData = results(0).flatMap(_.toArray)
-
-    // Create DenseMatrix with rows from the Array of Vectors
-    val correlationMatrix: DenseMatrix = new DenseMatrix(numRows, numCols, matrixData)
-//    val correlationMatrix = results(0)
+    val correlationMatrix = results(0)
 
     correlationMatrix
   }
