@@ -41,7 +41,7 @@ using namespace oneapi::dal;
 JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPullDouble
   (JNIEnv *env, jobject, jlong cTableAddr, jlong cRowStartIndex, jlong cRowEndIndex,
    jint computeDeviceOrdinal){
-   jdoubleArray newDoubleArray = nullptr;'
+   jdoubleArray newDoubleArray = nullptr;
    try {
           logger::println(logger::INFO, "RowAccessor PullDouble");
           logger::println(logger::INFO, "RowAccessor cRowStartIndex %d", cRowStartIndex);
