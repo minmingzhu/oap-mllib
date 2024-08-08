@@ -29,7 +29,6 @@
 #include "com_intel_oneapi_dal_table_RowAccessor.h"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "service.h"
-#include <sys/sysinfo.h>
 
 using namespace std;
 using namespace oneapi::dal;
@@ -44,9 +43,6 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
    jint computeDeviceOrdinal){
    jdoubleArray newDoubleArray = nullptr;
    try {
-          struct sysinfo info;
-          sysinfo(&info);
-          logger::println(logger::INFO, "Total RAM in bytes %l", info.totalram);
           logger::println(logger::INFO, "RowAccessor PullDouble");
           logger::println(logger::INFO, "RowAccessor cRowStartIndex %d", cRowStartIndex);
           logger::println(logger::INFO, "RowAccessor cRowEndIndex %d", cRowEndIndex);
@@ -65,6 +61,11 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
                  case ComputeDevice::gpu:{
                         auto queue = getQueue(device);
                         row_values = acc.pull(queue, {cRowStartIndex, cRowEndIndex});
+                        std::cout << "Row values: ";
+                        for (std::int64_t i = 0; i < row_values.get_count(); ++i) {
+                            std::cout << row_values[i] << " ";
+                        }
+                        std::cout << std::endl;
                         break;
                  }
                  default: {
@@ -81,6 +82,24 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
               jsize length = env->GetArrayLength(newDoubleArray);
               logger::println(logger::INFO, "newDoubleArray size %d", length);
               logger::println(logger::INFO, "return newDoubleArray");
+              // Get the array elements
+              jboolean isCopy;
+              jdouble* elements = env->GetDoubleArrayElements(newDoubleArray, &isCopy);
+
+              if (elements == nullptr) {
+                 std::cerr << "Failed to get array elements" << std::endl;
+                 return;
+              }
+
+              // Print the elements
+              std::cout << "Array elements: ";
+              for (jsize i = 0; i < length; ++i) {
+                 std::cout << elements[i] << " ";
+              }
+              std::cout << std::endl;
+
+              // Release the elements
+              env->ReleaseDoubleArrayElements(newDoubleArray, elements, 0);
     } catch (const std::exception& e) {
         // Handle exception
         std::cerr << "Exception occurred while pulling data: " << e.what() << std::endl;
