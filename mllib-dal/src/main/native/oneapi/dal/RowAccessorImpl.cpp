@@ -42,6 +42,9 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
   (JNIEnv *env, jobject, jlong cTableAddr, jlong cRowStartIndex, jlong cRowEndIndex,
    jint computeDeviceOrdinal){
   logger::println(logger::INFO, "RowAccessor PullDouble");
+  logger::println(logger::INFO, "RowAccessor cRowStartIndex %d", cRowStartIndex);
+  logger::println(logger::INFO, "RowAccessor cRowEndIndex %d", cRowEndIndex);
+
   homogen_table htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
   row_accessor<const double> acc {htable};
   jdoubleArray newDoubleArray = nullptr;
@@ -62,8 +65,21 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
                return newDoubleArray;
          }
       }
+      logger::println(logger::INFO, "RowAccessor get_count %d", row_values.get_count());
       newDoubleArray = env->NewDoubleArray(row_values.get_count());
       env->SetDoubleArrayRegion(newDoubleArray, 0, row_values.get_count(),  row_values.get_data());
+      logger::println(logger::INFO, "return newDoubleArray");
+      // Get the length of the jdoubleArray
+      jsize length = env->GetArrayLength(newDoubleArray);
+      logger::println(logger::INFO, "newDoubleArray size %d", length);
+      std::cout << "Values in the jdoubleArray: ";
+
+      jdouble buffer[10];
+      env->GetDoubleArrayRegion(newDoubleArray, 0, row_values.get_count(), buffer);
+      for (int i = 0; i < arraySize; ++i) {
+            std::cout << buffer[i] << " ";
+      }
+      std::cout << std::endl;
       return newDoubleArray;
   }
 
