@@ -46,35 +46,40 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
           logger::println(logger::INFO, "RowAccessor PullDouble");
           logger::println(logger::INFO, "RowAccessor cRowStartIndex %d", cRowStartIndex);
           logger::println(logger::INFO, "RowAccessor cRowEndIndex %d", cRowEndIndex);
-          std::cout << "System memory limit: " << getSystemMemoryLimit() << " bytes" << std::endl;
 
           homogen_table htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
           row_accessor<const double> acc {htable};
 //          jdoubleArray newDoubleArray = nullptr;
-          oneapi::dal::array<double> row_values;
+//          oneapi::dal::array<double> row_values;
           ComputeDevice device = getComputeDeviceByOrdinal(computeDeviceOrdinal);
           switch(device) {
                  case ComputeDevice::host:{
-                        row_values = acc.pull({cRowStartIndex, cRowEndIndex});
+                        auto row_values = acc.pull({cRowStartIndex, cRowEndIndex});
+                        logger::println(logger::INFO, "RowAccessor get_count %d", row_values.get_count());
+                        newDoubleArray = env->NewDoubleArray(row_values.get_count());
+                        if (newDoubleArray == nullptr) {
+                                throw std::runtime_error("Failed to allocate memory for jdoubleArray");
+                        }
+                        env->SetDoubleArrayRegion(newDoubleArray, 0, row_values.get_count(),  row_values.get_data());
                         break;
                  }
                  case ComputeDevice::cpu:
                  case ComputeDevice::gpu:{
                         auto queue = getQueue(device);
-                        dal::array<double> block;
-                        row_values = acc.pull(queue, block, {cRowStartIndex, cRowEndIndex});
+                        auto row_values = acc.pull(queue, {cRowStartIndex, cRowEndIndex});
+                        logger::println(logger::INFO, "RowAccessor get_count %d", row_values.get_count());
+                        newDoubleArray = env->NewDoubleArray(row_values.get_count());
+                        if (newDoubleArray == nullptr) {
+                                throw std::runtime_error("Failed to allocate memory for jdoubleArray");
+                        }
+                        env->SetDoubleArrayRegion(newDoubleArray, 0, row_values.get_count(),  row_values.get_data());
                         break;
                  }
                  default: {
                        return newDoubleArray;
                  }
               }
-              logger::println(logger::INFO, "RowAccessor get_count %d", row_values.get_count());
-              newDoubleArray = env->NewDoubleArray(row_values.get_count());
-              if (newDoubleArray == nullptr) {
-                    throw std::runtime_error("Failed to allocate memory for jdoubleArray");
-              }
-              env->SetDoubleArrayRegion(newDoubleArray, 0, row_values.get_count(),  row_values.get_data());
+
               // Get the length of the jdoubleArray
               jsize length = env->GetArrayLength(newDoubleArray);
               logger::println(logger::INFO, "newDoubleArray size %d", length);
