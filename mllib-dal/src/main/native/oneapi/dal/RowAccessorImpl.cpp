@@ -71,18 +71,18 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
       // Get the length of the jdoubleArray
       jsize length = env->GetArrayLength(newDoubleArray);
       logger::println(logger::INFO, "newDoubleArray size %d", length);
-      std::cout << "Values in the jdoubleArray: ";
-
-      jboolean isCopy;
-      jdouble* elements = env->GetDoubleArrayElements(newDoubleArray, &isCopy);
-
-      // Use the elements
-      for (int i = 0; i < row_values.get_count(); ++i) {
-            std::cout << elements[i] << " ";
-      }
-
-      // Release the elements
-      env->ReleaseDoubleArrayElements(newDoubleArray, elements, 0);
+//      std::cout << "Values in the jdoubleArray: ";
+//
+//      jboolean isCopy;
+//      jdouble* elements = env->GetDoubleArrayElements(newDoubleArray, &isCopy);
+//
+//      // Use the elements
+//      for (int i = 0; i < row_values.get_count(); ++i) {
+//            std::cout << elements[i] << " ";
+//      }
+//
+//      // Release the elements
+//      env->ReleaseDoubleArrayElements(newDoubleArray, elements, 0);
       logger::println(logger::INFO, "return newDoubleArray");
       return newDoubleArray;
   }
