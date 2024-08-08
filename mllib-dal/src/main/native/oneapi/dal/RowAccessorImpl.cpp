@@ -29,6 +29,7 @@
 #include "com_intel_oneapi_dal_table_RowAccessor.h"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "service.h"
+#include <sys/sysinfo.h>
 
 using namespace std;
 using namespace oneapi::dal;
@@ -43,6 +44,9 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
    jint computeDeviceOrdinal){
    jdoubleArray newDoubleArray = nullptr;
    try {
+          struct sysinfo info;
+          sysinfo(&info);
+          logger::println(logger::INFO, "Total RAM in bytes %l", info.totalram);
           logger::println(logger::INFO, "RowAccessor PullDouble");
           logger::println(logger::INFO, "RowAccessor cRowStartIndex %d", cRowStartIndex);
           logger::println(logger::INFO, "RowAccessor cRowEndIndex %d", cRowEndIndex);
