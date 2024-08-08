@@ -46,6 +46,7 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
           logger::println(logger::INFO, "RowAccessor PullDouble");
           logger::println(logger::INFO, "RowAccessor cRowStartIndex %d", cRowStartIndex);
           logger::println(logger::INFO, "RowAccessor cRowEndIndex %d", cRowEndIndex);
+          std::cout << "System memory limit: " << getSystemMemoryLimit() << " bytes" << std::endl;
 
           homogen_table htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
           row_accessor<const double> acc {htable};
@@ -60,7 +61,8 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
                  case ComputeDevice::cpu:
                  case ComputeDevice::gpu:{
                         auto queue = getQueue(device);
-                        row_values = acc.pull(queue, {cRowStartIndex, cRowEndIndex});
+                        dal::array<double> block;
+                        row_values = acc.pull(queue, block, {cRowStartIndex, cRowEndIndex});
                         break;
                  }
                  default: {
