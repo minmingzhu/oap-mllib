@@ -80,6 +80,7 @@ class CorrelationDALImpl(
       } else {
         (iter.next().toString.toLong, 0L, 0L)
       }
+      logInfo(s"tableArr $tableArr, rows $rows, columns $columns")
 
       val computeStartTime = System.nanoTime()
 
