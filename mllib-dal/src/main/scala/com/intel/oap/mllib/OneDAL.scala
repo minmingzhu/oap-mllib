@@ -77,15 +77,19 @@ object OneDAL {
         val numCols = table.getColumnCount.toInt
 
         val accessor = new RowAccessor(table.getcObejct(), device)
-        val arrayDouble: Array[Double] = accessor.pullFloat(0, numRows).map(_.toDouble)
+        val arrayDouble: Array[Double] = accessor.pullDouble(0, numRows)
         logger.info(arrayDouble.length.toString)
         logger.info(s"homogenTableToMatrix 1")
+        // Print the array with elements separated by commas
+        print("arrayDouble :")
+        println(arrayDouble.mkString(", "))
         logger.info(arrayDouble.head.toString)
-
         // Transpose as DAL numeric table is row-major and DenseMatrix is column major
         matrix = new DenseMatrix(numRows, numCols, arrayDouble, isTransposed = true)
-
-        Some(matrix)
+        // Convert to array and print
+        print("DenseMatrix as Array: ")
+        println(matrix.toArray.mkString(", "))
+        matrix
       } catch {
         case e: IllegalArgumentException =>
           println(s"Invalid argument exception: ${e.getMessage}")
