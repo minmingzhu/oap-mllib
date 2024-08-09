@@ -13,7 +13,16 @@ public class RowAccessor {
     }
 
     public double[] pullDouble(long rowStartIndex, long rowEndIndex){
-        return this.cPullDouble(this.cObject, rowStartIndex, rowEndIndex, this.cDevice.ordinal());
+        double[] result = this.cPullDouble(this.cObject, rowStartIndex, rowEndIndex, this.cDevice.ordinal());
+        if (result != null) {
+            System.out.println("RowAccessor pullDouble result:");
+            for (double d : result) {
+                System.out.print(d);
+            }
+        } else {
+            System.out.println("Received null array from native method.");
+        }
+        return result;
     }
 
     public float[] pullFloat(){
