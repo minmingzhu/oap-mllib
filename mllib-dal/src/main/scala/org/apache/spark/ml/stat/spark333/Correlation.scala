@@ -24,8 +24,8 @@ import com.intel.oap.mllib.stat.{CorrelationDALImpl, CorrelationShim}
 import scala.collection.JavaConverters._
 
 import org.apache.spark.annotation.Since
-import org.apache.spark.ml.linalg.{SQLDataTypes, Vector, Vectors}
-import org.apache.spark.mllib.linalg.{Vector => OldVector, Vectors => OldVectors}
+import org.apache.spark.ml.linalg.{SQLDataTypes, Vector}
+import org.apache.spark.mllib.linalg.{Vectors => OldVectors}
 import org.apache.spark.mllib.stat.{Statistics => OldStatistics}
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.sql.types.{StructField, StructType}
@@ -75,7 +75,7 @@ class Correlation extends CorrelationShim {
     if (Utils.isOAPEnabled() && isPlatformSupported && method == "pearson") {
       val handlePersistence = (dataset.storageLevel == StorageLevel.NONE)
       val rdd = dataset.select(column).rdd.map {
-        case Row(v: OldVector) => Vectors.dense(v.toArray)
+        case Row(v: Vector) => v
       }
       if (handlePersistence) {
         rdd.persist(StorageLevel.MEMORY_AND_DISK)
@@ -94,7 +94,7 @@ class Correlation extends CorrelationShim {
       dataframe
     } else {
       val rdd = dataset.select(column).rdd.map {
-        case Row(v: OldVector) => v
+        case Row(v: Vector) => OldVectors.fromML(v)
       }
       val oldM = OldStatistics.corr(rdd, method)
       val name = s"$method($column)"
