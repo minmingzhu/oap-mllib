@@ -16,9 +16,6 @@ public class RowAccessor {
         double[] result = this.cPullDouble(this.cObject, rowStartIndex, rowEndIndex, this.cDevice.ordinal());
         if (result != null) {
             System.out.print("RowAccessor pullDouble result: ");
-            for (double d : result) {
-                System.out.print(d);
-            }
         } else {
             System.out.println("Received null array from native method.");
         }

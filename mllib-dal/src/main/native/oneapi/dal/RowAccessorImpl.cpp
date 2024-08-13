@@ -104,7 +104,7 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
 //                    env->ExceptionDescribe();
 //                    env->ExceptionClear();
 //                    return nullptr;
-        }
+//        }
     } catch (const std::exception& e) {
         // Handle exception
         std::cerr << "Exception occurred while pulling data: " << e.what() << std::endl;

@@ -76,8 +76,9 @@ object OneDAL {
         val numRows = table.getRowCount.toInt
         val numCols = table.getColumnCount.toInt
 
-        val accessor = new RowAccessor(table.getcObejct(), device)
-        val arrayDouble: Array[Double] = accessor.pullDouble(0, numRows)
+//        val accessor = new RowAccessor(table.getcObejct(), device)
+//        val arrayDouble: Array[Double] = accessor.pullDouble(0, numRows)
+        val arrayDouble: Array[Double] = table.getDoubleData
         logger.info(arrayDouble.length.toString)
         logger.info(s"homogenTableToMatrix 1")
         // Print the array with elements separated by commas
