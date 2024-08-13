@@ -65,16 +65,22 @@ object AccessorPullSample {
     import spark.implicits._
     val df = data.toDF()
     df.show()
+    df.count()
     val rdd = df.select("features").rdd.map {
        case Row(v: Vector) => v
     }
 
     rdd.mapPartitionsWithIndex { (rank, iter) =>
       val table = OneDAL.makeHomogenTable(iter.toArray, computeDevice)
+      logger.info(s"rows :  ${table.getRowCount}")
+      logger.info(s"columns :  ${table.getColumnCount}")
       val accessor = new RowAccessor(table.getcObejct(), computeDevice)
-      val arrayDouble: Array[Double] = accessor.pullDouble()
+      val arrayDouble: Array[Double] = accessor.pullDouble(0, 5000)
       logger.info(arrayDouble.length.toString)
       logger.info(arrayDouble.head.toString)
+      val matrix = OneDAL.homogenTableToMatrix(OneDAL.makeHomogenTable(table.getcObejct()),
+            computeDevice)
+      logger.info(s"matrix result ${matrix.toArray(0).toString}")
       Iterator.empty
     }.count()
     spark.stop()
