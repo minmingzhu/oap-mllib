@@ -64,6 +64,20 @@ class PCADALImpl(val k: Int,
     val kvsIPPort = getOneCCLIPPort(coalescedTables)
     pcaTimer.record("Data Convertion")
 
+    coalescedTables.mapPartitionsWithIndex { (rank, iter) =>
+      logInfo(s"set ZE_AFFINITY_MASK")
+      val gpuIndices = if (useDevice == "GPU") {
+        val resources = TaskContext.get().resources()
+        resources("gpu").addresses.map(_.toInt)
+      } else {
+        null
+      }
+      logInfo(s"set ZE_AFFINITY_MASK rank is $rank.")
+      logInfo(s"gpuIndices is ${gpuIndices.mkString(", ")}.")
+      OneCCL.setExecutorEnv("ZE_AFFINITY_MASK", gpuIndices(0).toString())
+      Iterator.empty
+    }.count()
+
     val training_breakdown_name = "PCA_training_breakdown_" + executorNum;
     if (useDevice == "CPU") {
         coalescedTables.mapPartitionsWithIndex { (rank, table) =>

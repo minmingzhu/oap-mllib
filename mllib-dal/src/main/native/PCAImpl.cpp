@@ -303,9 +303,6 @@ Java_com_intel_oap_mllib_feature_PCADALImpl_cPCATrainDAL(
         const char *str = env->GetStringUTFChars(ip_port, nullptr);
         ccl::string ccl_ip_port(str);
 
-//        auto queue = getGPU(device, gpuIndices);
-
-//        ccl::shared_ptr_class<ccl::kvs> &kvs = getKvs();
         auto t1 = std::chrono::high_resolution_clock::now();
 
         ccl::init();

@@ -49,6 +49,20 @@ class SummarizerDALImpl(val executorNum: Int,
     }
     sumTimer.record("Data Convertion")
 
+    coalescedTables.mapPartitionsWithIndex { (rank, iter) =>
+      logInfo(s"set ZE_AFFINITY_MASK")
+      val gpuIndices = if (useDevice == "GPU") {
+        val resources = TaskContext.get().resources()
+        resources("gpu").addresses.map(_.toInt)
+      } else {
+        null
+      }
+      logInfo(s"set ZE_AFFINITY_MASK rank is $rank.")
+      logInfo(s"gpuIndices is ${gpuIndices.mkString(", ")}.")
+      OneCCL.setExecutorEnv("ZE_AFFINITY_MASK", gpuIndices(0).toString())
+      Iterator.empty
+    }.count()
+
     val kvsIPPort = getOneCCLIPPort(data)
     val training_breakdown_name = "Summarizer_training_breakdown_" + executorNum;
 
