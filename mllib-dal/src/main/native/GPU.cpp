@@ -10,7 +10,8 @@ typedef std::shared_ptr<sycl::queue> queuePtr;
 static std::mutex g_mtx;
 static std::vector<sycl::queue> g_queueVector;
 
-static std::vector<sycl::device> get_gpus() {
+std::vector<sycl::device> get_gpus() {
+    logger::println(logger::INFO, "get all GPUs");
     auto platforms = sycl::platform::get_platforms();
     for (auto p : platforms) {
         auto devices = p.get_devices(sycl::info::device_type::gpu);
@@ -116,10 +117,9 @@ sycl::queue getGPU(const ComputeDevice device,jint *gpu_indices) {
     case ComputeDevice::gpu: {
         logger::println(logger::INFO, "selector GPU");
         auto gpus = get_gpus();
-        auto rank_gpu = gpus[gpu_indices[0]];
         logger::println(logger::INFO, "GPU selected for current rank: %d",
                 gpu_indices[0]);
-        sycl::queue q{rank_gpu};
+        sycl::queue q{gpus[0]};
         return q;
     }
 

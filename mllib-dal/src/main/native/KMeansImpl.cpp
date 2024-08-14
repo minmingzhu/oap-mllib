@@ -275,7 +275,7 @@ static jlong doKMeansOneAPICompute(
     homogen_table centroids =
             *reinterpret_cast<const homogen_table *>(pNumTabCenters);
 
-    const auto kmeans_desc = kmeans_gpu::descriptor()
+    const auto kmeans_desc = kmeans_gpu::descriptor<GpuAlgorithmFPType>()
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
                                  .set_accuracy_threshold(tolerance);
@@ -377,10 +377,8 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
         const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
         std::string c_breakdown_name(cstr);
 
-        auto device = sycl::device(sycl::gpu_selector_v);
-        sycl::queue queue{device};
         ccl::shared_ptr_class<ccl::kvs> &kvs = getKvs();
-//        auto queue = getGPU(device, gpuIndices);
+        auto queue = getGPU(device, gpuIndices);
         auto t1 = std::chrono::high_resolution_clock::now();
         auto comm =
             preview::spmd::make_communicator<preview::spmd::backend::ccl>(
