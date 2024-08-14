@@ -413,7 +413,7 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
             preview::spmd::make_communicator<preview::spmd::backend::ccl>(
                 queue, executorNum, rank, kvs);
         t2 = std::chrono::high_resolution_clock::now();
-        auto duration =
+        duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
         logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rank, duration / 1000 );
