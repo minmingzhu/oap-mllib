@@ -374,6 +374,8 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
             rank);
         auto gpus = get_gpus();
         jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
+        const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
+        std::string c_breakdown_name(cstr);
         const char *str = env->GetStringUTFChars(ip_port, nullptr);
         ccl::string ccl_ip_port(str);
 
