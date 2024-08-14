@@ -337,7 +337,7 @@ JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCenters(
     JNIEnv *env, jobject obj, jint rank, jlong pNumTabData, jlong numRows, jlong numClos, jlong pNumTabCenters,
     jint clusterNum, jdouble tolerance, jint iterationNum, jint executorNum,
-    jint executorCores, jint computeDeviceOrdinal, jintArray gpuIdxArray, jstring breakdown_name,
+    jint executorCores, jint computeDeviceOrdinal, jintArray gpuIdxArray, jstring ip_port, jstring breakdown_name,
     jobject resultObj) {
     logger::println(logger::INFO,
                     "OneDAL (native): use DPC++ kernels; device %s",
@@ -372,18 +372,45 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
             logger::INFO,
             "OneDAL (native): use GPU kernels with %d GPU(s) rankid %d", nGpu,
             rank);
-
+        auto gpus = get_gpus();
         jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
-        const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
-        std::string c_breakdown_name(cstr);
+        const char *str = env->GetStringUTFChars(ip_port, nullptr);
+        ccl::string ccl_ip_port(str);
 
-        ccl::shared_ptr_class<ccl::kvs> &kvs = getKvs();
-        auto queue = getGPU(device, gpuIndices);
         auto t1 = std::chrono::high_resolution_clock::now();
+
+        ccl::init();
+
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto duration =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+
+        logger::println(logger::INFO, "OneCCL singleton init took %f secs",
+                        duration / 1000);
+        logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, OneCCL singleton init took %f secs.", rank, duration / 1000 );
+
+
+        t1 = std::chrono::high_resolution_clock::now();
+
+        auto kvs_attr = ccl::create_kvs_attr();
+
+        kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
+
+        ccl::shared_ptr_class<ccl::kvs> kvs = ccl::create_main_kvs(kvs_attr);
+
+        t2 = std::chrono::high_resolution_clock::now();
+        duration =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+                .count();
+        logger::println(logger::INFO, "OneCCL (native): create kvs took %f secs",
+                        duration / 1000);
+        logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, OneCCL create communicator took %f secs.", rank, duration / 1000 );
+        sycl::queue queue{gpus[0]};
+         t1 = std::chrono::high_resolution_clock::now();
         auto comm =
             preview::spmd::make_communicator<preview::spmd::backend::ccl>(
                 queue, executorNum, rank, kvs);
-        auto t2 = std::chrono::high_resolution_clock::now();
+        t2 = std::chrono::high_resolution_clock::now();
         auto duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
@@ -393,6 +420,7 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
                                     iterationNum, comm, resultObj, queue, c_breakdown_name);
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
         env->ReleaseStringUTFChars(breakdown_name, cstr);
+        env->ReleaseStringUTFChars(ip_port, str);
         break;
     }
 #endif
