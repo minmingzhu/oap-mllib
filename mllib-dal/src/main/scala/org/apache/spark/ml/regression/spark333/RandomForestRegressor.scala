@@ -22,9 +22,9 @@ package org.apache.spark.ml.regression.spark333
 import com.intel.oap.mllib.Utils
 import com.intel.oap.mllib.classification.{LearningNode => LearningNodeDAL}
 import com.intel.oap.mllib.regression.{RandomForestRegressorDALImpl, RandomForestRegressorShim}
+
 import java.util.{Map => JavaMap}
 import scala.jdk.CollectionConverters._
-
 import org.apache.spark.annotation.Since
 import org.apache.spark.ml.feature.Instance
 import org.apache.spark.ml.linalg.Vector
@@ -36,6 +36,7 @@ import org.apache.spark.ml.util._
 import org.apache.spark.ml.util.Instrumentation.instrumented
 import org.apache.spark.mllib.tree.configuration.{Algo => OldAlgo}
 import org.apache.spark.sql.{Column, DataFrame, Dataset}
+import org.apache.spark.storage.StorageLevel
 // scalastyle:off line.size.limit
 
 /**
@@ -153,6 +154,12 @@ class RandomForestRegressor @Since("1.4.0") (@Since("1.4.0") override val uid: S
   = {
     instr.logPipelineStage(this)
     instr.logDataset(dataset)
+    val handlePersistence = (dataset.storageLevel == StorageLevel.NONE)
+
+    if (handlePersistence) {
+      dataset.persist(StorageLevel.MEMORY_AND_DISK)
+      dataset.count()
+    }
     val spark = dataset.sparkSession
     val categoricalFeatures: Map[Int, Int] =
       MetadataUtils.getCategoricalFeatures(dataset.schema($(featuresCol)))
@@ -201,6 +208,9 @@ class RandomForestRegressor @Since("1.4.0") (@Since("1.4.0") override val uid: S
     val trees = buildTrees(treesMap, numFeatures, metadata)
       .map(_.asInstanceOf[DecisionTreeRegressionModel])
     instr.logNumFeatures(numFeatures)
+    if (handlePersistence) {
+      dataset.unpersist()
+    }
     new RandomForestRegressionModel(uid, trees, numFeatures)
   }
 
