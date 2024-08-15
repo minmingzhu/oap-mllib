@@ -110,7 +110,7 @@ class LinearRegressionDALImpl( val fitIntercept: Boolean,
     }
     lrTimer.record("Data Convertion")
 
-    val training_breakdown_name = "LR_training_breakdown_" + executorNum;
+    val training_breakdown_name = "LinearRegression_training_breakdown_" + executorNum;
     labeledPointsTables.mapPartitionsWithIndex { (rank, iter) =>
       logInfo(s"set ZE_AFFINITY_MASK")
       val gpuIndices = if (useDevice == "GPU") {

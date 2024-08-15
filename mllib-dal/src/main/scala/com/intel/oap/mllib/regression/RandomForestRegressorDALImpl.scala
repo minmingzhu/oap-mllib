@@ -71,7 +71,7 @@ class RandomForestRegressorDALImpl(val uid: String,
     rfrTimer.record("Data Convertion")
 
     val kvsIPPort = getOneCCLIPPort(labeledPointsTables)
-    val training_breakdown_name = "RF_training_breakdown_" + executorNum;
+    val training_breakdown_name = "RFRegressor_training_breakdown_" + executorNum;
 
     labeledPointsTables.mapPartitionsWithIndex { (rank, table) =>
       OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name, storePath)
