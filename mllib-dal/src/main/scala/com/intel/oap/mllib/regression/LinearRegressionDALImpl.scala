@@ -164,6 +164,7 @@ class LinearRegressionDALImpl( val fitIntercept: Boolean,
         }
 
         val cbeta = cLinearRegressionTrainDAL(
+          rank,
           featureTabAddr,
           featureRows,
           featureColumns,
@@ -211,7 +212,8 @@ class LinearRegressionDALImpl( val fitIntercept: Boolean,
   }
 
   // Single entry to call Linear Regression DAL backend with parameters
-  @native private def cLinearRegressionTrainDAL(data: Long,
+  @native private def cLinearRegressionTrainDAL(rank: Int,
+                                  data: Long,
                                   numRows: Long,
                                   numCols: Long,
                                   label: Long,

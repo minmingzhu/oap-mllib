@@ -304,7 +304,7 @@ static jlong doLROneAPICompute(JNIEnv *env, size_t rankId,
  */
 JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_regression_LinearRegressionDALImpl_cLinearRegressionTrainDAL(
-    JNIEnv *env, jobject obj, jlong feature, jlong featureRows,
+    JNIEnv *env, jobject obj, jint rank, jlong feature, jlong featureRows,
     jlong featureCols, jlong label, jlong labelCols, jboolean fitIntercept,
     jdouble regParam, jdouble elasticNetParam, jint executorNum,
     jint executorCores, jint computeDeviceOrdinal, jintArray gpuIdxArray, jstring ip_port, jstring breakdown_name,
@@ -328,7 +328,7 @@ Java_com_intel_oap_mllib_regression_LinearRegressionDALImpl_cLinearRegressionTra
         logger::println(
             logger::INFO,
             "oneDAL (native): use GPU kernels with %d GPU(s) rankid %d", nGpu,
-            rankId);
+            rank);
 
         jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
         auto gpus = get_gpus();
@@ -408,23 +408,18 @@ Java_com_intel_oap_mllib_regression_LinearRegressionDALImpl_cLinearRegressionTra
         }
 
         NumericTablePtr *coeffvectors = new NumericTablePtr(resultTable);
-        resultptr = (jlong)coeffvectors;
+        if (rankId == ccl_root) {
+            // Get the class of the result object
+            jclass clazz = env->GetObjectClass(resultObj);
+            // Get Field references
+            jfieldID coeffNumericTableField =
+                env->GetFieldID(clazz, "coeffNumericTable", "J");
+
+            env->SetLongField(resultObj, coeffNumericTableField, resultptr);
+
+            // intercept is already in first column of coeffvectors
+            resultptr = (jlong)coeffvectors;
+        }
     }
-
-    jlong ret = 0L;
-    if (rankId == ccl_root) {
-        // Get the class of the result object
-        jclass clazz = env->GetObjectClass(resultObj);
-        // Get Field references
-        jfieldID coeffNumericTableField =
-            env->GetFieldID(clazz, "coeffNumericTable", "J");
-
-        env->SetLongField(resultObj, coeffNumericTableField, resultptr);
-
-        // intercept is already in first column of coeffvectors
-        ret = resultptr;
-    } else {
-        ret = (jlong)0;
-    }
-    return ret;
+    return resultptr;
 }

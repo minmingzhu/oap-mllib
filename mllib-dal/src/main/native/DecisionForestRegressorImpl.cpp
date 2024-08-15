@@ -342,7 +342,7 @@ static jobject doRFRegressorOneAPICompute(
 
 JNIEXPORT jobject JNICALL
 Java_com_intel_oap_mllib_regression_RandomForestRegressorDALImpl_cRFRegressorTrainDAL(
-    JNIEnv *env, jobject obj, jlong pNumTabFeature, jlong featureRows,
+    JNIEnv *env, jobject obj, jint rank, jlong pNumTabFeature, jlong featureRows,
     jlong featureCols, jlong pNumTabLabel, jlong labelCols, jint executorNum,
     jint computeDeviceOrdinal, jint treeCount, jint numFeaturesPerNode,
     jint minObservationsLeafNode, jint maxTreeDepth, jlong seed, jint maxbins,
@@ -358,9 +358,9 @@ Java_com_intel_oap_mllib_regression_RandomForestRegressorDALImpl_cRFRegressorTra
         logger::println(
             logger::INFO,
             "OneDAL (native): use GPU kernels with %d GPU(s) rankid %d", nGpu,
-            rankId);
+            rank);
 
-                jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
+        jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
         auto gpus = get_gpus();
         const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
         std::string c_breakdown_name(cstr);

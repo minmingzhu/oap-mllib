@@ -314,7 +314,6 @@ static jobject doRFClassifierOneAPICompute(
 
         // convert to java hashmap
         trees = collect_model(env, result_train.get_model(), classCount);
-        print_model(result_train.get_model());
 
         // Get the class of the input object
         jclass clazz = env->GetObjectClass(resultObj);
@@ -351,7 +350,7 @@ static jobject doRFClassifierOneAPICompute(
  */
 JNIEXPORT jobject JNICALL
 Java_com_intel_oap_mllib_classification_RandomForestClassifierDALImpl_cRFClassifierTrainDAL(
-    JNIEnv *env, jobject obj, jlong pNumTabFeature, jlong featureRows,
+    JNIEnv *env, jobject obj, jint rank, jlong pNumTabFeature, jlong featureRows,
     jlong featureCols, jlong pNumTabLabel, jlong labelCols, jint executorNum,
     jint computeDeviceOrdinal, jint classCount, jint treeCount,
     jint numFeaturesPerNode, jint minObservationsLeafNode,
@@ -368,8 +367,8 @@ Java_com_intel_oap_mllib_classification_RandomForestClassifierDALImpl_cRFClassif
         logger::println(
             logger::INFO,
             "oneDAL (native): use GPU kernels with %d GPU(s) rankid %d", nGpu,
-            rankId);
-                jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
+            rank);
+        jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
         auto gpus = get_gpus();
         const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
         std::string c_breakdown_name(cstr);

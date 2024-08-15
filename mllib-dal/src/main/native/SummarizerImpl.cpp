@@ -288,7 +288,7 @@ static void doSummarizerOneAPICompute(
 
 JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_stat_SummarizerDALImpl_cSummarizerTrainDAL(
-    JNIEnv *env, jobject obj, jint rank,jlong pNumTabData, jlong numRows, jlong numClos,
+    JNIEnv *env, jobject obj, jint rank, jlong pNumTabData, jlong numRows, jlong numClos,
     jint executorNum, jint executorCores, jint computeDeviceOrdinal,
     jintArray gpuIdxArray, jstring ip_port, jstring breakdown_name, jobject resultObj) {
     logger::println(logger::INFO,
