@@ -376,7 +376,7 @@ Java_com_intel_oap_mllib_regression_LinearRegressionDALImpl_cLinearRegressionTra
                 .count();
         logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rank, duration / 1000 );
         resultptr = doLROneAPICompute(
-            env, rankId, comm, queue, feature, featureRows, featureCols,
+            env, rank, comm, queue, feature, featureRows, featureCols,
             label, labelCols, fitIntercept, executorNum, resultObj, c_breakdown_name);
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
         env->ReleaseStringUTFChars(breakdown_name, cstr);
