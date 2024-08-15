@@ -215,7 +215,8 @@ ridge_regression_compute(size_t rankId, ccl::communicator &comm,
 
 #ifdef CPU_GPU_PROFILE
 static jlong doLROneAPICompute(JNIEnv *env, size_t rankId,
-                               ccl::communicator &cclComm, sycl::queue &queue,
+                               preview::spmd::communicator<preview::spmd::device_memory_access::usm> comm,
+                               sycl::queue &queue,
                                jlong pNumTabFeature, jlong featureRows,
                                jlong featureCols, jlong pNumTabLabel,
                                jlong labelCols, jboolean jfitIntercept,
@@ -226,10 +227,6 @@ static jlong doLROneAPICompute(JNIEnv *env, size_t rankId,
     const bool isRoot = (rankId == ccl_root);
     bool fitIntercept = bool(jfitIntercept);
 
-    int size = cclComm.size();
-    ccl::shared_ptr_class<ccl::kvs> &kvs = getKvs();
-    auto comm = preview::spmd::make_communicator<preview::spmd::backend::ccl>(
-        queue, size, rankId, kvs);
     float *htableFeatureArray = reinterpret_cast<float *>(pNumTabFeature);
     float *htableLabelArray = reinterpret_cast<float *>(pNumTabLabel);
     auto t1 = std::chrono::high_resolution_clock::now();
@@ -310,27 +307,23 @@ Java_com_intel_oap_mllib_regression_LinearRegressionDALImpl_cLinearRegressionTra
     JNIEnv *env, jobject obj, jlong feature, jlong featureRows,
     jlong featureCols, jlong label, jlong labelCols, jboolean fitIntercept,
     jdouble regParam, jdouble elasticNetParam, jint executorNum,
-    jint executorCores, jint computeDeviceOrdinal, jintArray gpuIdxArray, jstring breakdown_name,
+    jint executorCores, jint computeDeviceOrdinal, jintArray gpuIdxArray, jstring ip_port, jstring breakdown_name,
     jobject resultObj) {
 
     logger::println(logger::INFO,
                     "oneDAL (native): use DPC++ kernels; device %s",
                     ComputeDeviceString[computeDeviceOrdinal].c_str());
 
-    ccl::communicator &cclComm = getComm();
-    size_t rankId = cclComm.rank();
+
 
     ComputeDevice device = getComputeDeviceByOrdinal(computeDeviceOrdinal);
     bool useGPU = false;
     if (device == ComputeDevice::gpu && regParam == 0) {
         useGPU = true;
     }
-    NumericTablePtr resultTable;
     jlong resultptr = 0L;
     if (useGPU) {
 #ifdef CPU_GPU_PROFILE
-        const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
-        std::string c_breakdown_name(cstr);
         int nGpu = env->GetArrayLength(gpuIdxArray);
         logger::println(
             logger::INFO,
@@ -338,17 +331,62 @@ Java_com_intel_oap_mllib_regression_LinearRegressionDALImpl_cLinearRegressionTra
             rankId);
 
         jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
-        int size = cclComm.size();
-        auto queue =
-            getAssignedGPU(device, cclComm, size, rankId, gpuIndices, nGpu);
+        auto gpus = get_gpus();
+        const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
+        std::string c_breakdown_name(cstr);
+        const char *str = env->GetStringUTFChars(ip_port, nullptr);
+        ccl::string ccl_ip_port(str);
 
+        auto t1 = std::chrono::high_resolution_clock::now();
+
+        ccl::init();
+
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto duration =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+
+        logger::println(logger::INFO, "OneCCL singleton init took %f secs",
+                        duration / 1000);
+        logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, OneCCL singleton init took %f secs.", rank, duration / 1000 );
+
+
+        t1 = std::chrono::high_resolution_clock::now();
+
+        auto kvs_attr = ccl::create_kvs_attr();
+
+        kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
+
+        ccl::shared_ptr_class<ccl::kvs> kvs = ccl::create_main_kvs(kvs_attr);
+
+        t2 = std::chrono::high_resolution_clock::now();
+        duration =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+                .count();
+        logger::println(logger::INFO, "OneCCL (native): create kvs took %f secs",
+                        duration / 1000);
+        logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, OneCCL create communicator took %f secs.", rank, duration / 1000 );
+        sycl::queue queue{gpus[0]};
+        t1 = std::chrono::high_resolution_clock::now();
+        auto comm =
+            preview::spmd::make_communicator<preview::spmd::backend::ccl>(
+                queue, executorNum, rank, kvs);
+        t2 = std::chrono::high_resolution_clock::now();
+        duration =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+                .count();
+        logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rank, duration / 1000 );
         resultptr = doLROneAPICompute(
-            env, rankId, cclComm, queue, feature, featureRows, featureCols,
+            env, rankId, comm, queue, feature, featureRows, featureCols,
             label, labelCols, fitIntercept, executorNum, resultObj, c_breakdown_name);
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
         env->ReleaseStringUTFChars(breakdown_name, cstr);
+        env->ReleaseStringUTFChars(ip_port, str);
+
 #endif
     } else {
+        ccl::communicator &cclComm = getComm();
+        size_t rankId = cclComm.rank();
+        NumericTablePtr resultTable;
         NumericTablePtr pLabel = *((NumericTablePtr *)label);
         NumericTablePtr pData = *((NumericTablePtr *)feature);
 

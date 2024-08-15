@@ -357,12 +357,10 @@ Java_com_intel_oap_mllib_classification_RandomForestClassifierDALImpl_cRFClassif
     jint numFeaturesPerNode, jint minObservationsLeafNode,
     jint minObservationsSplitNode, jdouble minWeightFractionLeafNode,
     jdouble minImpurityDecreaseSplitNode, jint maxTreeDepth, jlong seed,
-    jint maxBins, jboolean bootstrap, jintArray gpuIdxArray, jstring breakdown_name,
+    jint maxBins, jboolean bootstrap, jintArray gpuIdxArray, jstring ip_port, jstring breakdown_name,
     jobject resultObj) {
     logger::println(logger::INFO, "oneDAL (native): use DPC++ kernels");
 
-    ccl::communicator &cclComm = getComm();
-    int rankId = cclComm.rank();
     ComputeDevice device = getComputeDeviceByOrdinal(computeDeviceOrdinal);
     switch (device) {
     case ComputeDevice::gpu: {
@@ -371,20 +369,50 @@ Java_com_intel_oap_mllib_classification_RandomForestClassifierDALImpl_cRFClassif
             logger::INFO,
             "oneDAL (native): use GPU kernels with %d GPU(s) rankid %d", nGpu,
             rankId);
+                jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
+        auto gpus = get_gpus();
         const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
         std::string c_breakdown_name(cstr);
-        jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
+        const char *str = env->GetStringUTFChars(ip_port, nullptr);
+        ccl::string ccl_ip_port(str);
 
-        int size = cclComm.size();
-        ComputeDevice device = getComputeDeviceByOrdinal(computeDeviceOrdinal);
+        auto t1 = std::chrono::high_resolution_clock::now();
 
-        auto queue =
-            getAssignedGPU(device, cclComm, size, rankId, gpuIndices, nGpu);
+        ccl::init();
 
-        ccl::shared_ptr_class<ccl::kvs> &kvs = getKvs();
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto duration =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+
+        logger::println(logger::INFO, "OneCCL singleton init took %f secs",
+                        duration / 1000);
+        logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, OneCCL singleton init took %f secs.", rank, duration / 1000 );
+
+        t1 = std::chrono::high_resolution_clock::now();
+
+        auto kvs_attr = ccl::create_kvs_attr();
+
+        kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
+
+        ccl::shared_ptr_class<ccl::kvs> kvs = ccl::create_main_kvs(kvs_attr);
+
+        t2 = std::chrono::high_resolution_clock::now();
+        duration =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+                .count();
+        logger::println(logger::INFO, "OneCCL (native): create kvs took %f secs",
+                        duration / 1000);
+        logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, OneCCL create communicator took %f secs.", rank, duration / 1000 );
+        sycl::queue queue{gpus[0]};
+        t1 = std::chrono::high_resolution_clock::now();
         auto comm =
             preview::spmd::make_communicator<preview::spmd::backend::ccl>(
-                queue, size, rankId, kvs);
+                queue, executorNum, rank, kvs);
+        t2 = std::chrono::high_resolution_clock::now();
+        duration =
+            (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+                .count();
+        logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, create communicator took %f secs.", rank, duration / 1000 );
         jobject hashmapObj = doRFClassifierOneAPICompute(
             env, pNumTabFeature, featureRows, featureCols, pNumTabLabel,
             labelCols, executorNum, computeDeviceOrdinal, classCount, treeCount,
@@ -394,6 +422,7 @@ Java_com_intel_oap_mllib_classification_RandomForestClassifierDALImpl_cRFClassif
             bootstrap, comm, resultObj, queue, c_breakdown_name);
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
         env->ReleaseStringUTFChars(breakdown_name, cstr);
+        env->ReleaseStringUTFChars(ip_port, str);
         return hashmapObj;
     }
     default: {

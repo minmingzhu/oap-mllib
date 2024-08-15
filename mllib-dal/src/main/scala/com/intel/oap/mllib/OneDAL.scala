@@ -529,7 +529,7 @@ object OneDAL {
     val dataForConversion = if (labeledPointsRDD.getNumPartitions < executorNum) {
       logger.info(s"Repartition to executorNum if not enough partitions")
       val rePartitions = labeledPoints.repartition(executorNum).cache()
-      rePartitions.count()
+      rePartitions.cache().count()
       rePartitions
     } else {
       labeledPoints
@@ -556,7 +556,7 @@ object OneDAL {
       partitionCoalescer = Some(new ExecutorInProcessCoalescePartitioner()))
       .setName("coalescedRdd")
 
-        // convert RDD to HomogenTable
+    // convert RDD to HomogenTable
     val coalescedTables = coalescedRdd.mapPartitionsWithIndex { (index: Int, it: Iterator[Row]) =>
       val list = it.toList
       val subRowCount: Int = list.size / numberCores

@@ -109,7 +109,29 @@ class LinearRegressionDALImpl( val fitIntercept: Boolean,
       throw new SparkException(msg)
     }
     lrTimer.record("Data Convertion")
+
     val training_breakdown_name = "LR_training_breakdown_" + executorNum;
+    labeledPointsTables.mapPartitionsWithIndex { (rank, iter) =>
+      logInfo(s"set ZE_AFFINITY_MASK")
+      val gpuIndices = if (useDevice == "GPU") {
+        val resources = TaskContext.get().resources()
+        resources("gpu").addresses.map(_.toInt)
+      } else {
+        null
+      }
+      logInfo(s"set ZE_AFFINITY_MASK rank is $rank.")
+      logInfo(s"gpuIndices is ${gpuIndices.mkString(", ")}.")
+      OneCCL.setExecutorEnv("ZE_AFFINITY_MASK", gpuIndices(0).toString())
+      Iterator.empty
+    }.count()
+
+    if (useDevice == "CPU") {
+        labeledPointsTables.mapPartitionsWithIndex { (rank, table) =>
+          OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name, storePath)
+          Iterator.empty
+        }.count()
+    }
+    lrTimer.record("OneCCL Init")
 
     val results = labeledPointsTables.mapPartitionsWithIndex { (rank, tables) =>
         val (feature, label) = tables.next()
@@ -126,7 +148,6 @@ class LinearRegressionDALImpl( val fitIntercept: Boolean,
             (label.toString.toLong, 0L, 0L)
           }
 
-        OneCCL.init(executorNum, rank, kvsIPPort, training_breakdown_name, storePath)
         val result = new LiRResult()
 
         val gpuIndices = if (useDevice == "GPU") {
@@ -155,6 +176,7 @@ class LinearRegressionDALImpl( val fitIntercept: Boolean,
           executorCores,
           computeDevice.ordinal(),
           gpuIndices,
+          kvsIPPort,
           training_breakdown_name,
           result
         )
@@ -201,6 +223,7 @@ class LinearRegressionDALImpl( val fitIntercept: Boolean,
                                   executorCores: Int,
                                   computeDeviceOrdinal: Int,
                                   gpuIndices: Array[Int],
+                                  kvsIPPort: String,
                                   training_breakdown_name: String,
                                   result: LiRResult): Long
 
