@@ -224,6 +224,7 @@ static void doSummarizerOneAPICompute(
     logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, create homogen table took %f secs.", comm.get_rank(), duration / 1000 );
 
     const auto bs_desc = basic_statistics::descriptor<GpuAlgorithmFPType>{};
+    comm.barrier();
     t1 = std::chrono::high_resolution_clock::now();
     const auto result_train = preview::compute(comm, bs_desc, htable);
     t2 = std::chrono::high_resolution_clock::now();
