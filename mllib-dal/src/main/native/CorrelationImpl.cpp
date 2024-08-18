@@ -235,13 +235,7 @@ static jlong doCorrelationOneAPICompute(
 
     logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, Correlation computing step took %f secs.", comm.get_rank(), duration / 1000 );
     if (isRoot) {
-//        logger::println(logger::INFO, "Mean:");
-//        printHomegenTable(result_train.get_means());
-//        logger::println(logger::INFO, "Correlation:");
-//        printHomegenTable(result_train.get_cor_matrix());
-        HomogenTablePtr correlation =
-            std::make_shared<homogen_table>(result_train.get_cor_matrix());
-        saveHomogenTablePtrToVector(correlation);
+
         t2 = std::chrono::high_resolution_clock::now();
         duration = (float)std::chrono::duration_cast<std::chrono::milliseconds>(
                        t2 - t1)
@@ -251,6 +245,9 @@ static jlong doCorrelationOneAPICompute(
             "Correlation batch(native): computing step took %f secs.",
             duration / 1000);
         logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
+        HomogenTablePtr correlation =
+            std::make_shared<homogen_table>(result_train.get_cor_matrix());
+        saveHomogenTablePtrToVector(correlation);
 
         // Return all covariance & mean
 //        jclass clazz = env->GetObjectClass(resultObj);

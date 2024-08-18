@@ -279,8 +279,6 @@ static jlong doLROneAPICompute(JNIEnv *env, size_t rankId,
     logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, LinerRegression training step took %f secs.", comm.get_rank(), duration / 1000 );
     if (isRoot) {
 
-        HomogenTablePtr result_matrix = std::make_shared<homogen_table>(
-            result_train.get_model().get_betas());
         t2 = std::chrono::high_resolution_clock::now();
         duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
@@ -290,6 +288,8 @@ static jlong doLROneAPICompute(JNIEnv *env, size_t rankId,
                        "LinerRegression(native): training step took %f secs",
                        duration / 1000);
         logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, training step took %f secs.", comm.get_rank(), duration / 1000 );
+        HomogenTablePtr result_matrix = std::make_shared<homogen_table>(
+            result_train.get_model().get_betas());
         saveHomogenTablePtrToVector(result_matrix);
         return (jlong)result_matrix.get();
     } else {
