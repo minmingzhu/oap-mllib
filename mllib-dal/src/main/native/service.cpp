@@ -220,6 +220,7 @@ void freeHomogenTablePtr(homogen_table* rawPtr) {
         logger::println(
                 logger::INFO, "HomogenTablePtr not found");
     }
+    std::cout << "Size: " << g_HomogenTablePtrVector.size() << ", Capacity: " << g_HomogenTablePtrVector.capacity() << std::endl;
 }
 
 NumericTablePtr homegenToSyclHomogen(NumericTablePtr ntHomogen) {
