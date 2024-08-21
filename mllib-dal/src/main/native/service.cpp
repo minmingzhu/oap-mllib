@@ -203,14 +203,14 @@ void saveHomogenTablePtrToVector(const HomogenTablePtr &ptr) {
     g_kmtx.unlock();
 }
 
-void freeHomogenTablePtr(homogen_table *rawPtr) {
+void freeHomogenTablePtr(homogen_table* rawPtr) {
    std::cout << "Size after clear: " << g_HomogenTablePtrVector.size() << ", Capacity: " << g_HomogenTablePtrVector.capacity() << std::endl;
-   std::cout << "homogen_table address : " << *rawPtr << std::endl;
+   std::cout << "homogen_table address : " << rawPtr << std::endl;
     auto it = std::remove_if(g_HomogenTablePtrVector.begin(), g_HomogenTablePtrVector.end(),
                              [rawPtr](const HomogenTablePtr &ptr) {
                                  auto *tablePtr = ptr.get();
-                                 std::cout << "homogen_table address : " << *tablePtr << std::endl;
-                                 return *tablePtr == *rawPtr;
+                                 std::cout << "homogen_table address : " << tablePtr << std::endl;
+                                 return tablePtr == rawPtr;
                              });
     if (it != g_HomogenTablePtrVector.end()) {
         g_HomogenTablePtrVector.erase(it, g_HomogenTablePtrVector.end());
