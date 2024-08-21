@@ -67,12 +67,14 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
                        return newDoubleArray;
                  }
               }
-              logger::println(logger::INFO, "RowAccessor get_count %d", row_values.get_count());
+              auto size = row_values.get_count();
+              logger::println(logger::INFO, "RowAccessor get_count %d", size);
               newDoubleArray = env->NewDoubleArray(row_values.get_count());
               if (newDoubleArray == nullptr) {
                     throw std::runtime_error("Failed to allocate memory for jdoubleArray");
               }
-              env->SetDoubleArrayRegion(newDoubleArray, 0, row_values.get_count(),  row_values.get_data());
+              const double* data = row_values.get_data();
+              env->SetDoubleArrayRegion(newDoubleArray, 0, size,  data);
               // Get the length of the jdoubleArray
               jsize length = env->GetArrayLength(newDoubleArray);
               logger::println(logger::INFO, "newDoubleArray size %d", length);
