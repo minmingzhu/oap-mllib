@@ -77,6 +77,7 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
               jsize length = env->GetArrayLength(newDoubleArray);
               logger::println(logger::INFO, "newDoubleArray size %d", length);
               logger::println(logger::INFO, "return newDoubleArray");
+              logger::println(logger::INFO, "homogen_table %lld", htable);
               freeHomogenTablePtr(htable);
     } catch (const std::exception& e) {
         // Handle exception
