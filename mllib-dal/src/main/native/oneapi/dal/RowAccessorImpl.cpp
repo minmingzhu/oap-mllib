@@ -49,7 +49,6 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
 
           homogen_table htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
           row_accessor<const double> acc {htable};
-//          jdoubleArray newDoubleArray = nullptr;
           oneapi::dal::array<double> row_values;
           ComputeDevice device = getComputeDeviceByOrdinal(computeDeviceOrdinal);
           switch(device) {
@@ -61,11 +60,6 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
                  case ComputeDevice::gpu:{
                         auto queue = getQueue(device);
                         row_values = acc.pull(queue, {cRowStartIndex, cRowEndIndex});
-//                        std::cout << "Row values: ";
-//                        for (std::int64_t i = 0; i < row_values.get_count(); ++i) {
-//                            std::cout << row_values[i] << " ";
-//                        }
-//                        std::cout << std::endl;
                         break;
                  }
                  default: {
@@ -82,29 +76,7 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
               jsize length = env->GetArrayLength(newDoubleArray);
               logger::println(logger::INFO, "newDoubleArray size %d", length);
               logger::println(logger::INFO, "return newDoubleArray");
-              // Get the array elements
-//              jboolean isCopy;
-//              jdouble* elements = env->GetDoubleArrayElements(newDoubleArray, &isCopy);
-//
-//              if (elements == nullptr) {
-//                 std::cerr << "Failed to get array elements" << std::endl;
-//                 return;
-//              }
-//
-//              // Print the elements
-//              std::cout << "Array elements: ";
-//              for (jsize i = 0; i < length; ++i) {
-//                 std::cout << elements[i] << " ";
-//              }
-//              std::cout << std::endl;
-//
-//              // Release the elements
-//              env->ReleaseDoubleArrayElements(newDoubleArray, elements, 0);
-//              if (env->ExceptionCheck()) {
-//                    env->ExceptionDescribe();
-//                    env->ExceptionClear();
-//                    return nullptr;
-//        }
+              freeHomogenTablePtr(htable);
     } catch (const std::exception& e) {
         // Handle exception
         std::cerr << "Exception occurred while pulling data: " << e.what() << std::endl;

@@ -196,13 +196,28 @@ ComputeDevice getComputeDeviceByOrdinal(size_t computeDeviceOrdinal) {
     return device;
 }
 
+#ifdef CPU_GPU_PROFILE
 void saveHomogenTablePtrToVector(const HomogenTablePtr &ptr) {
     g_kmtx.lock();
     g_HomogenTablePtrVector.push_back(ptr);
     g_kmtx.unlock();
 }
 
-#ifdef CPU_GPU_PROFILE
+void freeHomogenTablePtr(homogen_table &rawPtr) {
+    auto it = std::remove_if(g_HomogenTablePtrVector.begin(), g_HomogenTablePtrVector.end(),
+                             [rawPtr](const HomogenTablePtr &ptr) {
+                                 return ptr.get() == &rawPtr;
+                             });
+    if (it != g_HomogenTablePtrVector.end()) {
+        g_HomogenTablePtrVector.erase(it, g_HomogenTablePtrVector.end());
+        logger::println(
+                logger::INFO, "HomogenTablePtr freed");
+    } else {
+        logger::println(
+                logger::INFO, "HomogenTablePtr not found");
+    }
+}
+
 NumericTablePtr homegenToSyclHomogen(NumericTablePtr ntHomogen) {
     int nRows = ntHomogen->getNumberOfRows();
     int nColumns = ntHomogen->getNumberOfColumns();
