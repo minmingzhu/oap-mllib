@@ -117,7 +117,7 @@ class CorrelationDALImpl(
         val correlationNumericTable = if (useDevice == "GPU") {
           assert(rCorrelation != 0)
           OneDAL.homogenTableToMatrix(OneDAL.makeHomogenTable(rCorrelation),
-            computeDevice)
+            Common.ComputeDevice.HOST)
         } else {
           OneDAL.numericTableToMatrix(OneDAL.makeNumericTable(rCorrelation))
         }
