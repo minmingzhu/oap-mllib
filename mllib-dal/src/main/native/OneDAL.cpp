@@ -26,19 +26,7 @@ using namespace daal::data_management;
 // Use OneDAL lib function
 extern bool daal_check_is_intel_cpu();
 
-// Define a global native array
-typedef std::shared_ptr<double> NativeDoubleArrayPtr;
-typedef std::shared_ptr<float> NativeFloatArrayPtr;
 
-std::mutex g_amtx;
-template <typename T> std::vector<std::shared_ptr<T>> g_NativeArrayPtrVector;
-
-template <typename T>
-static void saveArrayPtrToVector(const std::shared_ptr<T> &ptr) {
-       g_amtx.lock();
-       g_NativeArrayPtrVector<T>.push_back(ptr);
-       g_amtx.unlock();
-}
 
 JNIEXPORT void JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cAddNumericTable(
     JNIEnv *, jobject, jlong rowMergedNumericTableAddr,

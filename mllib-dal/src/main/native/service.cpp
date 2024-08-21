@@ -8,6 +8,8 @@ using namespace daal::services;
 
 std::mutex g_kmtx;
 std::vector<HomogenTablePtr> g_HomogenTablePtrVector;
+std::mutex g_amtx;
+template <typename T> std::vector<std::shared_ptr<T>> g_NativeArrayPtrVector;
 
 bool isFull(NumericTableIface::StorageLayout layout) {
     int layoutInt = (int)layout;
@@ -197,6 +199,31 @@ ComputeDevice getComputeDeviceByOrdinal(size_t computeDeviceOrdinal) {
 }
 
 #ifdef CPU_GPU_PROFILE
+template <typename T>
+void saveArrayPtrToVector(const std::shared_ptr<T> &ptr) {
+       g_amtx.lock();
+       g_NativeArrayPtrVector<T>.push_back(ptr);
+       g_amtx.unlock();
+}
+
+template <typename T>
+void freeArrayPtr(T* rawPtr) {
+    std::cout << "Size: " << g_NativeArrayPtrVector<T>.size() << ", Capacity: " << g_NativeArrayPtrVector<T>.capacity() << std::endl;
+    logger::println(logger::INFO, "native array address %lld ", rawPtr);
+    auto it = std::remove_if(g_NativeArrayPtrVector<T>.begin(), g_NativeArrayPtrVector<T>.end(),
+                             [rawPtr](const std::shared_ptr<T>& ptr) {
+                                 auto *arrayPtr = ptr.get();
+                                 logger::println(logger::INFO, "native array address %lld ", arrayPtr);
+                                 return arrayPtr == rawPtr;
+                             });
+    if (it != g_NativeArrayPtrVector<T>.end()) {
+        g_NativeArrayPtrVector<T>.erase(it, g_NativeArrayPtrVector<T>.end());
+        std::cout << "Float pointer freed" << std::endl;
+    } else {
+        std::cerr << "Float pointer not found" << std::endl;
+    }
+}
+
 void saveHomogenTablePtrToVector(const HomogenTablePtr &ptr) {
     g_kmtx.lock();
     g_HomogenTablePtrVector.push_back(ptr);

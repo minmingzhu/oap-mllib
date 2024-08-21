@@ -74,6 +74,15 @@ void saveCSRTablePtrToVector(const CSRTablePtr &ptr);
 #ifdef CPU_GPU_PROFILE
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+// Define a global native array
+typedef std::shared_ptr<double> NativeDoubleArrayPtr;
+typedef std::shared_ptr<float> NativeFloatArrayPtr;
+
+template <typename T>
+void saveArrayPtrToVector(const std::shared_ptr<T> &ptr);
+
+template <typename T>
+void freeArrayPtr(T* rawPtr);
 
 void saveHomogenTablePtrToVector(const HomogenTablePtr &ptr);
 void freeHomogenTablePtr(homogen_table* rawPtr);

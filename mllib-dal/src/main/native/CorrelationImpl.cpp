@@ -206,6 +206,7 @@ static jlong doCorrelationOneAPICompute(
     std::cout << "table size : " << numRows * numClos << std::endl;
     logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, table size %ld.", comm.get_rank(), numRows * numClos );
     queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
+    freeArrayPtr<float>(htableArray);
     homogen_table htable{queue, data, numRows, numClos,
                          detail::make_default_delete<const float>(queue)};
     auto t2 = std::chrono::high_resolution_clock::now();
