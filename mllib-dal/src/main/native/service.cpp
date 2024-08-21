@@ -287,4 +287,6 @@ NumericTablePtr homegenToSyclHomogen(NumericTablePtr ntHomogen) {
 
 template void saveArrayPtrToVector<float>(const std::shared_ptr<float>&);
 template void saveArrayPtrToVector<double>(const std::shared_ptr<double>&);
+template void freeArrayPtr<float>(float* ptr);
+template void freeArrayPtr<double>(double* ptr);
 #endif
