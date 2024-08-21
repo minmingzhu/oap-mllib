@@ -46,6 +46,7 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
           logger::println(logger::INFO, "RowAccessor PullDouble");
           logger::println(logger::INFO, "RowAccessor cRowStartIndex %d", cRowStartIndex);
           logger::println(logger::INFO, "RowAccessor cRowEndIndex %d", cRowEndIndex);
+          logger::println(logger::INFO, "homogen_table %lld", cTableAddr);
 
           homogen_table htable = *reinterpret_cast<const homogen_table *>(cTableAddr);
           row_accessor<const double> acc {htable};
@@ -76,7 +77,7 @@ JNIEXPORT jdoubleArray JNICALL Java_com_intel_oneapi_dal_table_RowAccessor_cPull
               jsize length = env->GetArrayLength(newDoubleArray);
               logger::println(logger::INFO, "newDoubleArray size %d", length);
               logger::println(logger::INFO, "return newDoubleArray");
-              freeHomogenTablePtr(htable);
+              freeHomogenTablePtr(&htable);
     } catch (const std::exception& e) {
         // Handle exception
         std::cerr << "Exception occurred while pulling data: " << e.what() << std::endl;

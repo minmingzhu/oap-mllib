@@ -76,7 +76,7 @@ void saveCSRTablePtrToVector(const CSRTablePtr &ptr);
 #include "oneapi/dal/table/row_accessor.hpp"
 
 void saveHomogenTablePtrToVector(const HomogenTablePtr &ptr);
-void freeHomogenTablePtr(homogen_table &rawPtr);
+void freeHomogenTablePtr(homogen_table *rawPtr);
 NumericTablePtr homegenToSyclHomogen(NumericTablePtr ntHomogen);
 inline void printHomegenTable(const oneapi::dal::table &table) {
     auto arr = oneapi::dal::row_accessor<const float>(table).pull();
