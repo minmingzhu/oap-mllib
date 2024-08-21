@@ -202,13 +202,22 @@ static jlong doCorrelationOneAPICompute(
     logger::println(logger::INFO, "numClos was %d", numClos);
     auto t1 = std::chrono::high_resolution_clock::now();
 
-    auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
-    std::cout << "table size : " << numRows * numClos << std::endl;
-    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, table size %ld.", comm.get_rank(), numRows * numClos );
-    queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
+//    auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
+//    std::cout << "table size : " << numRows * numClos << std::endl;
+//    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, table size %ld.", comm.get_rank(), numRows * numClos );
+//    queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
+    auto data =
+        oneapi::dal::array<float>::empty(queue, numRows * numClos, sycl::usm::alloc::device);
+
+    detail::memcpy_host2usm(queue,
+                                 data.get_mutable_data(),
+                                 htableArray,
+                                 sizeof(float) * numRows * numClos);
+
+    homogen_table htable = homogen_table::wrap(data, numRows, numClos);
     freeArrayPtr<float>(htableArray);
-    homogen_table htable{queue, data, numRows, numClos,
-                         detail::make_default_delete<const float>(queue)};
+//    homogen_table htable{queue, data, numRows, numClos,
+//                         detail::make_default_delete<const float>(queue)};
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration =
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
