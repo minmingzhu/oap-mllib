@@ -32,11 +32,6 @@
 #include "Logger.h"
 #include "OneCCL.h"
 #include "com_intel_oap_mllib_OneCCL__.h"
-#include "store.hpp"
-
-#define STORE_TIMEOUT_SEC 120
-#define KVS_CREATE_SUCCESS 0
-#define KVS_CREATE_FAILURE -1
 
 extern const size_t ccl_root = 0;
 
@@ -49,9 +44,8 @@ std::vector<ccl::shared_ptr_class<ccl::kvs>> g_kvs;
 
 ccl::communicator &getComm() { return g_comms[0]; }
 ccl::shared_ptr_class<ccl::kvs> &getKvs() { return g_kvs[0]; }
-std::shared_ptr<file_store> store;
 
-static int create_kvs_by_store(std::shared_ptr<file_store> store,
+int create_kvs_by_store(std::shared_ptr<file_store> store,
                         int rank,
                         ccl::shared_ptr_class<ccl::kvs>& kvs,
                         ccl::string name) {
@@ -111,8 +105,8 @@ JNIEXPORT jint JNICALL Java_com_intel_oap_mllib_OneCCL_00024_c_1init(
     const char *str = env->GetStringUTFChars(ip_port, 0);
     ccl::string ccl_ip_port(str);
 
-    store = std::make_shared<file_store>(
-                kvs_store_path, rank, std::chrono::seconds(STORE_TIMEOUT_SEC));
+//    store = std::make_shared<file_store>(
+//                kvs_store_path, rank, std::chrono::seconds(STORE_TIMEOUT_SEC));
 
     auto t1 = std::chrono::high_resolution_clock::now();
     ccl::init();

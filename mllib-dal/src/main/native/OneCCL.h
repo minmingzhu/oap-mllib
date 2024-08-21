@@ -19,6 +19,8 @@
 #include <oneapi/ccl.hpp>
 
 #include <vector>
+#include "store.hpp"
+
 extern std::vector<ccl::communicator> g_comms;
 extern std::vector<ccl::shared_ptr_class<ccl::kvs>> g_kvs;
 using namespace std;
@@ -47,3 +49,11 @@ event CCL_API gather(const BufferType *sendbuf, int sendcount,
 ccl::communicator &getComm();
 ccl::shared_ptr_class<ccl::kvs> &getKvs();
 extern const size_t ccl_root;
+#define STORE_TIMEOUT_SEC 120
+#define KVS_CREATE_SUCCESS 0
+#define KVS_CREATE_FAILURE -1
+
+int create_kvs_by_store(std::shared_ptr<file_store> store,
+                        int rank,
+                        ccl::shared_ptr_class<ccl::kvs>& kvs,
+                        ccl::string name);

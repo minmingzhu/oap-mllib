@@ -39,6 +39,7 @@
 using namespace std;
 #ifdef CPU_GPU_PROFILE
 namespace covariance_gpu = oneapi::dal::covariance;
+std::shared_ptr<file_store> store;
 #endif
 using namespace daal;
 using namespace daal::services;
@@ -214,7 +215,9 @@ static jlong doCorrelationOneAPICompute(
                                  htableArray,
                                  sizeof(float) * numRows * numClos);
 
+//    table htable = detail::homogen_table_builder{}.reset(data, numRows, numClos).build();
     homogen_table htable = homogen_table::wrap(data, numRows, numClos);
+
     freeArrayPtr<float>(htableArray);
 //    homogen_table htable{queue, data, numRows, numClos,
 //                         detail::make_default_delete<const float>(queue)};
@@ -245,7 +248,6 @@ static jlong doCorrelationOneAPICompute(
 
     logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, Correlation computing step took %f secs.", comm.get_rank(), duration / 1000 );
     if (isRoot) {
-
         t2 = std::chrono::high_resolution_clock::now();
         duration = (float)std::chrono::duration_cast<std::chrono::milliseconds>(
                        t2 - t1)
@@ -281,7 +283,7 @@ JNIEXPORT jlong JNICALL
 Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
     JNIEnv *env, jobject obj, jint rank, jlong pNumTabData, jlong numRows, jlong numClos,
     jint executorNum, jint executorCores, jint computeDeviceOrdinal,
-    jintArray gpuIdxArray, jstring ip_port, jstring breakdown_name, jobject resultObj) {
+    jintArray gpuIdxArray, jstring ip_port, jstring breakdown_name, jstring store_path, jobject resultObj) {
     logger::println(logger::INFO,
                     "oneDAL (native): use DPC++ kernels; device %s",
                     ComputeDeviceString[computeDeviceOrdinal].c_str());
@@ -318,6 +320,9 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
         std::string c_breakdown_name(cstr);
         const char *str = env->GetStringUTFChars(ip_port, nullptr);
         ccl::string ccl_ip_port(str);
+        const char* path = env->GetStringUTFChars(store_path, 0);
+        std::string kvs_store_path(path);
+        ccl::shared_ptr_class<ccl::kvs> kvs;
 
         auto t1 = std::chrono::high_resolution_clock::now();
 
@@ -333,12 +338,18 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
 
 
         t1 = std::chrono::high_resolution_clock::now();
-
-        auto kvs_attr = ccl::create_kvs_attr();
-
-        kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
-
-        ccl::shared_ptr_class<ccl::kvs> kvs = ccl::create_main_kvs(kvs_attr);
+        store = std::make_shared<file_store>(
+                kvs_store_path, rank, std::chrono::seconds(STORE_TIMEOUT_SEC));
+        logger::println(logger::INFO, "create_main_kvs");
+        if (create_kvs_by_store(store, rank, kvs, c_breakdown_name) != KVS_CREATE_SUCCESS) {
+            logger::println(logger::INFO, "can not create kvs by store");
+            return -1;
+        }
+//        auto kvs_attr = ccl::create_kvs_attr();
+//
+//        kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
+//
+//        ccl::shared_ptr_class<ccl::kvs> kvs = ccl::create_main_kvs(kvs_attr);
 
         t2 = std::chrono::high_resolution_clock::now();
         duration =
@@ -366,6 +377,7 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
         env->ReleaseStringUTFChars(breakdown_name, cstr);
         env->ReleaseStringUTFChars(ip_port, str);
+        env->ReleaseStringUTFChars(store_path, path);
         break;
     }
 #endif

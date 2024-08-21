@@ -103,6 +103,7 @@ class CorrelationDALImpl(
         gpuIndices,
         kvsIPPort,
         training_breakdown_name,
+        storePath,
         result
       )
 
@@ -158,6 +159,7 @@ class CorrelationDALImpl(
                                            gpuIndices: Array[Int],
                                            kvsIPPort: String,
                                            training_breakdown_name: String,
+                                           storePath: String,
                                            result: CorrelationResult): Long
 
   @native def cCorrelationSampleTrainDAL(rank: Int,
