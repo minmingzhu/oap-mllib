@@ -287,14 +287,14 @@ static jlong doKMeansOneAPICompute(
     kmeans_gpu::train_result result_train =
         preview::train(comm, kmeans_desc, local_input);
     t2 = std::chrono::high_resolution_clock::now();
-    duration =
-        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
-            .count();
-    logger::println(logger::INFO,
-                    "KMeans (native): training step took %f secs",
-                    duration / 1000);
-
-    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, K-means training step took %f secs.", comm.get_rank(), duration / 1000 );
+//    duration =
+//        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+//            .count();
+//    logger::println(logger::INFO,
+//                    "KMeans (native): training step took %f secs",
+//                    duration / 1000);
+//
+//    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, K-means training step took %f secs.", comm.get_rank(), duration / 1000 );
     if (isRoot) {
         logger::println(logger::INFO, "Iteration count: %d",
                         result_train.get_iteration_count());

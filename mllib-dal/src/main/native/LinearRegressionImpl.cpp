@@ -271,12 +271,12 @@ static jlong doLROneAPICompute(JNIEnv *env, size_t rankId,
 
     linear_regression_gpu::train_result result_train =
         preview::train(comm, linear_regression_desc, xtrain, ytrain);
-    t2 = std::chrono::high_resolution_clock::now();
-    duration =
-        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
-                                                                     t1)
-            .count();
-    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, LinerRegression training step took %f secs.", comm.get_rank(), duration / 1000 );
+//    t2 = std::chrono::high_resolution_clock::now();
+//    duration =
+//        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
+//                                                                     t1)
+//            .count();
+//    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, LinerRegression training step took %f secs.", comm.get_rank(), duration / 1000 );
     if (isRoot) {
 
         t2 = std::chrono::high_resolution_clock::now();

@@ -228,14 +228,14 @@ static void doSummarizerOneAPICompute(
     t1 = std::chrono::high_resolution_clock::now();
     const auto result_train = preview::compute(comm, bs_desc, htable);
     t2 = std::chrono::high_resolution_clock::now();
-    duration =
-        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
-            .count();
-    logger::println(logger::INFO,
-                    "Summarizer (native): computing step took %f secs",
-                    duration / 1000);
-
-    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, Summarizer training step took %f secs.", comm.get_rank(), duration / 1000 );
+//    duration =
+//        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+//            .count();
+//    logger::println(logger::INFO,
+//                    "Summarizer (native): computing step took %f secs",
+//                    duration / 1000);
+//
+//    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, Summarizer training step took %f secs.", comm.get_rank(), duration / 1000 );
     if (isRoot) {
         t2 = std::chrono::high_resolution_clock::now();
         duration = (float)std::chrono::duration_cast<std::chrono::milliseconds>(

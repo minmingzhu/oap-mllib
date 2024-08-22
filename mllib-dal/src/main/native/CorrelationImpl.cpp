@@ -238,15 +238,15 @@ static jlong doCorrelationOneAPICompute(
     t1 = std::chrono::high_resolution_clock::now();
     logger::println(logger::INFO, "Correlation batch(native): compute start");
     const auto result_train = preview::compute(comm, cor_desc, htable);
-    t2 = std::chrono::high_resolution_clock::now();
-    duration =
-        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
-            .count();
-    logger::println(logger::INFO,
-                    "Correlation batch(native): computing step took %f secs.",
-                    duration / 1000);
+//    t2 = std::chrono::high_resolution_clock::now();
+//    duration =
+//        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+//            .count();
+//    logger::println(logger::INFO,
+//                    "Correlation batch(native): computing step took %f secs.",
+//                    duration / 1000);
 
-    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, Correlation computing step took %f secs.", comm.get_rank(), duration / 1000 );
+
     if (isRoot) {
         t2 = std::chrono::high_resolution_clock::now();
         duration = (float)std::chrono::duration_cast<std::chrono::milliseconds>(
