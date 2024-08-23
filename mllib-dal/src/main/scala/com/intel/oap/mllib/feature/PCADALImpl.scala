@@ -118,7 +118,7 @@ class PCADALImpl(val k: Int,
       val ret = if (rank == 0) {
         val principleComponents = if (useDevice == "GPU") {
           val pcNumericTable = OneDAL.makeHomogenTable(result.getPcNumericTable)
-          getPrincipleComponentsFromOneAPI(pcNumericTable, k, computeDevice)
+          getPrincipleComponentsFromOneAPI(pcNumericTable, k, Common.ComputeDevice.HOST)
         } else {
           val pcNumericTable = OneDAL.makeNumericTable(result.getPcNumericTable)
           getPrincipleComponentsFromDAL(pcNumericTable, k)

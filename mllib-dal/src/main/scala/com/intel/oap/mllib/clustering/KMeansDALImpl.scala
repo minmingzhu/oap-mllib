@@ -125,7 +125,7 @@ class KMeansDALImpl(var nClusters: Int,
           assert(cCentroids != 0)
           val centerVectors = if (useDevice == "GPU") {
             OneDAL.homogenTableToVectors(OneDAL.makeHomogenTable(cCentroids),
-              computeDevice)
+              Common.ComputeDevice.HOST)
           } else {
             OneDAL.numericTableToVectors(OneDAL.makeNumericTable(cCentroids))
           }
@@ -154,6 +154,9 @@ class KMeansDALImpl(var nClusters: Int,
     } else {
       logInfo(s"KMeans converged in $iterationNum iterations.")
     }
+
+    logInfo(s"The cost is $totalCost.")
+    logInfo(s"OneDAL output centroids:\n${centerVectors.mkString("\n")}")
 
     val parentModel = new MLlibKMeansModel(
       centerVectors.map(OldVectors.fromML(_)),

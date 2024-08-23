@@ -126,7 +126,7 @@ class RandomForestRegressorDALImpl(val uid: String,
         val convResultStartTime = System.nanoTime()
         val predictionNumericTable = OneDAL.homogenTableToMatrix(
           OneDAL.makeHomogenTable(result.getPredictionNumericTable),
-          computeDevice)
+          Common.ComputeDevice.HOST)
         val convResultEndTime = System.nanoTime()
 
         val durationCovResult = (convResultEndTime - convResultStartTime).toDouble / 1E9

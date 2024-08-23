@@ -185,7 +185,7 @@ class LinearRegressionDALImpl( val fitIntercept: Boolean,
         val ret = if (rank == 0) {
           val coefficientArray = if (useDevice == "GPU") {
               OneDAL.homogenTableToVectors(OneDAL.makeHomogenTable(cbeta),
-                computeDevice)
+                Common.ComputeDevice.HOST)
             } else {
               OneDAL.numericTableToVectors(OneDAL.makeNumericTable(cbeta))
             }
