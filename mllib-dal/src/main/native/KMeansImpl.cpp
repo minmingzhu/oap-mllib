@@ -319,6 +319,8 @@ static jlong doKMeansOneAPICompute(
         env->SetDoubleField(resultObj, totalCostField,
                             result_train.get_objective_function_value());
 
+        logger::println(logger::INFO, "centroids");
+        printHomegenTable(result_train.get_model().get_centroids());
         HomogenTablePtr centroidsPtr = std::make_shared<homogen_table>(
             result_train.get_model().get_centroids());
         saveHomogenTablePtrToVector(centroidsPtr);
