@@ -209,7 +209,7 @@ static void doPCAOneAPICompute(
     comm.barrier();
     t1 = std::chrono::high_resolution_clock::now();
     const auto result = preview::compute(comm, cov_desc, htable);
-    t2 = std::chrono::high_resolution_clock::now();
+//    t2 = std::chrono::high_resolution_clock::now();
 //    duration =
 //        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
 //            .count();

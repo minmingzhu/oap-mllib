@@ -286,7 +286,7 @@ static jlong doKMeansOneAPICompute(
     t1 = std::chrono::high_resolution_clock::now();
     kmeans_gpu::train_result result_train =
         preview::train(comm, kmeans_desc, local_input);
-    t2 = std::chrono::high_resolution_clock::now();
+//    t2 = std::chrono::high_resolution_clock::now();
 //    duration =
 //        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
 //            .count();
