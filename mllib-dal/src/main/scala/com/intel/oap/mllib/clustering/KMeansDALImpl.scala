@@ -155,9 +155,6 @@ class KMeansDALImpl(var nClusters: Int,
       logInfo(s"KMeans converged in $iterationNum iterations.")
     }
 
-    logInfo(s"The cost is $totalCost.")
-    logInfo(s"OneDAL output centroids:\n${centerVectors.mkString("\n")}")
-
     val parentModel = new MLlibKMeansModel(
       centerVectors.map(OldVectors.fromML(_)),
       distanceMeasure, totalCost, iterationNum)
