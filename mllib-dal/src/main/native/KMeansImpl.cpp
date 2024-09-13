@@ -35,7 +35,7 @@
 using namespace std;
 #ifdef CPU_GPU_PROFILE
 namespace kmeans_gpu = oneapi::dal::kmeans;
-std::shared_ptr<file_store> store;
+std::shared_ptr<file_store> store_kmeans;
 #endif
 using namespace daal;
 using namespace daal::services;
@@ -400,10 +400,10 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
 
 
         t1 = std::chrono::high_resolution_clock::now();
-        store = std::make_shared<file_store>(
+        store_kmeans = std::make_shared<file_store>(
                 kvs_store_path, rank, std::chrono::seconds(STORE_TIMEOUT_SEC));
         logger::println(logger::INFO, "create_main_kvs");
-        if (create_kvs_by_store(store, rank, kvs, c_breakdown_name) != KVS_CREATE_SUCCESS) {
+        if (create_kvs_by_store(store_kmeans, rank, kvs, c_breakdown_name) != KVS_CREATE_SUCCESS) {
             logger::println(logger::INFO, "can not create kvs by store");
             return -1;
         }

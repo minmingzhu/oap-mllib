@@ -39,7 +39,7 @@
 using namespace std;
 #ifdef CPU_GPU_PROFILE
 namespace covariance_gpu = oneapi::dal::covariance;
-std::shared_ptr<file_store> store;
+std::shared_ptr<file_store> store_cor;
 #endif
 using namespace daal;
 using namespace daal::services;
@@ -339,10 +339,10 @@ Java_com_intel_oap_mllib_stat_CorrelationDALImpl_cCorrelationTrainDAL(
 
 
         t1 = std::chrono::high_resolution_clock::now();
-        store = std::make_shared<file_store>(
+        store_cor = std::make_shared<file_store>(
                 kvs_store_path, rank, std::chrono::seconds(STORE_TIMEOUT_SEC));
         logger::println(logger::INFO, "create_main_kvs");
-        if (create_kvs_by_store(store, rank, kvs, c_breakdown_name) != KVS_CREATE_SUCCESS) {
+        if (create_kvs_by_store(store_cor, rank, kvs, c_breakdown_name) != KVS_CREATE_SUCCESS) {
             logger::println(logger::INFO, "can not create kvs by store");
             return -1;
         }
