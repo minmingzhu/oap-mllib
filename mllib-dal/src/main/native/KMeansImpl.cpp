@@ -35,6 +35,7 @@
 using namespace std;
 #ifdef CPU_GPU_PROFILE
 namespace kmeans_gpu = oneapi::dal::kmeans;
+std::shared_ptr<file_store> store;
 #endif
 using namespace daal;
 using namespace daal::services;
@@ -341,7 +342,7 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
     JNIEnv *env, jobject obj, jint rank, jlong pNumTabData, jlong numRows, jlong numClos, jlong pNumTabCenters,
     jint clusterNum, jdouble tolerance, jint iterationNum, jint executorNum,
     jint executorCores, jint computeDeviceOrdinal, jintArray gpuIdxArray, jstring ip_port, jstring breakdown_name,
-    jobject resultObj) {
+    jstring store_path, jobject resultObj) {
     logger::println(logger::INFO,
                     "OneDAL (native): use DPC++ kernels; device %s",
                     ComputeDeviceString[computeDeviceOrdinal].c_str());
@@ -381,6 +382,9 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
         std::string c_breakdown_name(cstr);
         const char *str = env->GetStringUTFChars(ip_port, nullptr);
         ccl::string ccl_ip_port(str);
+        const char* path = env->GetStringUTFChars(store_path, 0);
+        std::string kvs_store_path(path);
+        ccl::shared_ptr_class<ccl::kvs> kvs;
 
         auto t1 = std::chrono::high_resolution_clock::now();
 
@@ -396,12 +400,18 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
 
 
         t1 = std::chrono::high_resolution_clock::now();
-
-        auto kvs_attr = ccl::create_kvs_attr();
-
-        kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
-
-        ccl::shared_ptr_class<ccl::kvs> kvs = ccl::create_main_kvs(kvs_attr);
+        store = std::make_shared<file_store>(
+                kvs_store_path, rank, std::chrono::seconds(STORE_TIMEOUT_SEC));
+        logger::println(logger::INFO, "create_main_kvs");
+        if (create_kvs_by_store(store, rank, kvs, c_breakdown_name) != KVS_CREATE_SUCCESS) {
+            logger::println(logger::INFO, "can not create kvs by store");
+            return -1;
+        }
+//        auto kvs_attr = ccl::create_kvs_attr();
+//
+//        kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
+//
+//        ccl::shared_ptr_class<ccl::kvs> kvs = ccl::create_main_kvs(kvs_attr);
 
         t2 = std::chrono::high_resolution_clock::now();
         duration =
