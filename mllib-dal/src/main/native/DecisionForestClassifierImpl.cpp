@@ -291,7 +291,6 @@ static jobject doRFClassifierOneAPICompute(
         (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
                                                                      t1)
             .count();
-    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, DF Classifier training step took %f secs.", comm.get_rank(), duration / 1000 );
     jobject trees = nullptr;
     if (isRoot) {
         logger::println(logger::INFO, "Variable importance results:");
