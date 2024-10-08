@@ -250,40 +250,40 @@ void freeHomogenTablePtr(homogen_table* rawPtr) {
     std::cout << "Size: " << g_HomogenTablePtrVector.size() << ", Capacity: " << g_HomogenTablePtrVector.capacity() << std::endl;
 }
 
-NumericTablePtr homegenToSyclHomogen(NumericTablePtr ntHomogen) {
-    int nRows = ntHomogen->getNumberOfRows();
-    int nColumns = ntHomogen->getNumberOfColumns();
-
-    // printNumericTable(ntHomogen, "ntHomogen:", 10, 10);
-
-    NumericTablePtr ntSycl =
-        SyclHomogenNumericTable<CpuAlgorithmFPType>::create(
-            nColumns, nRows, NumericTable::doAllocate);
-
-    // printNumericTable(ntSycl, "ntSycl:", 10, 10);
-
-    BlockDescriptor<CpuAlgorithmFPType> sourceRows;
-    ntHomogen->getBlockOfRows(0, ntHomogen->getNumberOfRows(), readOnly,
-                              sourceRows);
-
-    BlockDescriptor<CpuAlgorithmFPType> targetRows;
-    ntSycl->getBlockOfRows(0, ntSycl->getNumberOfRows(), writeOnly, targetRows);
-
-    // bracets for calling destructor of hostPtr to release lock
-    {
-        Status st;
-        auto hostPtr =
-            targetRows.getBuffer().toHost(data_management::writeOnly, st);
-
-        for (int i = 0; i < nRows * nColumns; i++) {
-            hostPtr.get()[i] = sourceRows.getBlockPtr()[i];
-        }
-    }
-
-    // printNumericTable(ntSycl, "ntSycl Result:", 10, 10);
-
-    return ntSycl;
-}
+//NumericTablePtr homegenToSyclHomogen(NumericTablePtr ntHomogen) {
+//    int nRows = ntHomogen->getNumberOfRows();
+//    int nColumns = ntHomogen->getNumberOfColumns();
+//
+//    // printNumericTable(ntHomogen, "ntHomogen:", 10, 10);
+//
+//    NumericTablePtr ntSycl =
+//        SyclHomogenNumericTable<CpuAlgorithmFPType>::create(
+//            nColumns, nRows, NumericTable::doAllocate);
+//
+//    // printNumericTable(ntSycl, "ntSycl:", 10, 10);
+//
+//    BlockDescriptor<CpuAlgorithmFPType> sourceRows;
+//    ntHomogen->getBlockOfRows(0, ntHomogen->getNumberOfRows(), readOnly,
+//                              sourceRows);
+//
+//    BlockDescriptor<CpuAlgorithmFPType> targetRows;
+//    ntSycl->getBlockOfRows(0, ntSycl->getNumberOfRows(), writeOnly, targetRows);
+//
+//    // bracets for calling destructor of hostPtr to release lock
+//    {
+//        Status st;
+//        auto hostPtr =
+//            targetRows.getBuffer().toHost(data_management::writeOnly, st);
+//
+//        for (int i = 0; i < nRows * nColumns; i++) {
+//            hostPtr.get()[i] = sourceRows.getBlockPtr()[i];
+//        }
+//    }
+//
+//    // printNumericTable(ntSycl, "ntSycl Result:", 10, 10);
+//
+//    return ntSycl;
+//}
 
 template void saveArrayPtrToVector<float>(const std::shared_ptr<float>&);
 template void saveArrayPtrToVector<double>(const std::shared_ptr<double>&);
