@@ -287,15 +287,6 @@ static jlong doKMeansOneAPICompute(
     t1 = std::chrono::high_resolution_clock::now();
     kmeans_gpu::train_result result_train =
         preview::train(comm, kmeans_desc, local_input);
-//    t2 = std::chrono::high_resolution_clock::now();
-//    duration =
-//        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
-//            .count();
-//    logger::println(logger::INFO,
-//                    "KMeans (native): training step took %f secs",
-//                    duration / 1000);
-//
-//    logger::Logger::getInstance(breakdown_name).printLogToFile("rankID was %d, K-means training step took %f secs.", comm.get_rank(), duration / 1000 );
     if (isRoot) {
         logger::println(logger::INFO, "Iteration count: %d",
                         result_train.get_iteration_count());
@@ -376,7 +367,6 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
             logger::INFO,
             "OneDAL (native): use GPU kernels with %d GPU(s) rankid %d", nGpu,
             rank);
-        auto gpus = get_gpus();
         jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
         const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
         std::string c_breakdown_name(cstr);
@@ -420,6 +410,7 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
         logger::println(logger::INFO, "OneCCL (native): create kvs took %f secs",
                         duration / 1000);
         logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, OneCCL create communicator took %f secs.", rank, duration / 1000 );
+        auto gpus = get_gpus();
         sycl::queue queue{gpus[0]};
          t1 = std::chrono::high_resolution_clock::now();
         auto comm =
