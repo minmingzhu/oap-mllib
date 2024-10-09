@@ -64,8 +64,6 @@ class KMeansDALImpl(var nClusters: Int,
       logInfo(s"set ZE_AFFINITY_MASK rank is $rank.")
       logInfo(s"gpuIndices is ${gpuIndices.mkString(", ")}.")
       OneCCL.setExecutorEnv("ZE_AFFINITY_MASK", gpuIndices(0).toString())
-      OneCCL.setExecutorEnv("CCL_LOCAL_RANK", gpuIndices(0).toString())
-      OneCCL.setExecutorEnv("CCL_LOCAL_SIZE", 12.toString)
       Iterator.empty
     }.count()
 

@@ -367,6 +367,7 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
             logger::INFO,
             "OneDAL (native): use GPU kernels with %d GPU(s) rankid %d", nGpu,
             rank);
+        auto gpus = get_gpus();
         jint *gpuIndices = env->GetIntArrayElements(gpuIdxArray, 0);
         const char* cstr = env->GetStringUTFChars(breakdown_name, nullptr);
         std::string c_breakdown_name(cstr);
@@ -410,7 +411,6 @@ Java_com_intel_oap_mllib_clustering_KMeansDALImpl_cKMeansOneapiComputeWithInitCe
         logger::println(logger::INFO, "OneCCL (native): create kvs took %f secs",
                         duration / 1000);
         logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, OneCCL create communicator took %f secs.", rank, duration / 1000 );
-        auto gpus = get_gpus();
         sycl::queue queue{gpus[0]};
          t1 = std::chrono::high_resolution_clock::now();
         auto comm =

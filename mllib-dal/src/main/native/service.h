@@ -22,7 +22,11 @@
 
 #pragma once
 
+#ifdef CPU_GPU_PROFILE
+#include <daal_sycl.h>
+#else
 #include <daal.h>
+#endif
 
 using namespace daal::data_management;
 
