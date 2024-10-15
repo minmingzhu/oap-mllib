@@ -102,6 +102,7 @@ class SummarizerDALImpl(val executorNum: Int,
         gpuIndices,
         kvsIPPort,
         training_breakdown_name,
+        storePath,
         result
       )
 
@@ -188,5 +189,6 @@ class SummarizerDALImpl(val executorNum: Int,
                                           gpuIndices: Array[Int],
                                           kvsIPPort: String,
                                           training_breakdown_name: String,
+                                          storePath: String,
                                           result: SummarizerResult): Long
 }

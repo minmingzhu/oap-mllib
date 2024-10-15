@@ -309,7 +309,7 @@ Java_com_intel_oap_mllib_regression_LinearRegressionDALImpl_cLinearRegressionTra
     jlong featureCols, jlong label, jlong labelCols, jboolean fitIntercept,
     jdouble regParam, jdouble elasticNetParam, jint executorNum,
     jint executorCores, jint computeDeviceOrdinal, jintArray gpuIdxArray, jstring ip_port, jstring breakdown_name,
-    jobject resultObj) {
+    jstring store_path, jobject resultObj) {
 
     logger::println(logger::INFO,
                     "oneDAL (native): use DPC++ kernels; device %s",

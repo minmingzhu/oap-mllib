@@ -179,6 +179,7 @@ class LinearRegressionDALImpl( val fitIntercept: Boolean,
           gpuIndices,
           kvsIPPort,
           training_breakdown_name,
+          storePath,
           result
         )
 
@@ -227,6 +228,7 @@ class LinearRegressionDALImpl( val fitIntercept: Boolean,
                                   gpuIndices: Array[Int],
                                   kvsIPPort: String,
                                   training_breakdown_name: String,
+                                  storePath: String,
                                   result: LiRResult): Long
 
   }

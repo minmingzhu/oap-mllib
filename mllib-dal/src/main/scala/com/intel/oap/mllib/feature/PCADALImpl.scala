@@ -112,6 +112,7 @@ class PCADALImpl(val k: Int,
         gpuIndices,
         kvsIPPort,
         training_breakdown_name,
+        storePath,
         result
       )
 
@@ -251,5 +252,6 @@ class PCADALImpl(val k: Int,
                                    gpuIndices: Array[Int],
                                    kvsIPPort: String,
                                    training_breakdown_name: String,
+                                   storePath: String,
                                    result: PCAResult): Long
 }
