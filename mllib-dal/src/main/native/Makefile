@@ -120,7 +120,7 @@ OBJS += \
   ./DecisionForestClassifierImpl.o \
   ./DecisionForestRegressorImpl.o
 
-DEFINES=-D$(PLATFORM_PROFILE) -D$(ONEDAL_VERSION)
+DEFINES=-D$(PLATFORM_PROFILE)
 
 ifeq ($(PLATFORM_PROFILE),CPU_GPU_PROFILE)
   CPP_SRCS += ./GPU.cpp

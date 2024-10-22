@@ -32,6 +32,7 @@ using namespace std;
 #ifdef CPU_GPU_PROFILE
 namespace pca_gpu = oneapi::dal::pca;
 namespace covariance_gpu = oneapi::dal::covariance;
+std::shared_ptr<file_store> store_pca;
 #endif
 using namespace daal;
 using namespace daal::services;
@@ -303,7 +304,9 @@ Java_com_intel_oap_mllib_feature_PCADALImpl_cPCATrainDAL(
         std::string c_breakdown_name(cstr);
         const char *str = env->GetStringUTFChars(ip_port, nullptr);
         ccl::string ccl_ip_port(str);
-
+        const char* path = env->GetStringUTFChars(store_path, 0);
+        std::string kvs_store_path(path);
+        ccl::shared_ptr_class<ccl::kvs> kvs;
         auto t1 = std::chrono::high_resolution_clock::now();
 
         ccl::init();
@@ -317,12 +320,18 @@ Java_com_intel_oap_mllib_feature_PCADALImpl_cPCATrainDAL(
         logger::Logger::getInstance(c_breakdown_name).printLogToFile("rankID was %d, OneCCL singleton init took %f secs.", rank, duration / 1000 );
 
         t1 = std::chrono::high_resolution_clock::now();
-
-        auto kvs_attr = ccl::create_kvs_attr();
-
-        kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
-
-        ccl::shared_ptr_class<ccl::kvs> kvs = ccl::create_main_kvs(kvs_attr);
+        store_pca = std::make_shared<file_store>(
+                kvs_store_path, rank, std::chrono::seconds(STORE_TIMEOUT_SEC));
+        logger::println(logger::INFO, "create_main_kvs");
+        if (create_kvs_by_store(store_pca, rank, kvs, c_breakdown_name) != KVS_CREATE_SUCCESS) {
+            logger::println(logger::INFO, "can not create kvs by store");
+            return -1;
+        }
+//        auto kvs_attr = ccl::create_kvs_attr();
+//
+//        kvs_attr.set<ccl::kvs_attr_id::ip_port>(ccl_ip_port);
+//
+//        ccl::shared_ptr_class<ccl::kvs> kvs = ccl::create_main_kvs(kvs_attr);
 
         t2 = std::chrono::high_resolution_clock::now();
         duration =
@@ -346,6 +355,7 @@ Java_com_intel_oap_mllib_feature_PCADALImpl_cPCATrainDAL(
         env->ReleaseIntArrayElements(gpuIdxArray, gpuIndices, 0);
         env->ReleaseStringUTFChars(breakdown_name, cstr);
         env->ReleaseStringUTFChars(ip_port, str);
+        env->ReleaseStringUTFChars(store_path, path);
         break;
     }
 #endif
