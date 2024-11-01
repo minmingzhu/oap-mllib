@@ -565,8 +565,8 @@ object OneDAL {
       val numRows = list.size
       val numCols = list(0).getAs[Vector](1).toArray.size
 
-      val labelsAddress = OneDAL.cNewDoubleArray(numRows.toLong)
-      val featuresAddress= OneDAL.cNewDoubleArray(numRows.toLong * numCols)
+      val labelsAddress = OneDAL.cNewFloatArray(numRows.toLong)
+      val featuresAddress= OneDAL.cNewFloatArray(numRows.toLong * numCols)
       for ( i <- 0 until numberCores) {
         val f = Future {
           val iter = list.iterator
@@ -587,7 +587,7 @@ object OneDAL {
       val result = Future.sequence(labeledPointsList)
       Await.result(result, Duration.Inf)
 
-      Iterator(((featuresAddress, numRows.toLong, numCols.toLong), (labelsAddress, numRows.toLong, 1.toLong)))
+      Iterator(((featuresAddress, c.toLong, numCols.toLong), (labelsAddress, numRows.toLong, 1.toLong)))
 
     }.setName("coalescedTables").cache()
 
