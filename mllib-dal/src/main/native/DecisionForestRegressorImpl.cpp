@@ -270,7 +270,7 @@ static jobject doRFRegressorOneAPICompute(
                 df::error_metric_mode::out_of_bag_error |
                 df::error_metric_mode::out_of_bag_error_per_observation)
             .set_variable_importance_mode(df::variable_importance_mode::mdi);
-
+    comm.barrier();
     t1 = std::chrono::high_resolution_clock::now();
     const auto result_train =
         preview::train(comm, df_desc, hFeaturetable, hLabeltable);
