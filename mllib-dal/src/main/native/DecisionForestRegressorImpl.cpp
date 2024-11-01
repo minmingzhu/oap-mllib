@@ -391,7 +391,7 @@ Java_com_intel_oap_mllib_regression_RandomForestRegressorDALImpl_cRFRegressorTra
         t1 = std::chrono::high_resolution_clock::now();
         auto comm =
             preview::spmd::make_communicator<preview::spmd::backend::ccl>(
-                queue, executorNum, rank, kvs);
+                queue, executorNum, rank, kvs);:queue
         t2 = std::chrono::high_resolution_clock::now();
         duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
