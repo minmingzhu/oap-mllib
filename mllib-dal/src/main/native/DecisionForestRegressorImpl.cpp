@@ -276,11 +276,6 @@ static jobject doRFRegressorOneAPICompute(
         preview::train(comm, df_desc, hFeaturetable, hLabeltable);
     const auto result_infer =
         preview::infer(comm, df_desc, result_train.get_model(), hFeaturetable);
-    t2 = std::chrono::high_resolution_clock::now();
-    duration =
-        (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
-                                                                     t1)
-            .count();
     jobject trees = nullptr;
     if (isRoot) {
         logger::println(logger::INFO, "Variable importance results:");
@@ -289,7 +284,6 @@ static jobject doRFRegressorOneAPICompute(
         printHomegenTable(result_train.get_oob_err());
         logger::println(logger::INFO, "Prediction results:");
         printHomegenTable(result_infer.get_responses());
-
         t2 = std::chrono::high_resolution_clock::now();
         duration =
             (float)std::chrono::duration_cast<std::chrono::milliseconds>(t2 -
