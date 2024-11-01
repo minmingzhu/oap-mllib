@@ -295,7 +295,7 @@ static jobject doRFClassifierOneAPICompute(
         logger::println(logger::INFO, "Prediction results:");
         printHomegenTable(result_infer.get_responses());
         logger::println(logger::INFO, "Probabilities results:\n");
-        printHomegenTable(result_infer.get_probabilities());ll
+        printHomegenTable(result_infer.get_probabilities());
 
         t2 = std::chrono::high_resolution_clock::now();
         duration =
