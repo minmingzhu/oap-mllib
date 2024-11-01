@@ -587,7 +587,7 @@ object OneDAL {
       val result = Future.sequence(labeledPointsList)
       Await.result(result, Duration.Inf)
 
-      Iterator(((featuresAddress, c.toLong, numCols.toLong), (labelsAddress, numRows.toLong, 1.toLong)))
+      Iterator(((featuresAddress, numRows.toLong, numCols.toLong), (labelsAddress, numRows.toLong, 1.toLong)))
 
     }.setName("coalescedTables").cache()
 
