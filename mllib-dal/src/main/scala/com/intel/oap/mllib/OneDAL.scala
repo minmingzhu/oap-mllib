@@ -460,8 +460,8 @@ object OneDAL {
       val numRows = list.size
       val numCols = list(0).getAs[Vector](1).toArray.size
 
-      val labelsAddress = OneDAL.cNewDoubleArray(numRows.toLong)
-      val featuresAddress= OneDAL.cNewDoubleArray(numRows.toLong * numCols)
+      val labelsAddress = OneDAL.cNewFloatArray(numRows.toLong)
+      val featuresAddress= OneDAL.cNewFloatArray(numRows.toLong * numCols)
       for ( i <- 0 until numberCores) {
         val f = Future {
           val iter = list.iterator
@@ -472,8 +472,8 @@ object OneDAL {
           }
           slice.toArray.zipWithIndex.map { case (row, index) =>
             val length = row.getAs[Vector](1).toArray.length
-            OneDAL.cCopyDoubleArrayToNative(featuresAddress, row.getAs[Vector](1).toArray, subRowCount.toLong * numCols * i + length * index)
-            OneDAL.cCopyDoubleArrayToNative(labelsAddress, Array(row.getAs[Double](0)), subRowCount * i +  index)
+            OneDAL.cCopyFloatArrayToNative(featuresAddress, row.getAs[Vector](1).toArray, subRowCount.toLong * numCols * i + length * index)
+            OneDAL.cCopyFloatArrayToNative(labelsAddress, Array(row.getAs[Double](0)), subRowCount * i +  index)
           }
           (labelsAddress, featuresAddress)
         }

@@ -184,11 +184,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cNewFloatArray(
 
 /*
  * Class:     com_intel_oap_mllib_OneDAL__
- * Method:    cCopyDoubleArrayToNative
+ * Method:    cCopyFloatArrayToNative
  * Signature: (J[DJ)V
  */
 JNIEXPORT void JNICALL
-Java_com_intel_oap_mllib_OneDAL_00024_cCopyDoubleArrayToNative(
+Java_com_intel_oap_mllib_OneDAL_00024_cCopyFloatArrayToNative(
     JNIEnv *env, jobject, jlong nativeArrayPtr, jdoubleArray sourceArray,
     jlong index) {
     float *nativeArray = reinterpret_cast<float *>(nativeArrayPtr);
