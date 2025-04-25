@@ -193,8 +193,8 @@ Java_com_intel_oap_mllib_OneDAL_00024_cCopyFloatArrayToNative(
     jlong index) {
     float *nativeArray = reinterpret_cast<float *>(nativeArrayPtr);
     jsize sourceLength = env->GetArrayLength(sourceArray);
-    jfloat *source = static_cast<jfloat *>(
+    jdouble *source = static_cast<jdouble *>(
         env->GetPrimitiveArrayCritical(sourceArray, NULL));
-    std::copy(source, source + sourceLength, nativeArray + index);
-    env->ReleasePrimitiveArrayCritical(sourceArray, source, 0);
+    std::transform(source, source + sourceLength, nativeArray + index, [](double d) { return static_cast<float>(d); });
+    env->ReleasePrimitiveArrayCritical(sourceArray, source, JNI_ABORT);
 }
