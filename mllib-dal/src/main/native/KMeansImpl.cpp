@@ -262,13 +262,18 @@ static jlong doKMeansOneAPICompute(
     auto t1 = std::chrono::high_resolution_clock::now();
     kmeans_gpu::train_result result_train =
         preview::train(comm, kmeans_desc, local_input);
+    auto t2 = std::chrono::high_resolution_clock::now();
+    float duration = std::chrono::duration<float>(t2 - t1).count();
+    logger::println(logger::INFO,
+                    "KMeans (native): training step 1 took %f secs",
+                    duration);
     if (isRoot) {
         HomogenTablePtr centroidsPtr = std::make_shared<homogen_table>(
             result_train.get_model().get_centroids());
-        auto t2 = std::chrono::high_resolution_clock::now();
-        float duration = std::chrono::duration<float>(t2 - t1).count();
+        t2 = std::chrono::high_resolution_clock::now();
+        duration = std::chrono::duration<float>(t2 - t1).count();
         logger::println(logger::INFO,
-                        "KMeans (native): training step took %f secs",
+                        "KMeans (native): training step 2 took %f secs",
                         duration);
         logger::println(logger::INFO, "Iteration count: %d",
                         result_train.get_iteration_count());

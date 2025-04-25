@@ -27,14 +27,14 @@ using namespace daal::data_management;
 extern bool daal_check_is_intel_cpu();
 
 // Define a global native array
-typedef std::shared_ptr<double[]> NativeDoubleArrayPtr;
+typedef std::shared_ptr<float[]> NativeFloatArrayPtr;
 
 std::mutex g_amtx;
-std::vector<NativeDoubleArrayPtr> g_NativeDoubleArrayPtrVector;
+std::vector<NativeFloatArrayPtr> g_NativeFloatArrayPtrVector;
 
-void saveDoubleArrayPtrToVector(const NativeDoubleArrayPtr &ptr) {
+void saveFloatArrayPtrToVector(const NativeFloatArrayPtr &ptr) {
     g_amtx.lock();
-    g_NativeDoubleArrayPtrVector.push_back(ptr);
+    g_NativeFloatArrayPtrVector.push_back(ptr);
     g_amtx.unlock();
 }
 
@@ -174,11 +174,11 @@ Java_com_intel_oap_mllib_OneDAL_00024_cNewCSRNumericTableDouble(
  * Method:    cNewDoubleArray
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cNewDoubleArray(
+JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cNewFloatArray(
     JNIEnv *env, jobject, jlong size) {
-    NativeDoubleArrayPtr arrayPtr(new double[size],
-                                  [](double *ptr) { delete[] ptr; });
-    saveDoubleArrayPtrToVector(arrayPtr);
+    NativeFloatArrayPtr arrayPtr(new float[size],
+                                  [](float *ptr) { delete[] ptr; });
+    saveFloatArrayPtrToVector(arrayPtr);
     return (jlong)arrayPtr.get();
 }
 
@@ -191,9 +191,9 @@ JNIEXPORT void JNICALL
 Java_com_intel_oap_mllib_OneDAL_00024_cCopyDoubleArrayToNative(
     JNIEnv *env, jobject, jlong nativeArrayPtr, jdoubleArray sourceArray,
     jlong index) {
-    double *nativeArray = reinterpret_cast<double *>(nativeArrayPtr);
+    float *nativeArray = reinterpret_cast<float *>(nativeArrayPtr);
     jsize sourceLength = env->GetArrayLength(sourceArray);
-    jdouble *source = static_cast<jdouble *>(
+    jfloat *source = static_cast<jfloat *>(
         env->GetPrimitiveArrayCritical(sourceArray, NULL));
     std::copy(source, source + sourceLength, nativeArray + index);
     env->ReleasePrimitiveArrayCritical(sourceArray, source, 0);

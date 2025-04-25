@@ -65,10 +65,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cNewCSRNumericTabl
 
 /*
  * Class:     com_intel_oap_mllib_OneDAL__
- * Method:    cNewDoubleArray
+ * Method:    cNewFloatArray
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cNewDoubleArray
+JNIEXPORT jlong JNICALL Java_com_intel_oap_mllib_OneDAL_00024_cNewFloatArray
   (JNIEnv *, jobject, jlong);
 
 /*

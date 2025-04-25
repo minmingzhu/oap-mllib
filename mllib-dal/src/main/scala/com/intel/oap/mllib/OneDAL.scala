@@ -284,17 +284,17 @@ object OneDAL {
                        device: Common.ComputeDevice): HomogenTable = {
     val numCols = arrayVectors.head.size
     val numRows: Int = arrayVectors.size
-    val arrayDouble = new Array[Double](numRows * numCols)
+    val arrayFloat = new Array[Float](numRows * numCols)
     var index = 0
     for( vector: OldVector <- arrayVectors) {
       for (i <- 0 until vector.toArray.length ) {
-        arrayDouble(index) = vector(i)
+        arrayFloat(index) = vector(i).toFloat
         if (index < (numRows * numCols)) {
           index = index + 1
         }
       }
     }
-    val table = new HomogenTable(numRows.toLong, numCols.toLong, arrayDouble,
+    val table = new HomogenTable(numRows.toLong, numCols.toLong, arrayFloat,
       device)
     table
   }
@@ -633,7 +633,7 @@ object OneDAL {
       val numRows = list.size
       val numCols = list(0).toArray.size
       val size = numRows.toLong * numCols.toLong
-      val targetArrayAddress = OneDAL.cNewDoubleArray(size)
+      val targetArrayAddress = OneDAL.cNewFloatArray(size)
       for ( i <- 0 until numberCores) {
         val f = Future {
           val iter = list.iterator
@@ -644,7 +644,7 @@ object OneDAL {
           }
           slice.toArray.zipWithIndex.map { case (vector, index) =>
             val length = vector.toArray.length
-            OneDAL.cCopyDoubleArrayToNative(targetArrayAddress, vector.toArray, subRowCount.toLong * numCols * i + length * index)
+            OneDAL.cCopyFloatArrayToNative(targetArrayAddress, vector.toArray, subRowCount.toLong * numCols * i + length * index)
           }
           targetArrayAddress
         }
@@ -761,9 +761,9 @@ object OneDAL {
                                         colIndices: Array[Long], rowOffsets: Array[Long],
                                         nFeatures: Long, nVectors: Long): Long
 
-  @native def cNewDoubleArray(size: Long): Long
+  @native def cNewFloatArray(size: Long): Long
 
-  @native def cCopyDoubleArrayToNative(arrayAddr: Long,
+  @native def cCopyFloatArrayToNative(arrayAddr: Long,
                                  data: Array[Double],
                                  index: Long): Unit
 }
