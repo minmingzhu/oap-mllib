@@ -250,7 +250,7 @@ static jlong doKMeansOneAPICompute(
     auto queue = comm.get_queue();
     float *htableArray = reinterpret_cast<float *>(pNumTabData);
     auto data = sycl::malloc_shared<float>(numRows * numCols, queue);
-    queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
+    queue.memcpy(data, htableArray, sizeof(float) * numRows * numCols).wait();
     homogen_table htable{queue, data, numRows, numCols,
                          detail::make_default_delete<const float>(queue)};
 //    homogen_table htable = *reinterpret_cast<homogen_table *>(
