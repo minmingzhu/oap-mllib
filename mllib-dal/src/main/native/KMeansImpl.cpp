@@ -247,6 +247,7 @@ static jlong doKMeansOneAPICompute(
     jobject resultObj) {
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
+    auto queue = comm.get_queue();
     float *htableArray = reinterpret_cast<float *>(pNumTabData);
     auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
     queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
