@@ -21,6 +21,8 @@
 #ifdef CPU_GPU_PROFILE
 #include "Common.hpp"
 #include "oneapi/dal/algo/kmeans.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
+#include "oneapi/dal/array.hpp"
 #endif
 
 #include "Logger.h"
@@ -249,10 +251,17 @@ static jlong doKMeansOneAPICompute(
     const bool isRoot = (comm.get_rank() == ccl_root);
     auto queue = comm.get_queue();
     float *htableArray = reinterpret_cast<float *>(pNumTabData);
-    auto data = sycl::malloc_shared<float>(numRows * numCols, queue);
-    queue.memcpy(data, htableArray, sizeof(float) * numRows * numCols).wait();
-    homogen_table htable{queue, data, numRows, numCols,
-                         detail::make_default_delete<const float>(queue)};
+//    auto data = sycl::malloc_shared<float>(numRows * numCols, queue);
+//    queue.memcpy(data, htableArray, sizeof(float) * numRows * numCols).wait();
+    auto arr = oneapi::dal::array<float>::empty(queue, numRows * numCols, sycl::usm::alloc::device);
+    memcpy_host2usm(queue,
+                                 arr.get_mutable_data(),
+                                 htableArray,
+                                 sizeof(float) * numRows * numCols);
+    homogen_table htable = homogen_table_builder{}.reset(arr, numRows, numCols).build();
+//    homogen_table htable{queue, data, numRows, numCols,
+//                         detail::make_default_delete<const float>(queue)};
+
 //    homogen_table htable = *reinterpret_cast<homogen_table *>(
 //        createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
 //                                       comm.get_queue())
