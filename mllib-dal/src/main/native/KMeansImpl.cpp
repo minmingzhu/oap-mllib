@@ -310,10 +310,10 @@ static jlong doKMeansOneAPICompute(
 //    homogen_table htable{queue, data, numRows, numCols,
 //                         detail::make_default_delete<const float>(queue)};
 
-//    homogen_table htable = *reinterpret_cast<homogen_table *>(
-//        createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
-//                                       comm.get_queue())
-//            .get());
+    homogen_table htable = *reinterpret_cast<homogen_table *>(
+        createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
+                                       comm.get_queue())
+            .get());
 //    homogen_table centroids =
 //        *reinterpret_cast<const homogen_table *>(pNumTabCenters);
 
@@ -322,9 +322,9 @@ static jlong doKMeansOneAPICompute(
     const auto initial_centroids_file_name = get_data_path(pathCentroids.append(path).append("/../kmeans_centroids/kmeans_dense_train_centroids.csv"));
     const auto initial_centroids =
         dal::read<dal::table>(dal::csv::data_source{ initial_centroids_file_name });
-    auto input_vec = get_file_path(path);
-    const auto train_data_file_name = get_data_path(input_vec[0]);
-    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
+//    auto input_vec = get_file_path(path);
+//    const auto train_data_file_name = get_data_path(input_vec[0]);
+//    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
     logger::println(logger::INFO,
                     "OneDAL (native): data size %d x %d", numRows, numCols);
     logger::println(logger::INFO, "OneDAL (native): clusterNum %d", clusterNum);
