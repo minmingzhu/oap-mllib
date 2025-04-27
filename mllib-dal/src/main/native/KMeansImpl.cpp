@@ -247,10 +247,15 @@ static jlong doKMeansOneAPICompute(
     jobject resultObj) {
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
-    homogen_table htable = *reinterpret_cast<homogen_table *>(
-        createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
-                                       comm.get_queue())
-            .get());
+    float *htableArray = reinterpret_cast<float *>(pNumTabData);
+    auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
+    queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
+    homogen_table htable{queue, data, numRows, numClos,
+                         detail::make_default_delete<const float>(queue)};
+//    homogen_table htable = *reinterpret_cast<homogen_table *>(
+//        createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
+//                                       comm.get_queue())
+//            .get());
     homogen_table centroids =
         *reinterpret_cast<const homogen_table *>(pNumTabCenters);
     const auto kmeans_desc = kmeans_gpu::descriptor<GpuAlgorithmFPType>()
