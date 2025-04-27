@@ -17,12 +17,16 @@
 #include <chrono>
 #include <iomanip>
 #include <iostream>
+#include <filesystem>
+#include <vector>
+
 
 #ifdef CPU_GPU_PROFILE
 #include "Common.hpp"
 #include "oneapi/dal/algo/kmeans.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/array.hpp"
+#include "oneapi/dal/io/csv.hpp"
 #endif
 
 #include "Logger.h"
@@ -33,6 +37,8 @@
 using namespace std;
 #ifdef CPU_GPU_PROFILE
 namespace kmeans_gpu = oneapi::dal::kmeans;
+namespace dal = oneapi::dal;
+namespace fs = std::filesystem;
 #endif
 using namespace daal;
 using namespace daal::services;
@@ -242,6 +248,48 @@ static jlong doKMeansDaalCompute(JNIEnv *env, jobject obj, size_t rankId,
 }
 
 #ifdef CPU_GPU_PROFILE
+inline bool check_file(const std::string& name) {
+    return std::ifstream{ name }.good();
+}
+
+inline std::string get_data_path(const std::string& name) {
+    const std::vector<std::string> paths = { "./data", "samples/oneapi/dpc/mpi/data" };
+
+    for (const auto& path : paths) {
+        const std::string try_path = path + "/" + name;
+        if (check_file(try_path)) {
+            return try_path;
+        }
+    }
+
+    return name;
+}
+
+std::vector<std::string> get_file_path(const std::string& path) {
+    std::vector<std::string> result;
+    std::error_code ec; // Error code for handling errors
+    try {
+        for (const auto& file : fs::directory_iterator(path, ec)) {
+            if (ec) {
+                std::cerr << "Error accessing " << path << ": " << ec.message() << std::endl;
+                break; // Exit loop on error
+            }
+            if (fs::is_empty(file.path())) {
+                continue;
+            } else if (file.path().extension() == ".crc" || file.path().extension().empty()) {
+                continue;
+            } else {
+                result.push_back(file.path().string()); // Convert path to string before pushing back
+            }
+        }
+    } catch (const std::bad_alloc& e) {
+        std::cerr << "Memory allocation failed: " << e.what() << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+    }
+
+    return result;
+}
 static jlong doKMeansOneAPICompute(
     JNIEnv *env, jlong pNumTabData, jlong numRows, jlong numCols,
     jlong pNumTabCenters, jint clusterNum, jdouble tolerance, jint iterationNum,
@@ -250,15 +298,15 @@ static jlong doKMeansOneAPICompute(
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
     auto queue = comm.get_queue();
-    float *htableArray = reinterpret_cast<float *>(pNumTabData);
+//    float *htableArray = reinterpret_cast<float *>(pNumTabData);
 //    auto data = sycl::malloc_shared<float>(numRows * numCols, queue);
 //    queue.memcpy(data, htableArray, sizeof(float) * numRows * numCols).wait();
-    auto arr = oneapi::dal::array<float>::empty(queue, numRows * numCols, sycl::usm::alloc::device);
-    memcpy_host2usm(queue,
-                                 arr.get_mutable_data(),
-                                 htableArray,
-                                 sizeof(float) * numRows * numCols);
-    homogen_table htable = homogen_table_builder{}.reset(arr, numRows, numCols).build();
+//    auto arr = oneapi::dal::array<float>::empty(queue, numRows * numCols, sycl::usm::alloc::device);
+//    memcpy_host2usm(queue,
+//                                 arr.get_mutable_data(),
+//                                 htableArray,
+//                                 sizeof(float) * numRows * numCols);
+//    homogen_table htable = homogen_table_builder{}.reset(arr, numRows, numCols).build();
 //    homogen_table htable{queue, data, numRows, numCols,
 //                         detail::make_default_delete<const float>(queue)};
 
@@ -266,13 +314,29 @@ static jlong doKMeansOneAPICompute(
 //        createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
 //                                       comm.get_queue())
 //            .get());
-    homogen_table centroids =
-        *reinterpret_cast<const homogen_table *>(pNumTabCenters);
+//    homogen_table centroids =
+//        *reinterpret_cast<const homogen_table *>(pNumTabCenters);
+
+    string pathCentroids;
+    string path = "/home/damon/storage/DataRoot/HiBench_CSV/Kmeans/Input/18000000/";
+    const auto initial_centroids_file_name = get_data_path(pathCentroids.append(path).append("/../kmeans_centroids/kmeans_dense_train_centroids.csv"));
+    const auto initial_centroids =
+        dal::read<dal::table>(dal::csv::data_source{ initial_centroids_file_name });
+    auto input_vec = get_file_path(path);
+    const auto train_data_file_name = get_data_path(input_vec[0]);
+    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
+    logger::println(logger::INFO,
+                    "OneDAL (native): data size %d x %d", numRows, numCols);
+    logger::println(logger::INFO, "OneDAL (native): clusterNum %d", clusterNum);
+    logger::println(logger::INFO, "OneDAL (native): tolerance %f", tolerance);
+    logger::println(logger::INFO, "OneDAL (native): iterationNum %d",
+                    iterationNum);
     const auto kmeans_desc = kmeans_gpu::descriptor<GpuAlgorithmFPType>()
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
                                  .set_accuracy_threshold(tolerance);
-    kmeans_gpu::train_input local_input{htable, centroids};
+//    kmeans_gpu::train_input local_input{htable, centroids};
+    kmeans_gpu::train_input local_input{x_train, initial_centroids};
     comm.barrier();
     auto t1 = std::chrono::high_resolution_clock::now();
     kmeans_gpu::train_result result_train =
