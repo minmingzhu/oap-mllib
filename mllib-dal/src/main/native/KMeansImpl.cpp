@@ -249,9 +249,9 @@ static jlong doKMeansOneAPICompute(
     const bool isRoot = (comm.get_rank() == ccl_root);
     auto queue = comm.get_queue();
     float *htableArray = reinterpret_cast<float *>(pNumTabData);
-    auto data = sycl::malloc_shared<float>(numRows * numClos, queue);
+    auto data = sycl::malloc_shared<float>(numRows * numCols, queue);
     queue.memcpy(data, htableArray, sizeof(float) * numRows * numClos).wait();
-    homogen_table htable{queue, data, numRows, numClos,
+    homogen_table htable{queue, data, numRows, numCols,
                          detail::make_default_delete<const float>(queue)};
 //    homogen_table htable = *reinterpret_cast<homogen_table *>(
 //        createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
