@@ -76,8 +76,8 @@ typedef std::shared_ptr<homogen_table> HomogenTablePtr;
 typedef std::shared_ptr<csr_table> CSRTablePtr;
 
 void saveHomogenTablePtrToVector(const HomogenTablePtr &ptr);
-HomogenTablePtr createHomogenTableWithArrayPtr(size_t pNumTabData,
-                                               size_t numRows, size_t numClos,
+homogen_table createHomogenTableWithArrayPtr(size_t pNumTabData,
+                                               size_t numRows, size_t numCols,
                                                sycl::queue queue);
 CSRNumericTable *createFloatSparseTable(const std::string &datasetFileName);
 void saveCSRTablePtrToVector(const CSRTablePtr &ptr);

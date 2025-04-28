@@ -225,14 +225,18 @@ static jlong doLROneAPICompute(
     const bool isRoot = (rankId == ccl_root);
     bool fitIntercept = bool(jfitIntercept);
 
-    homogen_table xtrain = *reinterpret_cast<homogen_table *>(
-        createHomogenTableWithArrayPtr(pNumTabFeature, featureRows, featureCols,
-                                       comm.get_queue())
-            .get());
-    homogen_table ytrain = *reinterpret_cast<homogen_table *>(
-        createHomogenTableWithArrayPtr(pNumTabLabel, featureRows, labelCols,
-                                       comm.get_queue())
-            .get());
+    auto xtrain = createHomogenTableWithArrayPtr(pNumTabFeature, featureRows, featureCols,
+                                       comm.get_queue());
+    auto ytrain = createHomogenTableWithArrayPtr(pNumTabLabel, featureRows, labelCols,
+                                   comm.get_queue());
+//    homogen_table xtrain = *reinterpret_cast<homogen_table *>(
+//        createHomogenTableWithArrayPtr(pNumTabFeature, featureRows, featureCols,
+//                                       comm.get_queue())
+//            .get());
+//    homogen_table ytrain = *reinterpret_cast<homogen_table *>(
+//        createHomogenTableWithArrayPtr(pNumTabLabel, featureRows, labelCols,
+//                                       comm.get_queue())
+//            .get());
 
     linear_regression_gpu::train_input local_input{xtrain, ytrain};
     const auto linear_regression_desc =

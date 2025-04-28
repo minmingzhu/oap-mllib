@@ -181,11 +181,12 @@ static void doPCAOneAPICompute(
     jobject resultObj) {
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
-    homogen_table htable = *reinterpret_cast<homogen_table *>(
-        createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
-                                       comm.get_queue())
-            .get());
-
+//    homogen_table htable = *reinterpret_cast<homogen_table *>(
+//        createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
+//                                       comm.get_queue())
+//            .get());
+    auto htable = createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
+                                       comm.get_queue());
     const auto cov_desc =
         covariance_gpu::descriptor<GpuAlgorithmFPType>{}.set_result_options(
             covariance_gpu::result_options::cov_matrix);

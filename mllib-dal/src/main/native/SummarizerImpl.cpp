@@ -202,11 +202,12 @@ static void doSummarizerOneAPICompute(
     jobject resultObj) {
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
-    homogen_table htable = *reinterpret_cast<homogen_table *>(
-        createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
-                                       comm.get_queue())
-            .get());
-
+//    homogen_table htable = *reinterpret_cast<homogen_table *>(
+//        createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
+//                                       comm.get_queue())
+//            .get());
+    auto htable = createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
+                                       comm.get_queue());
     const auto bs_desc = basic_statistics::descriptor<GpuAlgorithmFPType>{};
     comm.barrier();
     auto t1 = std::chrono::high_resolution_clock::now();

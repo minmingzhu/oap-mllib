@@ -216,14 +216,18 @@ static jobject doRFRegressorOneAPICompute(
     jobject resultObj) {
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
-    homogen_table hFeaturetable = *reinterpret_cast<homogen_table *>(
-        createHomogenTableWithArrayPtr(pNumTabFeature, featureRows, featureCols,
-                                       comm.get_queue())
-            .get());
-    homogen_table hLabeltable = *reinterpret_cast<homogen_table *>(
-        createHomogenTableWithArrayPtr(pNumTabLabel, featureRows, labelCols,
-                                       comm.get_queue())
-            .get());
+//    homogen_table hFeaturetable = *reinterpret_cast<homogen_table *>(
+//        createHomogenTableWithArrayPtr(pNumTabFeature, featureRows, featureCols,
+//                                       comm.get_queue())
+//            .get());
+//    homogen_table hLabeltable = *reinterpret_cast<homogen_table *>(
+//        createHomogenTableWithArrayPtr(pNumTabLabel, featureRows, labelCols,
+//                                       comm.get_queue())
+//            .get());
+    auto hFeaturetable = createHomogenTableWithArrayPtr(pNumTabFeature, featureRows, featureCols,
+                                   comm.get_queue());
+    auto hLabeltable = createHomogenTableWithArrayPtr(pNumTabLabel, featureRows, labelCols,
+                                   comm.get_queue());
     const auto df_desc =
         df::descriptor<GpuAlgorithmFPType, df::method::hist,
                        df::task::regression>{}

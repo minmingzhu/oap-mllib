@@ -313,34 +313,37 @@ static jlong doKMeansOneAPICompute(
 //        createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
 //                                       comm.get_queue())
 //            .get());
+
+    auto htable = createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
+                                       comm.get_queue());
     homogen_table centroids =
         *reinterpret_cast<const homogen_table *>(pNumTabCenters);
 
-    string pathCentroids;
-    string path = "/home/damon/storage/DataRoot/HiBench_CSV/Kmeans/Input/18000000/";
-    const auto initial_centroids_file_name = get_data_path(pathCentroids.append(path).append("/../kmeans_centroids/kmeans_dense_train_centroids.csv"));
-    const auto initial_centroids =
-        dal::read<dal::table>(dal::csv::data_source{ initial_centroids_file_name });
+//    string pathCentroids;
+//    string path = "/home/damon/storage/DataRoot/HiBench_CSV/Kmeans/Input/18000000/";
+//    const auto initial_centroids_file_name = get_data_path(pathCentroids.append(path).append("/../kmeans_centroids/kmeans_dense_train_centroids.csv"));
+//    const auto initial_centroids =
+//        dal::read<dal::table>(dal::csv::data_source{ initial_centroids_file_name });
 //    auto input_vec = get_file_path(path);
 //    const auto train_data_file_name = get_data_path(input_vec[0]);
 //    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
 //    const auto block =
 //            dal::row_accessor<const float>{ x_train }.pull(queue, { 0, -1 }, sycl::usm::alloc::device);
-    auto htable = dal::homogen_table::wrap(data,
-                                          numRows,
-                                          numCols);
-    logger::println(logger::INFO,
-                    "OneDAL (native): data size %d x %d", htable.get_row_count(), htable.get_column_count());
-    logger::println(logger::INFO, "OneDAL (native): clusterNum %d", clusterNum);
-    logger::println(logger::INFO, "OneDAL (native): tolerance %f", tolerance);
-    logger::println(logger::INFO, "OneDAL (native): iterationNum %d",
-                    iterationNum);
+//    auto htable = dal::homogen_table::wrap(data,
+//                                          numRows,
+//                                          numCols);
+//    logger::println(logger::INFO,
+//                    "OneDAL (native): data size %d x %d", htable.get_row_count(), htable.get_column_count());
+//    logger::println(logger::INFO, "OneDAL (native): clusterNum %d", clusterNum);
+//    logger::println(logger::INFO, "OneDAL (native): tolerance %f", tolerance);
+//    logger::println(logger::INFO, "OneDAL (native): iterationNum %d",
+//                    iterationNum);
     const auto kmeans_desc = kmeans_gpu::descriptor<GpuAlgorithmFPType>()
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
                                  .set_accuracy_threshold(tolerance);
 //    kmeans_gpu::train_input local_input{htable, centroids};
-    kmeans_gpu::train_input local_input{htable, initial_centroids};
+    kmeans_gpu::train_input local_input{htable, centroids};
     comm.barrier();
     auto t1 = std::chrono::high_resolution_clock::now();
     kmeans_gpu::train_result result_train =
