@@ -316,14 +316,14 @@ static jlong doKMeansOneAPICompute(
 
     auto htable = createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
                                        comm.get_queue());
-    homogen_table centroids =
-        *reinterpret_cast<const homogen_table *>(pNumTabCenters);
+//    homogen_table centroids =
+//        *reinterpret_cast<const homogen_table *>(pNumTabCenters);
 
-//    string pathCentroids;
-//    string path = "/home/damon/storage/DataRoot/HiBench_CSV/Kmeans/Input/18000000/";
-//    const auto initial_centroids_file_name = get_data_path(pathCentroids.append(path).append("/../kmeans_centroids/kmeans_dense_train_centroids.csv"));
-//    const auto initial_centroids =
-//        dal::read<dal::table>(dal::csv::data_source{ initial_centroids_file_name });
+    string pathCentroids;
+    string path = "/home/damon/storage/DataRoot/HiBench_CSV/Kmeans/Input/18000000/";
+    const auto initial_centroids_file_name = get_data_path(pathCentroids.append(path).append("/../kmeans_centroids/kmeans_dense_train_centroids.csv"));
+    const auto initial_centroids =
+        dal::read<dal::table>(dal::csv::data_source{ initial_centroids_file_name });
 //    auto input_vec = get_file_path(path);
 //    const auto train_data_file_name = get_data_path(input_vec[0]);
 //    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
@@ -343,7 +343,7 @@ static jlong doKMeansOneAPICompute(
                                  .set_max_iteration_count(iterationNum)
                                  .set_accuracy_threshold(tolerance);
 //    kmeans_gpu::train_input local_input{htable, centroids};
-    kmeans_gpu::train_input local_input{htable, centroids};
+    kmeans_gpu::train_input local_input{htable, initial_centroids};
     comm.barrier();
     auto t1 = std::chrono::high_resolution_clock::now();
     kmeans_gpu::train_result result_train =
