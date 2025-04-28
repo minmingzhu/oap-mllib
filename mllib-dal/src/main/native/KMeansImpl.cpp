@@ -298,14 +298,14 @@ static jlong doKMeansOneAPICompute(
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
     auto queue = comm.get_queue();
-//    float *htableArray = reinterpret_cast<float *>(pNumTabData);
+    float *htableArray = reinterpret_cast<float *>(pNumTabData);
 //    auto arr = oneapi::dal::array<float>::empty(queue, numRows * numCols, sycl::usm::alloc::device);
 //    memcpy_host2usm(queue,
 //                    arr.get_mutable_data(),
 //                    htableArray,
 //                    sizeof(float) * numRows * numCols);
-//    auto data = sycl::malloc_shared<float>(numRows * numCols, queue);
-//    queue.memcpy(data, htableArray, sizeof(float) * numRows * numCols).wait();
+    auto data = sycl::malloc_shared<float>(numRows * numCols, queue);
+    queue.memcpy(data, htableArray, sizeof(float) * numRows * numCols).wait();
 //    homogen_table htable = homogen_table_builder{}.reset(arr, numRows, numCols).build();
 //    homogen_table htable = homogen_table::wrap(queue, data, numRows , numCols);
 //
@@ -313,11 +313,11 @@ static jlong doKMeansOneAPICompute(
 //        createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
 //                                       comm.get_queue())
 //            .get());
-
-    auto htable = createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
-                                       comm.get_queue());
-    auto centroids = createHomogenTableWithArrayPtr(pNumTabCenters, numCols, numCols,
-                                       comm.get_queue());
+//
+//    auto htable = createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
+//                                       comm.get_queue());
+//    auto centroids = createHomogenTableWithArrayPtr(pNumTabCenters, numCols, numCols,
+//                                       comm.get_queue());
 //    homogen_table centroids =
 //        *reinterpret_cast<const homogen_table *>(pNumTabCenters);
 
@@ -331,9 +331,17 @@ static jlong doKMeansOneAPICompute(
 //    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
 //    const auto block =
 //            dal::row_accessor<const float>{ x_train }.pull(queue, { 0, -1 }, sycl::usm::alloc::device);
-//    auto htable = dal::homogen_table::wrap(data,
-//                                          numRows,
-//                                          numCols);
+    auto htable = dal::homogen_table::wrap(data,
+                                          numRows,
+                                          numCols);
+    float *ctableArray = reinterpret_cast<float *>(pNumTabCenters);
+    auto centers = sycl::malloc_shared<float>(numRows * numCols, queue);
+    queue.memcpy(centers, ctableArray, sizeof(float) * numRows * numCols).wait();
+    auto centroids = dal::homogen_table::wrap(centers,
+                                              numCols,
+                                              numCols);
+
+
 //    logger::println(logger::INFO,
 //                    "OneDAL (native): data size %d x %d", htable.get_row_count(), htable.get_column_count());
 //    logger::println(logger::INFO, "OneDAL (native): clusterNum %d", clusterNum);
