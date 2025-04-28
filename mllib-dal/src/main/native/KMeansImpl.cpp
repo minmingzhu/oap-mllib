@@ -298,16 +298,16 @@ static jlong doKMeansOneAPICompute(
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
     auto queue = comm.get_queue();
-    float *htableArray = reinterpret_cast<float *>(pNumTabData);
+//    float *htableArray = reinterpret_cast<float *>(pNumTabData);
 //    auto arr = oneapi::dal::array<float>::empty(queue, numRows * numCols, sycl::usm::alloc::device);
 //    memcpy_host2usm(queue,
 //                    arr.get_mutable_data(),
 //                    htableArray,
 //                    sizeof(float) * numRows * numCols);
-    auto data = sycl::malloc_shared<float>(numRows * numCols, queue);
-    queue.memcpy(data, htableArray, sizeof(float) * numRows * numCols).wait();
+//    auto data = sycl::malloc_shared<float>(numRows * numCols, queue);
+//    queue.memcpy(data, htableArray, sizeof(float) * numRows * numCols).wait();
 //    homogen_table htable = homogen_table_builder{}.reset(arr, numRows, numCols).build();
-    homogen_table htable = homogen_table::wrap(queue, data, numRows , numCols);
+//    homogen_table htable = homogen_table::wrap(queue, data, numRows , numCols);
 //
 //    homogen_table htable = *reinterpret_cast<homogen_table *>(
 //        createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
@@ -316,14 +316,15 @@ static jlong doKMeansOneAPICompute(
     homogen_table centroids =
         *reinterpret_cast<const homogen_table *>(pNumTabCenters);
 
-//    string pathCentroids;
-//    string path = "/home/damon/storage/DataRoot/HiBench_CSV/Kmeans/Input/18000000/";
+    string pathCentroids;
+    string path = "/home/damon/storage/DataRoot/HiBench_CSV/Kmeans/Input/18000000/";
 //    const auto initial_centroids_file_name = get_data_path(pathCentroids.append(path).append("/../kmeans_centroids/kmeans_dense_train_centroids.csv"));
 //    const auto initial_centroids =
 //        dal::read<dal::table>(dal::csv::data_source{ initial_centroids_file_name });
-//    auto input_vec = get_file_path(path);
-//    const auto train_data_file_name = get_data_path(input_vec[0]);
-//    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
+    auto input_vec = get_file_path(path);
+    const auto train_data_file_name = get_data_path(input_vec[0]);
+    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
+    auto htable = dal::homogen_table::wrap(queue, x_train.get_data(), numRows, numCols);
     logger::println(logger::INFO,
                     "OneDAL (native): data size %d x %d", htable.get_row_count(), htable.get_column_count());
     logger::println(logger::INFO, "OneDAL (native): clusterNum %d", clusterNum);
