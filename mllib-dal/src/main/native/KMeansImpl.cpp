@@ -336,20 +336,16 @@ static jlong doKMeansOneAPICompute(
                     arr.get_mutable_data(),
                     htableArray,
                     sizeof(float) * numRows * numCols);
-    auto htable = dal::homogen_table::wrap(arr,
-                                          numRows,
-                                          numCols);
+    auto htable = homogen_table_builder{}.reset(arr, numRows, numCols).build();
     float *ctableArray = reinterpret_cast<float *>(pNumTabCenters);
 //    auto centers = sycl::malloc_shared<float>(numCols * numCols, queue);
 //    queue.memcpy(centers, ctableArray, sizeof(float) * numCols * numCols).wait();
-    auto centers = oneapi::dal::array<float>::empty(queue, numRows * numCols, sycl::usm::alloc::device);
+    auto centers = oneapi::dal::array<float>::empty(queue, numCols * numCols, sycl::usm::alloc::device);
     memcpy_host2usm(queue,
                     centers.get_mutable_data(),
                     ctableArray,
-                    sizeof(float) * numRows * numCols);
-    auto centroids = dal::homogen_table::wrap(centers,
-                                              numCols,
-                                              numCols);
+                    sizeof(float) * numCols * numCols);
+    auto centroids = homogen_table_builder{}.reset(centers, numCols, numCols).build();
 
 
 //    logger::println(logger::INFO,
