@@ -325,8 +325,8 @@ static jlong doKMeansOneAPICompute(
 //    auto input_vec = get_file_path(path);
 //    const auto train_data_file_name = get_data_path(input_vec[0]);
 //    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
-    logger::println(logger::INFO,
-                    "OneDAL (native): data size %d x %d", numRows, numCols);
+//    logger::println(logger::INFO,
+//                    "OneDAL (native): data size %d x %d", x_train.get_row_count(), x_train.get_column_count());
     logger::println(logger::INFO, "OneDAL (native): clusterNum %d", clusterNum);
     logger::println(logger::INFO, "OneDAL (native): tolerance %f", tolerance);
     logger::println(logger::INFO, "OneDAL (native): iterationNum %d",
