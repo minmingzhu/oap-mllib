@@ -316,7 +316,7 @@ static jlong doKMeansOneAPICompute(
 
     auto htable = createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
                                        comm.get_queue());
-    auto centroids = createHomogenTableWithArrayPtr(pNumTabCenters, 1, numCols,
+    auto centroids = createHomogenTableWithArrayPtr(pNumTabCenters, numCols, numCols,
                                        comm.get_queue());
 //    homogen_table centroids =
 //        *reinterpret_cast<const homogen_table *>(pNumTabCenters);
