@@ -299,6 +299,16 @@ object OneDAL {
     table
   }
 
+  def makeNativeFloatArray(arrayVectors: Array[OldVector]): Long = {
+    val numCols = arrayVectors.head.size
+    val numRows: Int = arrayVectors.size
+    val targetArrayAddress = OneDAL.cNewFloatArray(numRows * numCols)
+    arrayVectors.zipWithIndex.map { case (vector, index) =>
+      OneDAL.cCopyFloatArrayToNative(targetArrayAddress, vector.toArray, numCols * index)
+    }
+    targetArrayAddress
+  }
+
   private[mllib] def doubleArrayToHomogenTable(
       points: Array[Double],
       device: Common.ComputeDevice): HomogenTable = {

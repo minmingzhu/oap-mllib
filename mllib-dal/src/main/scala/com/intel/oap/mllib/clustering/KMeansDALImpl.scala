@@ -72,7 +72,7 @@ class KMeansDALImpl(var nClusters: Int,
       }
 
       val initCentroids = if (useDevice == "GPU") {
-        OneDAL.makeHomogenTable(centers, computeDevice).getcObejct()
+        OneDAL.makeNativeFloatArray(centers)
       } else {
         OneDAL.makeNumericTable(centers).getCNumericTable
       }
