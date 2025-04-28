@@ -324,7 +324,11 @@ static jlong doKMeansOneAPICompute(
     auto input_vec = get_file_path(path);
     const auto train_data_file_name = get_data_path(input_vec[0]);
     const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
-    auto htable = dal::homogen_table::wrap(queue, x_train.get_data(), numRows, numCols);
+    const auto block =
+            dal::row_accessor<const float>{ x_train }.pull(queue, { 0, -1 }, sycl::usm::alloc::device);
+    auto htable = dal::homogen_table::wrap(block,
+                                          x_train.get_row_count(),
+                                          x_train.get_column_count());
     logger::println(logger::INFO,
                     "OneDAL (native): data size %d x %d", htable.get_row_count(), htable.get_column_count());
     logger::println(logger::INFO, "OneDAL (native): clusterNum %d", clusterNum);
