@@ -299,13 +299,15 @@ static jlong doKMeansOneAPICompute(
     const bool isRoot = (comm.get_rank() == ccl_root);
     auto queue = comm.get_queue();
     float *htableArray = reinterpret_cast<float *>(pNumTabData);
-    auto arr = oneapi::dal::array<float>::empty(queue, numRows * numCols, sycl::usm::alloc::device);
-    memcpy_host2usm(queue,
-                    arr.get_mutable_data(),
-                    htableArray,
-                    sizeof(float) * numRows * numCols);
-    homogen_table htable = homogen_table_builder{}.reset(arr, numRows, numCols).build();
-
+//    auto arr = oneapi::dal::array<float>::empty(queue, numRows * numCols, sycl::usm::alloc::device);
+//    memcpy_host2usm(queue,
+//                    arr.get_mutable_data(),
+//                    htableArray,
+//                    sizeof(float) * numRows * numCols);
+    auto data = sycl::malloc_shared<float>(numRows * numCols, queue);
+    queue.memcpy(data, htableArray, sizeof(float) * numRows * numCols).wait();
+//    homogen_table htable = homogen_table_builder{}.reset(arr, numRows, numCols).build();
+    homogen_table htable = homogen_table::wrap(queue, data, numRows , numCols);
 //
 //    homogen_table htable = *reinterpret_cast<homogen_table *>(
 //        createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
