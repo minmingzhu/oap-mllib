@@ -335,8 +335,8 @@ static jlong doKMeansOneAPICompute(
                                           numRows,
                                           numCols);
     float *ctableArray = reinterpret_cast<float *>(pNumTabCenters);
-    auto centers = sycl::malloc_shared<float>(numRows * numCols, queue);
-    queue.memcpy(centers, ctableArray, sizeof(float) * numRows * numCols).wait();
+    auto centers = sycl::malloc_shared<float>(numCols * numCols, queue);
+    queue.memcpy(centers, ctableArray, sizeof(float) * numCols * numCols).wait();
     auto centroids = dal::homogen_table::wrap(centers,
                                               numCols,
                                               numCols);
