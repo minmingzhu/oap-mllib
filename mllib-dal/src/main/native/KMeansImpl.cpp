@@ -304,8 +304,8 @@ static jlong doKMeansOneAPICompute(
 //                    arr.get_mutable_data(),
 //                    htableArray,
 //                    sizeof(float) * numRows * numCols);
-    auto data = sycl::malloc_shared<float>(numRows * numCols, queue);
-    queue.memcpy(data, htableArray, sizeof(float) * numRows * numCols).wait();
+//    auto data = sycl::malloc_shared<float>(numRows * numCols, queue);
+//    queue.memcpy(data, htableArray, sizeof(float) * numRows * numCols).wait();
 //    homogen_table htable = homogen_table_builder{}.reset(arr, numRows, numCols).build();
 //    homogen_table htable = homogen_table::wrap(queue, data, numRows , numCols);
 //
@@ -331,12 +331,22 @@ static jlong doKMeansOneAPICompute(
 //    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
 //    const auto block =
 //            dal::row_accessor<const float>{ x_train }.pull(queue, { 0, -1 }, sycl::usm::alloc::device);
-    auto htable = dal::homogen_table::wrap(data,
+    auto arr = oneapi::dal::array<float>::empty(queue, numRows * numCols, sycl::usm::alloc::device);
+    memcpy_host2usm(queue,
+                    arr.get_mutable_data(),
+                    htableArray,
+                    sizeof(float) * numRows * numCols);
+    auto htable = dal::homogen_table::wrap(arr,
                                           numRows,
                                           numCols);
     float *ctableArray = reinterpret_cast<float *>(pNumTabCenters);
-    auto centers = sycl::malloc_shared<float>(numCols * numCols, queue);
-    queue.memcpy(centers, ctableArray, sizeof(float) * numCols * numCols).wait();
+//    auto centers = sycl::malloc_shared<float>(numCols * numCols, queue);
+//    queue.memcpy(centers, ctableArray, sizeof(float) * numCols * numCols).wait();
+    auto centers = oneapi::dal::array<float>::empty(queue, numRows * numCols, sycl::usm::alloc::device);
+    memcpy_host2usm(queue,
+                    centers.get_mutable_data(),
+                    htableArray,
+                    sizeof(float) * numRows * numCols);
     auto centroids = dal::homogen_table::wrap(centers,
                                               numCols,
                                               numCols);
