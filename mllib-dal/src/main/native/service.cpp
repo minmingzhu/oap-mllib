@@ -245,8 +245,14 @@ homogen_table createHomogenTableWithArrayPtr(size_t pNumTabData,
                                                size_t numRows, size_t numCols,
                                                sycl::queue queue) {
     float *htableArray = reinterpret_cast<float *>(pNumTabData);
-    auto data = sycl::malloc_shared<float>(numRows * numCols, queue);
-    queue.memcpy(data, htableArray, sizeof(float) * numRows * numCols).wait();
-    return homogen_table::wrap(data, numRows, numCols);
+//    auto data = sycl::malloc_shared<float>(numRows * numCols, queue);
+//    queue.memcpy(data, htableArray, sizeof(float) * numRows * numCols).wait();
+    auto arr = oneapi::dal::array<float>::empty(queue, numRows * numCols, sycl::usm::alloc::device);
+    memcpy_host2usm(queue,
+                    arr.get_mutable_data(),
+                    htableArray,
+                    sizeof(float) * numRows * numCols);
+//    return homogen_table::wrap(data, numRows, numCols);
+    return homogen_table_builder{}.reset(arr, numRows, numCols).build();
 }
 #endif
