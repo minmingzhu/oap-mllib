@@ -345,7 +345,7 @@ static jlong doKMeansOneAPICompute(
     auto centers = oneapi::dal::array<float>::empty(queue, numRows * numCols, sycl::usm::alloc::device);
     memcpy_host2usm(queue,
                     centers.get_mutable_data(),
-                    htableArray,
+                    ctableArray,
                     sizeof(float) * numRows * numCols);
     auto centroids = dal::homogen_table::wrap(centers,
                                               numCols,
