@@ -325,7 +325,7 @@ static jlong doKMeansOneAPICompute(
         HomogenTablePtr centroidsPtr = std::make_shared<homogen_table>(
             result_train.get_model().get_centroids());
         auto t2 = std::chrono::high_resolution_clock::now();
-        duration = std::chrono::duration<float>(t2 - t1).count();
+        auto duration = std::chrono::duration<float>(t2 - t1).count();
         logger::println(logger::INFO,
                         "KMeans (native): training step took %f secs",
                         duration);
