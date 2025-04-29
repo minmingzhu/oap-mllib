@@ -206,53 +206,18 @@ void saveHomogenTablePtrToVector(const HomogenTablePtr &ptr) {
     g_kmtx.unlock();
 }
 
-NumericTablePtr homegenToSyclHomogen(NumericTablePtr ntHomogen) {
-    int nRows = ntHomogen->getNumberOfRows();
-    int nColumns = ntHomogen->getNumberOfColumns();
-
-    // printNumericTable(ntHomogen, "ntHomogen:", 10, 10);
-
-    NumericTablePtr ntSycl =
-        SyclHomogenNumericTable<CpuAlgorithmFPType>::create(
-            nColumns, nRows, NumericTable::doAllocate);
-
-    // printNumericTable(ntSycl, "ntSycl:", 10, 10);
-
-    BlockDescriptor<CpuAlgorithmFPType> sourceRows;
-    ntHomogen->getBlockOfRows(0, ntHomogen->getNumberOfRows(), readOnly,
-                              sourceRows);
-
-    BlockDescriptor<CpuAlgorithmFPType> targetRows;
-    ntSycl->getBlockOfRows(0, ntSycl->getNumberOfRows(), writeOnly, targetRows);
-
-    // bracets for calling destructor of hostPtr to release lock
-    {
-        Status st;
-        auto hostPtr =
-            targetRows.getBuffer().toHost(data_management::writeOnly, st);
-
-        for (int i = 0; i < nRows * nColumns; i++) {
-            hostPtr.get()[i] = sourceRows.getBlockPtr()[i];
-        }
-    }
-
-    // printNumericTable(ntSycl, "ntSycl Result:", 10, 10);
-
-    return ntSycl;
-}
-
 homogen_table createHomogenTableWithArrayPtr(size_t pNumTabData,
                                                size_t numRows, size_t numCols,
                                                sycl::queue queue) {
     float *htableArray = reinterpret_cast<float *>(pNumTabData);
 //    auto data = sycl::malloc_shared<float>(numRows * numCols, queue);
-//    queue.memcpy(data, htableArray, sizeof(float) * numRows * numCols).wait();
+//    auto event = queue.memcpy(data, htableArray, sizeof(float) * numRows * numCols).wait();
     auto arr = oneapi::dal::array<float>::empty(queue, numRows * numCols, sycl::usm::alloc::device);
     memcpy_host2usm(queue,
                     arr.get_mutable_data(),
                     htableArray,
                     sizeof(float) * numRows * numCols);
-//    return homogen_table::wrap(data, numRows, numCols);
+//    return homogen_table::wrap(data, numRows, numCols, { event });
     return homogen_table_builder{}.reset(arr, numRows, numCols).build();
 }
 #endif

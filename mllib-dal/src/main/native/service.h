@@ -22,11 +22,7 @@
 
 #pragma once
 
-#ifdef CPU_GPU_PROFILE
-#include <daal_sycl.h>
-#else
 #include <daal.h>
-#endif
 
 #ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
@@ -82,7 +78,6 @@ homogen_table createHomogenTableWithArrayPtr(size_t pNumTabData,
 CSRNumericTable *createFloatSparseTable(const std::string &datasetFileName);
 void saveCSRTablePtrToVector(const CSRTablePtr &ptr);
 
-NumericTablePtr homegenToSyclHomogen(NumericTablePtr ntHomogen);
 inline void printHomegenTable(const oneapi::dal::table &table) {
     auto arr = oneapi::dal::row_accessor<const float>(table).pull();
     const auto x = arr.get_data();

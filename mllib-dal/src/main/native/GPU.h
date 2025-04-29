@@ -2,7 +2,7 @@
 
 #include "service.h"
 #include <CL/cl.h>
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 #include <jni.h>
 #include <oneapi/ccl.hpp>
 
