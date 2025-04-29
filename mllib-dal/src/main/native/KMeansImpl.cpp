@@ -298,19 +298,19 @@ static jlong doKMeansOneAPICompute(
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
     auto queue = comm.get_queue();
-    string pathCentroids;
-    string path = "/home/damon/storage/DataRoot/HiBench_CSV/Kmeans/Input/18000000/";
-    const auto initial_centroids_file_name = get_data_path(pathCentroids.append(path).append("/../kmeans_centroids/kmeans_dense_train_centroids.csv"));
-    const auto centroids =
-        dal::read<dal::table>(dal::csv::data_source{ initial_centroids_file_name });
+//    string pathCentroids;
+//    string path = "/home/damon/storage/DataRoot/HiBench_CSV/Kmeans/Input/18000000/";
+//    const auto initial_centroids_file_name = get_data_path(pathCentroids.append(path).append("/../kmeans_centroids/kmeans_dense_train_centroids.csv"));
+//    const auto centroids =
+//        dal::read<dal::table>(dal::csv::data_source{ initial_centroids_file_name });
 //    auto input_vec = get_file_path(path);
 //    const auto train_data_file_name = get_data_path(input_vec[0]);
 //    const auto htable = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
 
     const auto htable = createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
                                        comm.get_queue());
-//    const auto centroids = createHomogenTableWithArrayPtr(pNumTabCenters, numCols, numCols,
-//                                       comm.get_queue());
+    const auto centroids = createHomogenTableWithArrayPtr(pNumTabCenters, numCols, numCols,
+                                       comm.get_queue());
     logger::println(logger::INFO,
                 "OneDAL (native): data size %d x %d", htable.get_row_count(), htable.get_column_count());
     const auto kmeans_desc = kmeans_gpu::descriptor<GpuAlgorithmFPType>()
