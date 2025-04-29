@@ -299,67 +299,31 @@ static jlong doKMeansOneAPICompute(
     const bool isRoot = (comm.get_rank() == ccl_root);
     auto queue = comm.get_queue();
     float *htableArray = reinterpret_cast<float *>(pNumTabData);
-//    auto arr = oneapi::dal::array<float>::empty(queue, numRows * numCols, sycl::usm::alloc::device);
-//    memcpy_host2usm(queue,
-//                    arr.get_mutable_data(),
-//                    htableArray,
-//                    sizeof(float) * numRows * numCols);
-    auto data = sycl::malloc_shared<float>(numRows * numCols, queue);
-    auto event = queue.memcpy(data, htableArray, sizeof(float) * numRows * numCols);
-//    homogen_table htable = homogen_table_builder{}.reset(arr, numRows, numCols).build();
-//    homogen_table htable = homogen_table::wrap(queue, data, numRows , numCols);
-//
-//    homogen_table htable = *reinterpret_cast<homogen_table *>(
-//        createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
-//                                       comm.get_queue())
-//            .get());
-//
-//    auto htable = createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
-//                                       comm.get_queue());
-//    auto centroids = createHomogenTableWithArrayPtr(pNumTabCenters, numCols, numCols,
-//                                       comm.get_queue());
-//    homogen_table centroids =
-//        *reinterpret_cast<const homogen_table *>(pNumTabCenters);
-
-//    string pathCentroids;
-//    string path = "/home/damon/storage/DataRoot/HiBench_CSV/Kmeans/Input/18000000/";
-//    const auto initial_centroids_file_name = get_data_path(pathCentroids.append(path).append("/../kmeans_centroids/kmeans_dense_train_centroids.csv"));
-//    const auto initial_centroids =
-//        dal::read<dal::table>(dal::csv::data_source{ initial_centroids_file_name });
-//    auto input_vec = get_file_path(path);
-//    const auto train_data_file_name = get_data_path(input_vec[0]);
-//    const auto x_train = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
-//    const auto block =
-//            dal::row_accessor<const float>{ x_train }.pull(queue, { 0, -1 }, sycl::usm::alloc::device);
-//    auto arr = oneapi::dal::array<float>::empty(queue, numRows * numCols, sycl::usm::alloc::device);
-//    memcpy_host2usm(queue,
-//                    arr.get_mutable_data(),
-//                    htableArray,
-//                    sizeof(float) * numRows * numCols);
-//    auto htable = homogen_table_builder{}.reset(arr, numRows, numCols).build();
-    auto htable = homogen_table::wrap(queue, data, numRows, numCols, { event });
+    // Create an array using raw pointer and delete[ ]
+    auto data = dal::array<float>(htableArray,
+                                 numRows * numCols, //
+                                 [](float* const ptr) -> void {
+                                     delete[] ptr;
+                                 });
+//    auto data = sycl::malloc_shared<float>(numRows * numCols, queue);
+//    auto event = queue.memcpy(data, htableArray, sizeof(float) * numRows * numCols);
+    oneapi::dal::detail::data_parallel_policy policy{ queue };
+    auto data_array = oneapi::dal::detail::copy(policy, data);
+    auto htable = homogen_table::wrap(data_array, numRows, numCols);
     float *ctableArray = reinterpret_cast<float *>(pNumTabCenters);
-    auto centers = sycl::malloc_shared<float>(numCols * numCols, queue);
-    auto cevent = queue.memcpy(centers, ctableArray, sizeof(float) * numCols * numCols);
-//    auto centers = oneapi::dal::array<float>::empty(queue, numCols * numCols, sycl::usm::alloc::device);
-//    memcpy_host2usm(queue,
-//                    centers.get_mutable_data(),
-//                    ctableArray,
-//                    sizeof(float) * numCols * numCols);
-//    auto centroids = homogen_table_builder{}.reset(centers, numCols, numCols).build();
-      auto centroids = homogen_table::wrap(queue, data, numCols, numCols, { cevent });
-
-//    logger::println(logger::INFO,
-//                    "OneDAL (native): data size %d x %d", htable.get_row_count(), htable.get_column_count());
-//    logger::println(logger::INFO, "OneDAL (native): clusterNum %d", clusterNum);
-//    logger::println(logger::INFO, "OneDAL (native): tolerance %f", tolerance);
-//    logger::println(logger::INFO, "OneDAL (native): iterationNum %d",
-//                    iterationNum);
+//    auto centers = sycl::malloc_shared<float>(numCols * numCols, queue);
+//    auto cevent = queue.memcpy(centers, ctableArray, sizeof(float) * numCols * numCols);
+    auto centers = dal::array<float>(ctableArray,
+                                     numCols * numCols, //
+                                     [](float* const ptr) -> void {
+                                         delete[] ptr;
+                                     });
+    auto centers_array = oneapi::dal::detail::copy(policy, centers);
+    auto centroids = homogen_table::wrap(centers_array, numCols, numCols);
     const auto kmeans_desc = kmeans_gpu::descriptor<GpuAlgorithmFPType>()
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
                                  .set_accuracy_threshold(tolerance);
-//    kmeans_gpu::train_input local_input{htable, centroids};
     kmeans_gpu::train_input local_input{htable, centroids};
     comm.barrier();
     auto t1 = std::chrono::high_resolution_clock::now();
