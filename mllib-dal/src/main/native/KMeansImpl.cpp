@@ -303,15 +303,16 @@ static jlong doKMeansOneAPICompute(
     const auto initial_centroids_file_name = get_data_path(pathCentroids.append(path).append("/../kmeans_centroids/kmeans_dense_train_centroids.csv"));
     const auto centroids =
         dal::read<dal::table>(dal::csv::data_source{ initial_centroids_file_name });
-    auto input_vec = get_file_path(path);
-    const auto train_data_file_name = get_data_path(input_vec[0]);
-    const auto htable = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
+//    auto input_vec = get_file_path(path);
+//    const auto train_data_file_name = get_data_path(input_vec[0]);
+//    const auto htable = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
+
+    const auto htable = createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
+                                       comm.get_queue());
+//    const auto centroids = createHomogenTableWithArrayPtr(pNumTabCenters, numCols, numCols,
+//                                       comm.get_queue());
     logger::println(logger::INFO,
-                    "OneDAL (native): data size %d x %d", htable.get_row_count(), htable.get_column_count());
-//  const auto htable = createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
-//                                       comm.get_queue());
-//  const auto centroids = createHomogenTableWithArrayPtr(pNumTabCenters, numCols, numCols,
-//                                       comm.get_queue());
+                "OneDAL (native): data size %d x %d", htable.get_row_count(), htable.get_column_count());
     const auto kmeans_desc = kmeans_gpu::descriptor<GpuAlgorithmFPType>()
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
