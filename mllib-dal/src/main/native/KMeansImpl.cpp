@@ -298,10 +298,20 @@ static jlong doKMeansOneAPICompute(
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
     auto queue = comm.get_queue();
-    auto htable = createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
-                                       comm.get_queue());
-    auto centroids = createHomogenTableWithArrayPtr(pNumTabCenters, numCols, numCols,
-                                       comm.get_queue());
+    string pathCentroids;
+    string path = "/home/damon/storage/DataRoot/HiBench_CSV/Kmeans/Input/18000000/";
+    const auto initial_centroids_file_name = get_data_path(pathCentroids.append(path).append("/../kmeans_centroids/kmeans_dense_train_centroids.csv"));
+    const auto centroids =
+        dal::read<dal::table>(dal::csv::data_source{ initial_centroids_file_name });
+    auto input_vec = get_file_path(path);
+    const auto train_data_file_name = get_data_path(input_vec[0]);
+    const auto htable = dal::read<dal::table>(queue, dal::csv::data_source{train_data_file_name});
+    logger::println(logger::INFO,
+                    "OneDAL (native): data size %d x %d", htable.get_row_count(), htable.get_column_count());
+//  const auto htable = createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
+//                                       comm.get_queue());
+//  const auto centroids = createHomogenTableWithArrayPtr(pNumTabCenters, numCols, numCols,
+//                                       comm.get_queue());
     const auto kmeans_desc = kmeans_gpu::descriptor<GpuAlgorithmFPType>()
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
@@ -311,18 +321,13 @@ static jlong doKMeansOneAPICompute(
     auto t1 = std::chrono::high_resolution_clock::now();
     kmeans_gpu::train_result result_train =
         preview::train(comm, kmeans_desc, local_input);
-    auto t2 = std::chrono::high_resolution_clock::now();
-    float duration = std::chrono::duration<float>(t2 - t1).count();
-    logger::println(logger::INFO,
-                    "KMeans (native): training step 1 took %f secs",
-                    duration);
     if (isRoot) {
         HomogenTablePtr centroidsPtr = std::make_shared<homogen_table>(
             result_train.get_model().get_centroids());
-        t2 = std::chrono::high_resolution_clock::now();
+        auto t2 = std::chrono::high_resolution_clock::now();
         duration = std::chrono::duration<float>(t2 - t1).count();
         logger::println(logger::INFO,
-                        "KMeans (native): training step 2 took %f secs",
+                        "KMeans (native): training step took %f secs",
                         duration);
         logger::println(logger::INFO, "Iteration count: %d",
                         result_train.get_iteration_count());
