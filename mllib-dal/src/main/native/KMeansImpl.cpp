@@ -298,28 +298,10 @@ static jlong doKMeansOneAPICompute(
     logger::println(logger::INFO, "OneDAL (native): GPU compute start");
     const bool isRoot = (comm.get_rank() == ccl_root);
     auto queue = comm.get_queue();
-    float *htableArray = reinterpret_cast<float *>(pNumTabData);
-    // Create an array using raw pointer and delete[ ]
-//    auto data = dal::array<float>(htableArray,
-//                                 numRows * numCols, //
-//                                 [](float* const ptr) -> void {
-//                                     delete[] ptr;
-//                                 });
-    auto data = sycl::malloc_shared<float>(numRows * numCols, queue);
-    queue.memcpy(data, htableArray, sizeof(float) * numRows * numCols).wait();
-//    oneapi::dal::detail::data_parallel_policy policy{ queue };
-//    auto data_array = oneapi::dal::detail::copy(policy, data);
-    auto htable = homogen_table::wrap(data, numRows, numCols);
-    float *ctableArray = reinterpret_cast<float *>(pNumTabCenters);
-    auto centers = sycl::malloc_shared<float>(numCols * numCols, queue);
-    queue.memcpy(centers, ctableArray, sizeof(float) * numCols * numCols);
-//    auto centers = dal::array<float>(ctableArray,
-//                                     numCols * numCols, //
-//                                     [](float* const ptr) -> void {
-//                                         delete[] ptr;
-//                                     });
-//    auto centers_array = oneapi::dal::detail::copy(policy, centers);
-    auto centroids = homogen_table::wrap(centers, numCols, numCols);
+    auto htable = createHomogenTableWithArrayPtr(pNumTabData, numRows, numCols,
+                                       comm.get_queue());
+    auto centroids = createHomogenTableWithArrayPtr(pNumTabCenters, numCols, numCols,
+                                       comm.get_queue());
     const auto kmeans_desc = kmeans_gpu::descriptor<GpuAlgorithmFPType>()
                                  .set_cluster_count(clusterNum)
                                  .set_max_iteration_count(iterationNum)
