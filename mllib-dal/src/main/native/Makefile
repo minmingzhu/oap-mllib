@@ -32,6 +32,7 @@ $(info )
 CFLAGS_COMMON := -Wall -Wno-deprecated-declarations -fPIC -std=c++17 \
                  -I $(I_MPI_ROOT)/include \
                  -I $(DALROOT)/include \
+                 -I $(DALROOT)/include/dal \
                  -I $(CCL_ROOT)/include/oneapi/ \
                  -I $(CMPLR_ROOT)/include \
                  -I $(CMPLR_ROOT)/include/sycl
